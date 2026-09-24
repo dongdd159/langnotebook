@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LangNotebook.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LangNotebook._0._1.API.Data;
 
