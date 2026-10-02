@@ -19,11 +19,7 @@ public partial class NavMenu
     [Parameter] public EventCallback<int?> OnSelectNotebook { get; set; }
 
     private ElementReference _closeButton;
-
-    // Chuỗi class tự động tính toán theo trạng thái Mobile Drawer & Desktop Collapse
-    private string AsideClass => 
-        $"{(DrawerOpen ? "translate-x-0 w-[240px]" : "-translate-x-full md:translate-x-0")} " +
-        $"{(Collapsed ? "md:w-16" : "md:w-[240px]")}";
+    
 
     private async Task CloseDrawerAsync()
     {
