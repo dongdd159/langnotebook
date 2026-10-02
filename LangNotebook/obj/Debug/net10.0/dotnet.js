@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "LangNotebook",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-qvJCTXvev/E9uAPipT6mOLXz3WcwL/jMXORQ6RVerYs=",
+    "hash": "sha256-StRF+Hg7+Z2kNagTbF8gBoFHpkbLFqGnUjpPX7hJozQ=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.2ur206zm1r.js"
@@ -1308,16 +1308,16 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "LangNotebook.wasm",
-        "name": "LangNotebook.3b67266hrm.wasm",
-        "hash": "sha256-USq42HOJzAaiyf62QzU5swHNaDj+kgzcOBoFqkqW8M4=",
+        "name": "LangNotebook.bfe20vfgc6.wasm",
+        "hash": "sha256-eX4a43mBBVbT1Qdlh63RobrUI5AhwwJZFUZlWLuHYes=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "LangNotebook.pdb",
-        "name": "LangNotebook.u2dewrr89n.pdb",
-        "hash": "sha256-tlW7vhWIINtkSzDNWjQ/QdAhf0MNVLx3UMEJtrPjhAc=",
+        "name": "LangNotebook.osyem9bxqw.pdb",
+        "hash": "sha256-qDFkdSIUQEI5/0HMjBx0vhDiy8DASZ4rJ1b3iY3xyCE=",
         "cache": "force-cache"
       }
     ],

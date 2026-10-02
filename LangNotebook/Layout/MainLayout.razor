@@ -12,84 +12,57 @@
 @inject ReviewService Reviews
 @inject SettingsService SettingsSvc
 
-<div class="flex h-screen w-full overflow-hidden bg-page text-nt-text h-11 shrink-0 items-center gap-1 border-b border-line bg-page px-2 sm:px-3"
-     style="padding-top: env(safe-area-inset-top, 0px); box-sizing: content-box">
-    <NavMenu @bind-DrawerOpen="_drawerOpen" @bind-Collapsed="_collapsed" Notebooks="_notebooks"
-             ActiveNotebookId="State.ActiveNotebookId" DueCount="_dueCount" OnSelectNotebook="SelectNotebookAsync"/>
-    @if (_drawerOpen)
-    {
-        <div class="fixed inset-0 z-30 bg-black/30 md:hidden" aria-hidden="true" @onclick="CloseDrawer"></div>
-    }
-    
-    @if (!_drawerOpen)
-    {
-        <button type="button" class="nt-icon-btn shrink-0 text-mute md:hidden" title="Mở menu"
-                aria-label="Mở menu"
-                aria-controls="app-sidebar" aria-expanded="false" @onclick="OpenDrawer">
-            <Icon Name="menu" Size="20"/>
-        </button>
-    }
-    @if (_collapsed)
-    {
-        <button type="button" class="nt-icon-btn hidden shrink-0 text-mute md:inline-flex" title="Mở thanh bên"
-                aria-label="Mở thanh bên"
-                aria-controls="app-sidebar" aria-expanded="false" @onclick="ExpandSidebar">
-            <Icon Name="panel" Size="18"/>
-        </button>
-    }
-    <nav aria-label="Đường dẫn" class="flex min-w-0 flex-1 items-center gap-1 text-sm">
-                <span
-                    class="hidden max-w-[12rem] truncate rounded px-1.5 py-0.5 text-mute hover:bg-hov sm:inline">@ActiveNotebookName</span>
-        <span class="hidden text-faint sm:inline">/</span>
-        <span class="flex min-w-0 items-center gap-1.5 truncate rounded px-1.5 py-0.5 font-medium hover:bg-hov">
+<div class="flex h-dvh w-screen overflow-hidden bg-page text-ink font-ui pt-[env(safe-area-inset-top,0px)]">
+    <div @onclick="CloseDrawer"
+         class="fixed inset-0 z-30 bg-black/40 md:hidden transition-opacity duration-300
+                @(_drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")">
+    </div>
+    <NavMenu @bind-DrawerOpen="_drawerOpen"
+             @bind-Collapsed="_collapsed"
+             Notebooks="_notebooks"
+             ActiveNotebookId="State.ActiveNotebookId"
+             DueCount="_dueCount"
+             OnSelectNotebook="SelectNotebookAsync" />
+
+    <!-- 3. KHUNG WORKSPACE (Cột phải tự động chiếm toàn bộ chiều rộng còn lại) -->
+    <div class="flex flex-1 flex-col h-full min-w-0 overflow-hidden">
+
+        <!-- TOPBAR: Tự động tự giãn theo chiều rộng của Khung Workspace -->
+        <header class="flex h-12 w-full shrink-0 items-center gap-2 border-b border-line bg-page px-3">
+            
+            <!-- Nút mở Drawer trên Mobile -->
+            @if (!_drawerOpen)
+            {
+                <button type="button" class="nt-icon-btn shrink-0 text-mute md:hidden" @onclick="OpenDrawer">
+                    <Icon Name="menu" Size="20"/>
+                </button>
+            }
+
+            <!-- Nút mở lại Sidebar trên PC khi đang thu gọn -->
+            @if (_collapsed)
+            {
+                <button type="button" class="nt-icon-btn hidden shrink-0 text-mute md:inline-flex" @onclick="ExpandSidebar">
+                    <Icon Name="panel" Size="18"/>
+                </button>
+            }
+
+            <!-- Breadcrumb (Đường dẫn trang) -->
+            <nav aria-label="Đường dẫn" class="flex min-w-0 flex-1 items-center gap-1 text-sm">
+                <span class="hidden max-w-[12rem] truncate rounded px-1.5 py-0.5 text-mute hover:bg-hov sm:inline">
+                    @ActiveNotebookName
+                </span>
+                <span class="hidden text-faint sm:inline">/</span>
+                <span class="flex min-w-0 items-center gap-1.5 truncate rounded px-1.5 py-0.5 font-medium hover:bg-hov">
                     <Icon Name="@CurrentPage.Icon" Class="text-mute"/>
                     <span class="truncate">@CurrentPage.Title</span>
                 </span>
-    </nav>
-    <div class="ml-auto flex shrink-0 items-center gap-1">
-        <span class="mr-2 hidden text-xs text-faint lg:inline">Đã lưu trong trình duyệt</span>
-        <select class="nt-input h-7! w-auto! max-w-[10rem] py-0! text-xs hidden sm:block lg:max-w-[14rem]"
-                aria-label="Sổ đang dùng"
-                value="@_selectedNotebookValue" @onchange="OnNotebookChanged">
-            <option value="">Tất cả các sổ</option>
-            @foreach (var notebook in _notebooks)
-            {
-                <option value="@notebook.Id">@notebook.Name</option>
-            }
-        </select>
-        <a href="review" style="text-decoration:none"
-           class="nt-btn @(_dueCount > 0 ? "nt-btn-primary" : string.Empty) px-2! sm:px-2.5!"
-           aria-label="Ôn tập, @_dueCount thẻ đến hạn">
-            <Icon Name="review" Size="14"/>
-            <span class="hidden sm:inline">Ôn tập</span>
-            @if (_dueCount > 0)
-            {
-                <span class="rounded-nt bg-white/25 px-1.5 text-xs leading-5">@_dueCount</span>
-            }
-        </a>
-        <button type="button" class="nt-icon-btn h-8! w-8! text-mute md:h-7! md:w-7!"
-                @onclick="ToggleThemeAsync"
-                aria-label="@(_dark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối")"
-                title="@(_dark ? "Giao diện sáng" : "Giao diện tối")">
-            @if (_dark)
-            {
-                <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="none" stroke="currentColor"
-                     stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-                    <circle cx="10" cy="10" r="3.5"/>
-                    <path
-                        d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/>
-                </svg>
-            }
-            else
-            {
-                <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="none" stroke="currentColor"
-                     stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16.5 11.5A6.5 6.5 0 018.5 3.5a6.5 6.5 0 108 8z"/>
-                </svg>
-            }
-        </button>
-        <span class="ml-1 flex h-6 w-6 items-center justify-center rounded-full bg-hov text-xs font-medium"
-              title="Đông">Đ</span>
+            </nav>
+
+            <!-- Nút chức năng góc phải -->
+            <div class="ml-auto flex shrink-0 items-center gap-1">
+                <!-- Select notebook, Ôn tập, Toggle Theme, Avatar... -->
+            </div>
+
+        </header>
     </div>
 </div>
-
