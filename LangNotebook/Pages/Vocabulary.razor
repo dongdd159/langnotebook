@@ -1,0 +1,359 @@
+﻿@page "/vocabulary"
+@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@implements IDisposable
+@inject AppState State
+@inject LibraryService Library
+@inject ReviewService Reviews
+@inject IJSRuntime JS
+
+<PageTitle>Từ vựng · Sổ tay ngoại ngữ</PageTitle>
+<div class="page">
+    <div class="page-head">
+        <div>
+            <h1>
+                Sổ từ vựng
+            </h1>
+            <p class="page-sub">
+                @_items.Count mục · @_dueInList mục đến hạn ôn
+            </p>
+        </div>
+        <div class="page-actions">
+            <button class="btn" @onclick="OpenImport">
+                Nhập hàng loạt
+            </button>
+            <button class="btn btn-primary" @onclick="@(() => OpenEditor(null))">
+                + Thêm từ
+            </button>
+        </div>
+    </div>
+    <div class="toolbar">
+        <input class="input search" type="search" placeholder="Tìm từ, nghĩa, ví dụ…" value="@_filter.Search"
+               @oninput="OnSearchInput"/>
+        <select class="select" value="@_filter.Tag" @onchange="OnTagChanged">
+            <option value="">
+                Mọi thẻ
+            </option>
+            @foreach (var tag in _tags)
+            {
+                <option value="@tag">
+                    @tag
+                </option>
+            }
+        </select>
+        <select class="select" value="@_filter.SortBy" @onchange="OnSortChanged">
+            <option value="recent">
+                Mới cập nhật
+            </option>
+            <option value="oldest">
+                Cũ nhất
+            </option>
+            <option value="alpha">
+                A → Z
+            </option>
+            <option value="due">
+                Sắp đến hạn
+            </option>
+            <option value="hardest">
+                Khó nhớ nhất
+            </option>
+        </select>
+
+        <label class="check">
+            <input type="checkbox" checked="@_filter.OnlyDue" @onchange="OnDueChanged"/>
+            Chỉ thẻ đến hạn
+        </label>
+
+        <label class="check">
+            <input type="checkbox" checked="@_filter.OnlyFavorite" @onchange="OnFavoriteChanged"/>
+            Đánh dấu sao
+        </label>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="skeleton tall">
+        </div>
+    }
+    else if (_items.Count == 0)
+    {
+        <div class="empty-state">
+            <h2>
+                Chưa có từ nào ở đây
+            </h2>
+            <p>
+                Ghi từ mới bằng nút “Thêm từ”, hoặc dán cả danh sách bằng “Nhập hàng loạt”.
+            </p>
+            <button class="btn btn-primary" @onclick="@(() => OpenEditor(null))">
+                + Thêm từ đầu tiên
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width: 26%">
+                        Từ
+                    </th>
+                    <th style="width: 26%">
+                        Nghĩa
+                    </th>
+                    <th style="width: 26%">
+                        Ví dụ
+                    </th>
+                    <th style="width: 12%">
+                        Trạng thái
+                    </th>
+                    <th style="width: 10%">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in _items)
+                {
+                    <tr @key="entry.Id">
+                        <td>
+                            <div class="term-cell">
+                                <button class="star @(entry.IsFavorite ? "on" : "")" title="Đánh dấu sao"
+                                        @onclick="@(() => ToggleFavoriteAsync(entry))">
+                                    ★
+                                </button>
+                                <div>
+                                    <strong>
+                                        @entry.Term
+                                    </strong>
+                                    @if (!string.IsNullOrWhiteSpace(entry.Reading))
+                                    {
+                                        <span class="reading">
+                                                @entry.Reading
+                                            </span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(entry.PartOfSpeech))
+                                    {
+                                        <span class="pos">
+                                                @entry.PartOfSpeech
+                                            </span>
+                                    }
+                                    @if (entry.TagList.Length > 0)
+                                    {
+                                        <div class="tag-row">
+                                            @foreach (var tag in entry.TagList)
+                                            {
+                                                <span class="tag">
+                                                        @tag
+                                                    </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td>@entry.Meaning</td>
+                        <td class="example-cell">
+                            @if (!string.IsNullOrWhiteSpace(entry.Example))
+                            {
+                                <div>
+                                    @entry.Example
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(entry.ExampleMeaning))
+                                {
+                                    <div class="muted small">
+                                        @entry.ExampleMeaning
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="muted">
+                                        —
+                                    </span>
+                            }
+                        </td>
+                        <td>
+                                <span class="badge stage-@((int)entry.Stage)">
+                                    @Labels.Stage(entry.Stage)
+                                </span>
+                            <div class="muted small">
+                                @Labels.Due(entry)
+                            </div>
+                        </td>
+                        <td class="row-actions">
+                            <button class="icon-btn" title="Sửa" @onclick="@(() => OpenEditor(entry))">
+                                ✎
+                            </button>
+                            <button class="icon-btn" title="Đặt lại tiến độ" @onclick="@(() => ResetAsync(entry))">
+                                ↺
+                            </button>
+                            <button class="icon-btn danger" title="Xoá" @onclick="@(() => DeleteAsync(entry))">
+                                🗑
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+<Modal @bind-Visible="_editorOpen" Title="@(_draft.Id == 0 ? "Thêm từ mới" : "Sửa từ")" Size="lg">
+    <div class="form-grid">
+        <label class="field">
+            <span>
+                Sổ
+            </span>
+            <select class="select" value="@_draft.NotebookId" @onchange="OnDraftNotebookChanged">
+                @foreach (var notebook in _notebooks)
+                {
+                    <option value="@notebook.Id">
+                        @notebook.Name
+                    </option>
+                }
+            </select>
+        </label>
+        <label class="field">
+            <span>
+                Từ / cụm từ *
+            </span>
+            <input class="input" @bind="_draft.Term" @bind:event="oninput" placeholder="deadline"/>
+        </label>
+        <label class="field">
+            <span>
+                @_readingLabel
+            </span>
+            <input class="input" @bind="_draft.Reading" @bind:event="oninput" placeholder="/ˈdedlaɪn/"/>
+        </label>
+        <label class="field">
+            <span>
+                Từ loại
+            </span>
+            <input class="input" @bind="_draft.PartOfSpeech" @bind:event="oninput" placeholder="n. / v. / adj."/>
+        </label>
+        <label class="field span-2">
+            <span>
+                Nghĩa tiếng Việt *
+            </span>
+            <input class="input" @bind="_draft.Meaning" @bind:event="oninput" placeholder="hạn chót"/>
+        </label>
+        <label class="field span-2">
+            <span>
+                Câu ví dụ
+            </span>
+            <input class="input" @bind="_draft.Example" @bind:event="oninput"/>
+        </label>
+        <label class="field span-2">
+            <span>
+                Nghĩa của câu ví dụ
+            </span>
+            <input class="input" @bind="_draft.ExampleMeaning" @bind:event="oninput"/>
+        </label>
+        <label class="field">
+            <span>
+                Cụm từ đi kèm (mỗi dòng một cụm)
+            </span>
+            <textarea class="input" rows="3" @bind="_draft.Collocations" @bind:event="oninput">
+            </textarea>
+        </label>
+        <label class="field">
+            <span>
+                Từ đồng nghĩa / trái nghĩa
+            </span>
+            <textarea class="input" rows="3" @bind="_draft.Synonyms" @bind:event="oninput">
+            </textarea>
+        </label>
+        <label class="field">
+            <span>
+                Thẻ (phân cách bằng dấu phẩy)
+            </span>
+            <input class="input" @bind="_draft.Tags" @bind:event="oninput" placeholder="TOEIC, công sở"/>
+        </label>
+        <label class="field">
+            <span>
+                Trình độ
+            </span>
+            <select class="select" value="@((int)_draft.Level)" @onchange="OnDraftLevelChanged">
+                @foreach (var level in Levels)
+                {
+                    <option value="@((int)level)">
+                        @Labels.Level(level)
+                    </option>
+                }
+            </select>
+        </label>
+        <label class="field span-2">
+            <span>
+                Ghi chú riêng
+            </span>
+            <textarea class="input" rows="2" @bind="_draft.Note" @bind:event="oninput">
+            </textarea>
+        </label>
+        <label class="check span-2">
+            <input type="checkbox" checked="@_draft.IsSuspended" @onchange="OnDraftSuspendedChanged"/>
+            Tạm ngưng ôn thẻ này
+        </label>
+    </div>
+    <div class="modal-foot">
+        <button class="btn" @onclick="@(() => _editorOpen = false)">
+            Huỷ
+        </button>
+        <button class="btn btn-primary" @onclick="SaveDraftAsync" disabled="@(!CanSave)">
+            Lưu
+        </button>
+    </div>
+</Modal>
+<Modal @bind-Visible="_importOpen" Title="Nhập từ vựng hàng loạt" Size="lg">
+    <p class="muted">
+        Mỗi dòng một từ. Các cột cách nhau bằng dấu
+        <code>
+            |
+        </code>
+        theo thứ tự:
+        <br/>
+        <code>
+            từ | phiên âm | nghĩa | từ loại | ví dụ | nghĩa ví dụ | thẻ
+        </code>
+        <br/>
+        Nếu chỉ có hai cột thì hiểu là
+        <code>
+            từ | nghĩa
+        </code>.
+    </p>
+    <label class="field">
+        <span>
+            Sổ đích
+        </span>
+        <select class="select" value="@_importNotebookId" @onchange="OnImportNotebookChanged">
+            @foreach (var notebook in _notebooks)
+            {
+                <option value="@notebook.Id">
+                    @notebook.Name
+                </option>
+            }
+        </select>
+    </label>
+    <label class="field">
+        <span>
+            Thẻ áp dụng cho tất cả (tuỳ chọn)
+        </span>
+        <input class="input" @bind="_importTags" @bind:event="oninput" placeholder="Unit 5"/>
+    </label>
+    <label class="field">
+        <span>
+            Dữ liệu
+        </span>
+        <textarea class="input mono" rows="12" @bind="_importText" @bind:event="oninput"
+                  placeholder="reliable | /rɪˈlaɪəbl/ | đáng tin cậy | adj. | He is a reliable partner. | Anh ấy là đối tác đáng tin cậy. | công sở">
+        </textarea>
+    </label>
+    <div class="modal-foot">
+        <button class="btn" @onclick="@(() => _importOpen = false)">
+            Huỷ
+        </button>
+        <button class="btn btn-primary" @onclick="RunImportAsync">
+            Nhập
+        </button>
+    </div>
+</Modal>

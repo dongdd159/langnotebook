@@ -49,12 +49,22 @@ public sealed class BackupService(
         {
             if (replaceExisting)
             {
-                await db.ReviewLogs.ExecuteDeleteAsync();
-                await db.WritingPieces.ExecuteDeleteAsync();
-                await db.WritingPrompts.ExecuteDeleteAsync();
-                await db.VocabEntries.ExecuteDeleteAsync();
-                await db.GrammarPatterns.ExecuteDeleteAsync();
-                await db.Notebooks.ExecuteDeleteAsync();
+                await using var transaction = await db.Database.BeginTransactionAsync();
+                try
+                {
+                    await db.ReviewLogs.ExecuteDeleteAsync();
+                    await db.WritingPieces.ExecuteDeleteAsync();
+                    await db.WritingPrompts.ExecuteDeleteAsync();
+                    await db.VocabEntries.ExecuteDeleteAsync();
+                    await db.GrammarPatterns.ExecuteDeleteAsync();
+                    await db.Notebooks.ExecuteDeleteAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(); 
+                    throw;
+                }
             }
             var notebookMap = new Dictionary<int, int>();
             foreach (var notebook in payload.Notebooks)

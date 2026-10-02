@@ -2,33 +2,42 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LangNotebook</title>
-    <base href="/" />
-    <link rel="preload" id="webassembly" />
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="LangNotebook.styles.css" rel="stylesheet" />
-    <script type="importmap"></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="description"
+          content="Sổ tay ngoại ngữ: ghi chép từ vựng, mẫu câu, cấu trúc và luyện viết. Dữ liệu lưu ngay trên máy bạn."/>
+    <meta name="theme-color" content="#4f7df0"/>
+    <title>Sổ tay ngoại ngữ</title>
+    <base href="/"/>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234f7df0'/><text y='72' x='50' text-anchor='middle' font-size='62' fill='white' font-family='sans-serif'>語</text></svg>"/>
+    <script>
+        try {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+        }
+    </script>
+    <link rel="stylesheet" href="css/tailwind.css"/>
 </head>
 
 <body>
-    <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+<div id="app">
+    <div class="boot-screen">
+        <div class="spinner"></div>
+        <p>Đang tải Sổ tay ngoại ngữ…</p>
     </div>
+</div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
-    </div>
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+<div id="blazor-error-ui">
+    Đã xảy ra lỗi không mong muốn.
+    <a href="" class="reload">Tải lại</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+<script src="js/langdb.js"></script>
+<script src="js/theme.js"></script>
+<script src="_framework/blazor.webassembly.js"></script>
 </body>
 
 </html>

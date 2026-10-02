@@ -1,40 +1,91 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">LangNotebook</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@using LangNotebook.Components
+@using LangNotebook.Data
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject DatabaseInitializer Initializer
+@inject LibraryService Library
+@inject ReviewService Reviews
+@inject SettingsService SettingsSvc
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+<aside id="app-sidebar" aria-label="Thanh bên"
+       class="@AsideClass"
+       style="padding-top: env(safe-area-inset-top, 0px)"
+       @onkeydown="OnKeyDown">
+    <nav class="flex h-full min-h-0 flex-col" aria-label="Menu chính">
+        <div class="flex h-11 shrink-0 items-center justify-between gap-2 px-3">
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-nt bg-nt-text text-[11px] font-semibold text-nt-bg">語</span>
+                <span class="truncate text-sm font-medium text-nt-text">Sổ tay ngoại ngữ</span>
+            </div>
+            <button type="button" class="nt-icon-btn md:hidden" title="Đóng menu" aria-label="Đóng menu"
+                    @ref="_closeButton" @onclick="CloseDrawerAsync">
+                <Icon Name="close" Size="18" />
+            </button>
+            <button type="button" class="nt-icon-btn hidden md:inline-flex" title="Thu gọn thanh bên" aria-label="Thu gọn thanh bên"
+                    @onclick="CollapseAsync">
+                <Icon Name="chevrons-left" />
+            </button>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
+        <div class="nt-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-4">
+            <div class="flex flex-col gap-px">
+                <NavLink class="nt-side-item" href="" Match="NavLinkMatch.All" ActiveClass="active">
+                    <Icon Name="home" /> <span class="truncate">Tổng quan</span>
+                </NavLink>
+                <NavLink class="nt-side-item" href="review" ActiveClass="active">
+                    <Icon Name="review" /> <span class="flex-1 truncate">Ôn tập</span>
+                    @if (DueCount > 0)
+                    {
+                        <span class="rounded-nt bg-nt-accent-soft px-1.5 text-xs font-medium leading-5 text-nt-accent">@DueCount</span>
+                    }
+                </NavLink>
+            </div>
+            <div class="nt-side-title">Sổ ghi chép</div>
+            <div class="flex flex-col gap-px">
+                <NavLink class="nt-side-item" href="vocabulary" ActiveClass="active">
+                    <Icon Name="book" /> <span class="truncate">Từ vựng</span>
+                </NavLink>
+                <NavLink class="nt-side-item" href="grammar" ActiveClass="active">
+                    <Icon Name="grammar" /> <span class="truncate">Mẫu câu &amp; cấu trúc</span>
+                </NavLink>
+                <NavLink class="nt-side-item" href="writing" ActiveClass="active">
+                    <Icon Name="pen" /> <span class="truncate">Luyện viết</span>
+                </NavLink>
+            </div>
+            <div class="nt-side-title">Sổ của bạn</div>
+            <div class="flex flex-col gap-px">
+                <button type="button" class="nt-side-item w-full text-left @(ActiveNotebookId is null ? "active" : string.Empty)"
+                        @onclick="() => SelectAsync(null)">
+                    <span class="flex h-4 w-4 shrink-0 items-center justify-center text-nt-faint"><Icon Name="library" Size="14" /></span>
+                    <span class="truncate">Tất cả các sổ</span>
+                </button>
+                @foreach (var notebook in Notebooks)
+                {
+                    <button type="button" @key="notebook.Id"
+                            class="nt-side-item w-full text-left @(ActiveNotebookId == notebook.Id ? "active" : string.Empty)"
+                            @onclick="() => SelectAsync(notebook.Id)">
+                        <span class="h-4 w-4 shrink-0 rounded-[3px]" style="background:@notebook.ColorHex"></span>
+                        <span class="truncate">@notebook.Name</span>
+                    </button>
+                }
+            </div>
+            <div class="nt-side-title">Theo dõi</div>
+            <div class="flex flex-col gap-px">
+                <NavLink class="nt-side-item" href="stats" ActiveClass="active">
+                    <Icon Name="chart" /> <span class="truncate">Thống kê</span>
+                </NavLink>
+                <NavLink class="nt-side-item" href="notebooks" ActiveClass="active">
+                    <Icon Name="database" /> <span class="truncate">Quản lý sổ</span>
+                </NavLink>
+                <NavLink class="nt-side-item" href="settings" ActiveClass="active">
+                    <Icon Name="settings" /> <span class="truncate">Cài đặt</span>
+                </NavLink>
+            </div>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
+        <div class="shrink-0 border-t border-line px-4 py-3 text-xs text-faint"
+             style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px))">
+            Dữ liệu lưu ngay trên máy bạn
         </div>
     </nav>
-</div>
+</aside>
 
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
-}

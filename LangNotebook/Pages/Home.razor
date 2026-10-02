@@ -1,7 +1,168 @@
 ﻿@page "/"
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject StatsService Stats
+@inject ReviewService Reviews
+@inject LibraryService Library
+@inject WritingService Writings
+@inject SettingsService SettingsSvc
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Tổng quan · Sổ tay ngoại ngữ</PageTitle>
+<div class="page">
+    <div class="page-head">
+        <div>
+            <h1>Hôm nay học gì?</h1>
+            <p class="page-sub">
+                @DateTime.Now.ToString("dddd, dd/MM/yyyy")
+            </p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("review"))">
+                Bắt đầu ôn tập
+            </button>
+            <button class="btn" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
+                Thêm từ mới
+            </button>
+        </div>
+    </div>
+    @if (_stats is null)
+    {
+        <div class="skeleton-grid">
+            <div class="skeleton">
+            </div>
+            <div class="skeleton">
+            </div>
+            <div class="skeleton">
+            </div>
+            <div class="skeleton">
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="stat-grid">
+            <StatCard Label="Thẻ đến hạn" Value="@_dueCount.ToString()" Hint="@($"{_newCount} thẻ chưa học")" Accent="#4f7df0"/>
+            <StatCard Label="Chuỗi ngày học" Value="@($"{_stats.StreakDays} ngày")" Hint="@($"Kỷ lục {_stats.LongestStreak} ngày")" Accent="#e8883a"/>
+            <StatCard Label="Đã thuộc" Value="@_stats.MatureCount.ToString()" Hint="@($"trên tổng {_stats.TotalVocab + _stats.TotalGrammar} thẻ")" Accent="#2fa36b"/>
+            <StatCard Label="Độ chính xác 30 ngày" Value="@FormatPercent(_stats.AccuracyLast30Days)" Hint="@($"{_stats.ReviewsLast7Days} lượt ôn trong 7 ngày")" Accent="#8a5cf0"/>
+        </div>
+        <div class="card">
+            <div class="card-head">
+                <h2>
+                    Mục tiêu hôm nay
+                </h2>
+                <span class="muted">
+                    @_stats.ReviewsToday / @_goal lượt ôn
+                </span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" style="width: @(GoalPercent)%">
+                </div>
+            </div>
+            <p class="muted small">
+                @if (_stats.ReviewsToday >= _goal)
+                {
+                    <text>
+                        Đã hoàn thành mục tiêu hôm nay. Nếu còn hứng, cứ ôn thêm!
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        Còn @(Math.Max(0, _goal - _stats.ReviewsToday)) lượt nữa là đạt mục tiêu.
+                    </text>
+                }
+            </p>
+        </div>
+        <div class="two-col">
+            <div class="card">
+                <div class="card-head">
+                    <h2>
+                        Từ vựng vừa ghi
+                    </h2>
+                    <a class="link" href="vocabulary">
+                        Xem tất cả
+                    </a>
+                </div>
+                @if (_recentVocab.Count == 0)
+                {
+                    <p class="muted">
+                        Chưa có từ nào. Hãy mở trang Từ vựng để ghi từ đầu tiên.
+                    </p>
+                }
+                else
+                {
+                    <ul class="mini-list">
+                        @foreach (var entry in _recentVocab)
+                        {
+                            <li>
+                                <div>
+                                    <strong>
+                                        @entry.Term
+                                    </strong>
+                                    @if (!string.IsNullOrWhiteSpace(entry.Reading))
+                                    {
+                                        <span class="reading">
+                                            @entry.Reading
+                                        </span>
+                                    }
+                                </div>
+                                <span class="muted">
+                                    @entry.Meaning
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <h2>
+                        Bài viết gần đây
+                    </h2>
+                    <a class="link" href="writing">
+                        Xem tất cả
+                    </a>
+                </div>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+                @if (_recentPieces.Count == 0)
+                {
+                    <p class="muted">
+                        Chưa có bài viết nào. Thử chọn một đề trong trang Luyện viết.
+                    </p>
+                }
+                else
+                {
+                    <ul class="mini-list">
+                        @foreach (var piece in _recentPieces)
+                        {
+                            <li>
+                                <div>
+                                    <a class="link" href="@($"writing/{piece.Id}")">
+                                        @piece.DisplayTitle
+                                    </a>
+                                </div>
+                                <span class="muted">
+                                    @piece.WordCount từ · @piece.AutoScore/100
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-head">
+                <h2>
+                    Hoạt động 30 ngày qua
+                </h2>
+                <span class="muted">
+                    @_stats.ReviewsTotal lượt ôn tổng cộng
+                </span>
+            </div>
+            <ActivityBars Data="@_stats.DailyReviews"/>
+        </div>
+    }
+</div>

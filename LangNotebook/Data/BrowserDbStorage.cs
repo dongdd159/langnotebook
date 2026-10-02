@@ -4,7 +4,7 @@ namespace LangNotebook.Data;
 
 public class BrowserDbStorage(IJSRuntime js)
 {
-    private const string DbFilePath = "/app.db";
+    public const string DbFilePath = "/app.db";
     private bool _restored;
     
     public async Task RestoreAsync()
