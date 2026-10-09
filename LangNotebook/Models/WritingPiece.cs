@@ -28,5 +28,5 @@ public class WritingPiece
     public int RubricTotal => ScoreTask + ScoreCoherence + ScoreVocabulary + ScoreGrammar;
     [NotMapped]
     [JsonIgnore]
-    public string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? "(bài viết chưa đặt tên)" : Title;
+    public string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? "(untitled)" : Title;
 }

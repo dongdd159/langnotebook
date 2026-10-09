@@ -1,0 +1,106 @@
+﻿@using LangNotebook.Components
+@using LangNotebook.Helper
+
+<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="@(Entry.Id == 0 ? "Add New Word" : "Edit Word")" Size="lg">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label class="block">
+            <span class="nt-label">
+                Notebook
+            </span>
+            <select class="nt-input" value="@Entry.NotebookId" @onchange="OnDraftNotebookChanged">
+                @foreach (var notebook in Context.Notebooks)
+                {
+                    <option value="@notebook.Id">
+                        @notebook.Name
+                    </option>
+                }
+            </select>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Word / Phrase *
+            </span>
+            <input class="nt-input" @bind="Entry.Term" @bind:event="oninput" placeholder="deadline"/>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                @_readingLabel
+            </span>
+            <input class="nt-input" @bind="Entry.Reading" @bind:event="oninput" placeholder="/ˈdedlaɪn/"/>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Part of speech
+            </span>
+            <input class="nt-input" @bind="Entry.PartOfSpeech" @bind:event="oninput" placeholder="n. / v. / adj."/>
+        </label>
+        <label class="block sm:col-span-2">
+            <span class="nt-label">
+                Meaning *
+            </span>
+            <input class="nt-input" @bind="Entry.Meaning" @bind:event="oninput" placeholder="deadline / due date"/>
+        </label>
+        <label class="block sm:col-span-2">
+            <span class="nt-label">
+                Example sentence
+            </span>
+            <input class="nt-input" @bind="Entry.Example" @bind:event="oninput"/>
+        </label>
+        <label class="block sm:col-span-2">
+            <span class="nt-label">
+                Example sentence meaning
+            </span>
+            <input class="nt-input" @bind="Entry.ExampleMeaning" @bind:event="oninput"/>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Collocations (one per line)
+            </span>
+            <textarea class="nt-input" rows="3" @bind="Entry.Collocations" @bind:event="oninput"></textarea>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Synonyms / Antonyms
+            </span>
+            <textarea class="nt-input" rows="3" @bind="Entry.Synonyms" @bind:event="oninput"></textarea>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Tags (comma-separated)
+            </span>
+            <input class="nt-input" @bind="Entry.Tags" @bind:event="oninput" placeholder="TOEIC, work"/>
+        </label>
+        <label class="block">
+            <span class="nt-label">
+                Level
+            </span>
+            <select class="nt-input" value="@((int)Entry.Level)" @onchange="OnDraftLevelChanged">
+                @foreach (var level in Context.Levels)
+                {
+                    <option value="@((int)level)">
+                        @Labels.Level(level)
+                    </option>
+                }
+            </select>
+        </label>
+        <label class="block sm:col-span-2">
+            <span class="nt-label">
+                Personal notes
+            </span>
+            <textarea class="nt-input" rows="2" @bind="Entry.Note" @bind:event="oninput"></textarea>
+        </label>
+        <label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+            <input type="checkbox" class="h-4 w-4 accent-[var(--nt-accent)]" checked="@Entry.IsSuspended"
+                   @onchange="OnDraftSuspendedChanged"/>
+            Suspend review for this card
+        </label>
+    </div>
+    <div class="mt-5 flex justify-end gap-2">
+        <button type="button" class="nt-btn" @onclick="CancelDraftAsync">
+            Cancel
+        </button>
+        <button type="button" class="nt-btn nt-btn-primary" @onclick="SaveDraftAsync" disabled="@(!CanSave)">
+            Save
+        </button>
+    </div>
+</Modal>

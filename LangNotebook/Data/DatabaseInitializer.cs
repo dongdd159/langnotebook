@@ -15,6 +15,7 @@ public class DatabaseInitializer(IDbContextFactory<ApplicationContext> factory, 
         await using (var db = await factory.CreateDbContextAsync())
         {
             await db.Database.EnsureCreatedAsync();
+            await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode = DELETE;");
             if (!await db.Notebooks.AnyAsync())
             {
                 await SeedData.ApplyAsync(db);

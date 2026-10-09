@@ -4,6 +4,7 @@
 @import "../wwwroot/css/app.css" layer(legacy);
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 @source "../**/*.razor";
+@source "../**/*.razor.cs";
 @source "../wwwroot/index.html";
 
 @theme {

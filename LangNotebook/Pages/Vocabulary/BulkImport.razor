@@ -1,0 +1,59 @@
+﻿@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject LibraryService Library
+
+<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="Bulk Import Vocabulary" Size="lg">
+    <p class="m-0 mb-3 text-sm text-mute">
+        One word per line. Columns are separated by
+        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
+            |
+        </code>
+        in order:
+        <br/>
+        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
+            word | reading | meaning | part of speech | example | example meaning | tags
+        </code>
+        <br/>
+        If only two columns are provided, it is parsed as
+        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
+            word | meaning
+        </code>.
+    </p>
+    <div class="flex flex-col gap-3">
+        <label class="block">
+            <span class="nt-label">Target notebook</span>
+            <select class="nt-input" value="@_notebookId" @onchange="OnNotebookChanged">
+                @foreach (var notebook in Context.Notebooks)
+                {
+                    <option value="@notebook.Id">
+                        @notebook.Name
+                    </option>
+                }
+            </select>
+        </label>
+        <label class="block">
+                <span class="nt-label">
+                    Tags applied to all (optional)
+                </span>
+            <input class="nt-input" @bind="_importTags" @bind:event="oninput" placeholder="Unit 5"/>
+        </label>
+        <label class="block">
+                <span class="nt-label">
+                    Data
+                </span>
+            <textarea class="nt-input font-mono text-xs" rows="10" @bind="_importText" @bind:event="oninput"
+                      placeholder="reliable | /rɪˈlaɪəbl/ | dependable | adj. | He is a reliable partner. | He is a dependable partner. | work">
+                </textarea>
+        </label>
+    </div>
+    <div class="mt-5 flex justify-end gap-2">
+        <button type="button" class="nt-btn" @onclick="CancelImportAsync">
+            Cancel
+        </button>
+        <button type="button" class="nt-btn nt-btn-primary" @onclick="RunImportAsync">
+            Import
+        </button>
+    </div>
+</Modal>

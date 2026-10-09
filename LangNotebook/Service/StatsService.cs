@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LangNotebook.Service;
 
-public class StatsService(IDbContextFactory<ApplicationContext> factory, DatabaseInitializer initializer)
+public class StatsService(IDbContextFactory<ApplicationContext> _factory, DatabaseInitializer _initializer)
 {
-    private readonly IDbContextFactory<ApplicationContext> _factory = factory;
-    private readonly DatabaseInitializer _initializer = initializer;
 
     public async Task<DashboardStats> GetAsync(int? notebookId, int heatmapWeeks = 12, int trendDays = 30)
     {

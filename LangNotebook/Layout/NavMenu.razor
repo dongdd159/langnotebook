@@ -7,102 +7,111 @@
 @inject LibraryService Library
 @inject ReviewService Reviews
 @inject SettingsService SettingsSvc
+@inject IJSRuntime js
 
-
-    <nav class="flex h-full min-h-0 flex-col" aria-label="Menu chính">
-        <div class="flex h-12 shrink-0 items-center justify-between gap-2 px-3 border-b border-line/40">
-            <div class="flex min-w-0 items-center gap-2.5">
-                <span
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-nt bg-nt-text text-xs font-semibold text-nt-bg select-none">語</span>
-                <span class="truncate text-sm font-semibold text-nt-text @(Collapsed ? "md:hidden" : string.Empty)">
-                    Sổ tay ngoại ngữ
-                </span>
-            </div>
-            <button type="button" class="nt-icon-btn md:hidden" title="Đóng menu" aria-label="Đóng menu"
-                    @ref="_closeButton" @onclick="CloseDrawerAsync">
+<nav class="flex h-full min-h-0 flex-col" aria-label="Main menu">
+    <div class="flex h-11 shrink-0 items-center justify-between gap-2 px-3 border-b border-line/40">
+        <div class="flex min-w-0 items-center gap-2.5">
+            <span
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-nt bg-nt-text text-xs font-semibold text-nt-bg select-none">
+                語
+            </span>
+            <span class="truncate text-sm font-semibold text-nt-text @(Collapsed ? "md:hidden" : string.Empty)">
+                Language Notebook
+            </span>
+        </div>
+        @if (!Collapsed)
+        {
+            <button type="button" class="nt-icon-btn hidden shrink-0 text-mute md:inline-flex" title="Collapse sidebar"
+                    aria-label="Collapse sidebar" @onclick="CollapseAsync">
+                <Icon Name="close-panel" Size="18"/>
+            </button>
+        }
+        @if (DrawerOpen)
+        {
+            <button type="button" class="nt-icon-btn md:hidden" title="Collapse sidebar" aria-label="Collapse sidebar"
+                    @onclick="CloseDrawerAsync">
                 <Icon Name="close" Size="18"/>
             </button>
-            <button type="button" class="nt-icon-btn hidden md:inline-flex" title="Thu gọn thanh bên"
-                    aria-label="Thu gọn thanh bên"
-                    @onclick="CollapseAsync">
-                <Icon Name="chevrons-left" Size="18"/>
-            </button>
-        </div>
-        <div class="nt-scroll min-h-0 flex-1 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain px-2 py-3">
-            <div class="flex flex-col gap-0.5">
-                <NavLink class="nt-side-item" href="" Match="NavLinkMatch.All" ActiveClass="active" title="Tổng quan">
-                    <Icon Name="home"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Tổng quan</span>
-                </NavLink>
-
-                <NavLink class="nt-side-item" href="review" ActiveClass="active" title="Ôn tập">
-                    <Icon Name="review"/>
-                    <span class="flex-1 truncate @(Collapsed ? "md:hidden" : string.Empty)">Ôn tập</span>
-                    @if (DueCount > 0)
-                    {
-                        <span
-                            class="rounded-nt bg-nt-accent-soft px-1.5 text-xs font-medium leading-5 text-nt-accent @(Collapsed ? "md:hidden" : string.Empty)">
-                            @DueCount
-                        </span>
-                    }
-                </NavLink>
-            </div>
-            <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Sổ ghi chép</div>
-            <div class="flex flex-col gap-0.5">
-                <NavLink class="nt-side-item" href="vocabulary" ActiveClass="active" title="Từ vựng">
-                    <Icon Name="book"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Từ vựng</span>
-                </NavLink>
-
-                <NavLink class="nt-side-item" href="grammar" ActiveClass="active" title="Mẫu câu & cấu trúc">
-                    <Icon Name="grammar"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Mẫu câu &amp; cấu trúc</span>
-                </NavLink>
-
-                <NavLink class="nt-side-item" href="writing" ActiveClass="active" title="Luyện viết">
-                    <Icon Name="pen"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Luyện viết</span>
-                </NavLink>
-            </div>
-            <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Sổ của bạn</div>
-            <div class="flex flex-col gap-0.5">
-                <button type="button"
-                        class="nt-side-item w-full text-left @(ActiveNotebookId is null ? "active" : string.Empty)"
-                        title="Tất cả các sổ"
-                        @onclick="() => SelectAsync(null)">
-                    <span class="flex h-4 w-4 shrink-0 items-center justify-center text-nt-faint"><Icon Name="library"
-                                                                                                        Size="14"/></span>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Tất cả các sổ</span>
-                </button>
-                @foreach (var notebook in Notebooks)
+        }
+    </div>
+    <div class="nt-scroll min-h-0 flex-1 min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain px-2 py-3">
+        <div class="flex flex-col gap-0.5">
+            <NavLink class="nt-side-item" href="" Match="NavLinkMatch.All" ActiveClass="active" title="Overview">
+                <Icon Name="home"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Overview</span>
+            </NavLink>
+            <NavLink class="nt-side-item" href="review" ActiveClass="active" title="Review">
+                <Icon Name="review"/>
+                <span class="flex-1 truncate @(Collapsed ? "md:hidden" : string.Empty)">Review</span>
+                @if (DueCount > 0)
                 {
-                    <button type="button" @key="notebook.Id"
-                            class="nt-side-item w-full text-left @(ActiveNotebookId == notebook.Id ? "active" : string.Empty)"
-                            title="@notebook.Name"
-                            @onclick="() => SelectAsync(notebook.Id)">
-                        <span class="h-3.5 w-3.5 shrink-0 rounded-[3px]" style="background:@notebook.ColorHex"></span>
-                        <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">@notebook.Name</span>
-                    </button>
+                    <span
+                        class="rounded-nt bg-nt-accent-soft px-1.5 text-xs font-medium leading-5 text-nt-accent @(Collapsed ? "md:hidden" : string.Empty)">
+                        @DueCount
+                    </span>
                 }
-            </div>
-            <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Theo dõi</div>
-            <div class="flex flex-col gap-0.5">
-                <NavLink class="nt-side-item" href="stats" ActiveClass="active" title="Thống kê">
-                    <Icon Name="chart"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Thống kê</span>
-                </NavLink>
-                <NavLink class="nt-side-item" href="notebooks" ActiveClass="active" title="Quản lý sổ">
-                    <Icon Name="database"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Quản lý sổ</span>
-                </NavLink>
-                <NavLink class="nt-side-item" href="settings" ActiveClass="active" title="Cài đặt">
-                    <Icon Name="settings"/>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Cài đặt</span>
-                </NavLink>
-            </div>
+            </NavLink>
         </div>
-        <div
-            class="mt-auto shrink-0 border-t border-line px-3 py-3 text-xs text-faint pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] @(Collapsed ? "md:hidden" : string.Empty)">
-            Dữ liệu lưu ngay trên máy bạn
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Study Modules</div>
+        <div class="flex flex-col gap-0.5">
+            <NavLink class="nt-side-item" href="vocabulary" ActiveClass="active" title="Vocabulary">
+                <Icon Name="book"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Vocabulary</span>
+            </NavLink>
+            <NavLink class="nt-side-item" href="grammar" ActiveClass="active" title="Grammar &amp; Structures">
+                <Icon Name="grammar"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Grammar &amp; Structures</span>
+            </NavLink>
+            <NavLink class="nt-side-item" href="writing" ActiveClass="active" title="Writing Practice">
+                <Icon Name="pen"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Writing Practice</span>
+            </NavLink>
         </div>
-    </nav>
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Your Notebooks</div>
+        <div class="flex flex-col gap-0.5">
+            <button type="button"
+                    class="nt-side-item w-full text-left @(ActiveNotebookId is null ? "active" : string.Empty)"
+                    title="All Notebooks" @onclick="() => SelectAsync(null)">
+                <span class="flex h-4 w-4 shrink-0 items-center justify-center text-nt-faint">
+                    <Icon Name="library" Size="14"/>
+                </span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    All Notebooks
+                </span>
+            </button>
+            @foreach (var notebook in Notebooks)
+            {
+                <button type="button" @key="notebook.Id"
+                        class="nt-side-item w-full text-left @(ActiveNotebookId == notebook.Id ? "active" : string.Empty)"
+                        title="@notebook.Name" @onclick="() => SelectAsync(notebook.Id)">
+                    <span class="h-3.5 w-3.5 shrink-0 rounded-[3px]" style="background:@notebook.ColorHex"></span>
+                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">@notebook.Name</span>
+                </button>
+            }
+            <NavLink class="nt-side-item" href="create" ActiveClass="active" title="New Notebook">
+                <Icon Name="plus"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">New Notebook</span>
+            </NavLink>
+        </div>
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Tracking</div>
+        <div class="flex flex-col gap-0.5">
+            <NavLink class="nt-side-item" href="stats" ActiveClass="active" title="Statistics">
+                <Icon Name="chart"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Statistics</span>
+            </NavLink>
+            <NavLink class="nt-side-item" href="notebooks" ActiveClass="active" title="Manage Notebooks">
+                <Icon Name="database"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Manage Notebooks</span>
+            </NavLink>
+            <NavLink class="nt-side-item" href="settings" ActiveClass="active" title="Settings">
+                <Icon Name="settings"/>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Settings</span>
+            </NavLink>
+        </div>
+    </div>
+    <div
+        class="mt-auto shrink-0 border-t border-line px-3 py-3 text-xs text-faint pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] @(Collapsed ? "md:hidden" : string.Empty)">
+        Data is saved locally on your device
+    </div>
+</nav>

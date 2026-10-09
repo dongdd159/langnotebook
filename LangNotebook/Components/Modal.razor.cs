@@ -20,6 +20,6 @@ public partial class Modal : ComponentBase
     private async Task CloseAsync()
     {
         Visible = false;
-        await VisibleChanged.InvokeAsync(false);
+        await VisibleChanged.InvokeAsync(Visible);
     }
 }

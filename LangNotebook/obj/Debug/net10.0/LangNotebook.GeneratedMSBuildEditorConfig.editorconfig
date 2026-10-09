@@ -61,6 +61,18 @@ build_metadata.AdditionalFiles.CssScope = b-4w0ostu6um
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-yyne7aou7h
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-w5n2ibvecy
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Settings.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-zfaywu7myd
+
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/Add-EditNewWord.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxBZGQtRWRpdE5ld1dvcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-gmvmx2t1ta
+
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/BulkImport.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxCdWxrSW1wb3J0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-sq6bcr2d8d
+
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/Vocabulary.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxWb2NhYnVsYXJ5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-8to668h8qz

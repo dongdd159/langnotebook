@@ -5,13 +5,10 @@ using Microsoft.EntityFrameworkCore;
 namespace LangNotebook.Service;
 
 public class SettingsService(
-    IDbContextFactory<ApplicationContext> factory,
-    BrowserDbStorage storage,
-    DatabaseInitializer initializer)
+    IDbContextFactory<ApplicationContext> _factory,
+    BrowserDbStorage _storage,
+    DatabaseInitializer _initializer)
 {
-    private readonly IDbContextFactory<ApplicationContext> _factory = factory;
-    private readonly BrowserDbStorage _storage = storage;
-    private readonly DatabaseInitializer _initializer = initializer;
     
     public async Task<AppSettings> GetAsync()
     {

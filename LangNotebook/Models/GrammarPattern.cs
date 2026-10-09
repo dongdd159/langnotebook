@@ -15,7 +15,7 @@ public class GrammarPattern : StudyItemBase
 
     [NotMapped]
     [JsonIgnore]
-    public string DisplayTitle => string.IsNullOrWhiteSpace(Pattern) ? "(chưa đặt tên)" : Pattern;
+    public string DisplayTitle => string.IsNullOrWhiteSpace(Pattern) ? "(untitled)" : Pattern;
 
     [NotMapped]
     [JsonIgnore]

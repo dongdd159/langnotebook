@@ -8,21 +8,33 @@ namespace LangNotebook.Layout;
 public partial class MainLayout : LayoutComponentBase
 {
     private readonly List<ToastItem> _toasts = new();
-    private List<Models.Notebook> _notebooks = new();
+    private List<Notebook> _notebooks = new();
     private bool _ready;
     private bool _drawerOpen;
+    public bool DrawerOpen
+    {
+        get => _drawerOpen;
+        set
+        {
+            _drawerOpen = value;
+        }
+    }
     private bool _collapsed;
+    public bool Collapsed
+    {
+        get => _collapsed;
+        set
+        {
+            _collapsed = value;
+        }
+    }
     private bool _dark;
     private int _dueCount;
     private string _selectedNotebookValue = string.Empty;
-    
-    private string AsideClass => 
-        $"{(_drawerOpen ? "translate-x-0 w-[240px]" : "-translate-x-full md:translate-x-0")} " +
-        $"{(_collapsed ? "md:w-16" : "md:w-[240px]")}";
-
+    private string AsideClass => $"{(_drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0")} " +
+                                 $"{(_collapsed ? "w-[240px] md:w-16" : "md:w-[240px]")}";
     private string ActiveNotebookName =>
-        _notebooks.FirstOrDefault(x => x.Id == State.ActiveNotebookId)?.Name ?? "Tất cả các sổ";
-
+        _notebooks.FirstOrDefault(x => x.Id == State.ActiveNotebookId)?.Name ?? "All Notebooks";
     private (string Title, string Icon) CurrentPage
     {
         get
@@ -31,15 +43,15 @@ public partial class MainLayout : LayoutComponentBase
             var first = path.Split('/')[0];
             return first switch
             {
-                "" => ("Tổng quan", "home"),
-                "review" => ("Ôn tập", "review"),
-                "vocabulary" => ("Từ vựng", "book"),
-                "grammar" => ("Mẫu câu & cấu trúc", "grammar"),
-                "writing" => ("Luyện viết", "pen"),
-                "stats" => ("Thống kê", "chart"),
-                "notebooks" => ("Quản lý sổ", "database"),
-                "settings" => ("Cài đặt", "settings"),
-                _ => ("Sổ tay ngoại ngữ", "book")
+                "" => ("Overview", "home"),
+                "review" => ("Review", "review"),
+                "vocabulary" => ("Vocabulary", "book"),
+                "grammar" => ("Grammar & Structures", "grammar"),
+                "writing" => ("Writing Practice", "pen"),
+                "stats" => ("Statistics", "chart"),
+                "notebooks" => ("Manage Notebooks", "database"),
+                "settings" => ("Settings", "settings"),
+                _ => ("Language Notebook", "book")
             };
         }
     }
@@ -54,20 +66,13 @@ public partial class MainLayout : LayoutComponentBase
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
-        {
             return;
-        }
-
         _dark = await JS.InvokeAsync<string>("langTheme.mode") == "dark";
-
         await Initializer.EnsureReadyAsync();
-
         var settings = await SettingsSvc.GetAsync();
         State.ActiveNotebookId = settings.ActiveNotebookId;
         _selectedNotebookValue = settings.ActiveNotebookId?.ToString() ?? string.Empty;
-
         await ReloadAsync();
-
         _ready = true;
         StateHasChanged();
     }
@@ -75,7 +80,6 @@ public partial class MainLayout : LayoutComponentBase
     private async Task ReloadAsync()
     {
         _notebooks = await Library.GetNotebooksAsync();
-
         var counts = await Reviews.CountQueueAsync(State.ActiveNotebookId);
         _dueCount = counts.Due;
     }
@@ -97,11 +101,9 @@ public partial class MainLayout : LayoutComponentBase
     {
         _selectedNotebookValue = id?.ToString() ?? string.Empty;
         State.ActiveNotebookId = id;
-
         var settings = await SettingsSvc.GetAsync();
         settings.ActiveNotebookId = id;
         await SettingsSvc.SaveAsync(settings);
-
         await ReloadAsync();
         StateHasChanged();
     }
@@ -111,15 +113,11 @@ public partial class MainLayout : LayoutComponentBase
         InvokeAsync(async () =>
         {
             if (_ready)
-            {
                 await ReloadAsync();
-            }
-
             StateHasChanged();
         });
     }
 
-    // Chuyển trang thì tự đóng ngăn kéo trên điện thoại.
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
         _drawerOpen = false;
@@ -131,7 +129,6 @@ public partial class MainLayout : LayoutComponentBase
         var item = new ToastItem { Message = message, Kind = kind };
         _toasts.Add(item);
         StateHasChanged();
-
         _ = HideLaterAsync(item);
     }
 

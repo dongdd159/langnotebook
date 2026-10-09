@@ -3,11 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace LangNotebook.Models;
 
-/// <summary>
-/// Lop co so chua toan bo trang thai lap lai ngat quang (SM-2).
-/// Khong phai entity doc lap: EF Core se anh xa cac thuoc tinh nay
-/// vao tung bang con (VocabEntries, GrammarPatterns).
-/// </summary>
 public abstract class StudyItemBase
 {
     public int Id { get; set; }

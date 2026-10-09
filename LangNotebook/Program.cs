@@ -11,7 +11,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddDbContextFactory<ApplicationContext>(options =>
-    options.UseSqlite($"Data Source={BrowserDbStorage.DbFilePath}"));
+    options.UseSqlite($"Data Source={BrowserDbStorage.DbFilePath};Pooling=False"));
 builder.Services.AddSingleton<BrowserDbStorage>();
 builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddSingleton<AppState>();

@@ -16,5 +16,5 @@ public class VocabEntry : StudyItemBase
     public ProficiencyLevel Level { get; set; } = ProficiencyLevel.Elementary;
     [NotMapped]
     [JsonIgnore]
-    public string DisplayTitle => string.IsNullOrWhiteSpace(Term) ? "(chưa đặt tên)" : Term;
+    public string DisplayTitle => string.IsNullOrWhiteSpace(Term) ? "(untitled)" : Term;
 }

@@ -8,7 +8,7 @@ public class Notebook
     public string LanguageName { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string ColorHex { get; set; } = "#4f7df0";
-    public string ReadingLabel { get; set; } = "Phiên âm";
+    public string ReadingLabel { get; set; } = "Reading labe";
     public bool IsArchived { get; set; }
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }
