@@ -7,32 +7,18 @@ public class SeedData
     public static async Task ApplyAsync(ApplicationContext db)
     {
         var now = DateTime.UtcNow;
-
         var english = new Notebook
         {
-            Name = "Tiếng Anh – Giao tiếp công sở",
+            Name = "English – Business Communication",
             LanguageCode = "en",
-            LanguageName = "Tiếng Anh",
-            Description = "Từ vựng và mẫu câu dùng trong email, họp hành, báo cáo.",
+            LanguageName = "English",
+            Description = "Vocabulary and phrases used in emails, meetings, and reports.",
             ColorHex = "#4f7df0",
             ReadingLabel = "IPA",
             CreatedUtc = now
         };
-
-        var japanese = new Notebook
-        {
-            Name = "Tiếng Nhật – N4",
-            LanguageCode = "ja",
-            LanguageName = "Tiếng Nhật",
-            Description = "Từ vựng, kanji và ngữ pháp trình độ N4.",
-            ColorHex = "#e0663f",
-            ReadingLabel = "Furigana",
-            CreatedUtc = now
-        };
-
-        db.Notebooks.AddRange(english, japanese);
+        db.Notebooks.Add(english);
         await db.SaveChangesAsync();
-
         db.VocabEntries.AddRange(
             NewVocab(english.Id, "deadline", "/ˈdedlaɪn/", "hạn chót", "n.",
                 "We need to move the deadline to next Friday.",
@@ -53,19 +39,8 @@ public class SeedData
                 "I'm writing on behalf of the marketing team.",
                 "Tôi viết thư này thay mặt cho nhóm marketing.",
                 "on behalf of the company",
-                "email", ProficiencyLevel.Intermediate),
-            NewVocab(japanese.Id, "約束", "やくそく", "lời hứa, cuộc hẹn", "danh từ",
-                "友だちと約束があります。",
-                "Tôi có hẹn với bạn.",
-                "約束をする\n約束を守る",
-                "N4,giao tiếp", ProficiencyLevel.Elementary),
-            NewVocab(japanese.Id, "準備", "じゅんび", "sự chuẩn bị", "danh từ",
-                "試験の準備をしています。",
-                "Tôi đang chuẩn bị cho kỳ thi.",
-                "準備する\n準備ができる",
-                "N4", ProficiencyLevel.Elementary)
+                "email", ProficiencyLevel.Intermediate)
         );
-
         db.GrammarPatterns.AddRange(
             new GrammarPattern
             {
@@ -103,7 +78,7 @@ public class SeedData
             },
             new GrammarPattern
             {
-                NotebookId = japanese.Id,
+                NotebookId = english.Id,
                 Pattern = "V(て形) + もいいですか",
                 Meaning = "Xin phép: “Tôi ... có được không?”",
                 Explanation =
@@ -118,7 +93,6 @@ public class SeedData
                 DueUtc = now
             }
         );
-
         db.WritingPrompts.AddRange(
             new WritingPrompt
             {
@@ -146,7 +120,7 @@ public class SeedData
             },
             new WritingPrompt
             {
-                NotebookId = japanese.Id,
+                NotebookId = english.Id,
                 Title = "自己紹介",
                 PromptText =
                     "Viết đoạn giới thiệu bản thân khoảng 150 chữ: tên, công việc, sở thích, lý do học tiếng Nhật và mục tiêu trong một năm tới.",
@@ -157,7 +131,6 @@ public class SeedData
                 CreatedUtc = now
             }
         );
-
         db.Settings.Add(new AppSettings
         {
             Id = 1,
@@ -167,7 +140,6 @@ public class SeedData
             ActiveNotebookId = english.Id,
             WeeklyWritingGoal = 600
         });
-
         await db.SaveChangesAsync();
     }
 

@@ -7,7 +7,7 @@
 @inject LibraryService Library
 @inject ReviewService Reviews
 @inject SettingsService SettingsSvc
-@inject IJSRuntime js
+@inject IJSRuntime JS
 
 <nav class="flex h-full min-h-0 flex-col" aria-label="Main menu">
     <div class="flex h-11 shrink-0 items-center justify-between gap-2 px-3 border-b border-line/40">
@@ -39,11 +39,15 @@
         <div class="flex flex-col gap-0.5">
             <NavLink class="nt-side-item" href="" Match="NavLinkMatch.All" ActiveClass="active" title="Overview">
                 <Icon Name="home"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Overview</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Overview
+                </span>
             </NavLink>
             <NavLink class="nt-side-item" href="review" ActiveClass="active" title="Review">
                 <Icon Name="review"/>
-                <span class="flex-1 truncate @(Collapsed ? "md:hidden" : string.Empty)">Review</span>
+                <span class="flex-1 truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Review
+                </span>
                 @if (DueCount > 0)
                 {
                     <span
@@ -53,22 +57,32 @@
                 }
             </NavLink>
         </div>
-        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Study Modules</div>
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">
+            Study Modules
+        </div>
         <div class="flex flex-col gap-0.5">
             <NavLink class="nt-side-item" href="vocabulary" ActiveClass="active" title="Vocabulary">
                 <Icon Name="book"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Vocabulary</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Vocabulary
+                </span>
             </NavLink>
             <NavLink class="nt-side-item" href="grammar" ActiveClass="active" title="Grammar &amp; Structures">
                 <Icon Name="grammar"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Grammar &amp; Structures</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Grammar &amp; Structures
+                </span>
             </NavLink>
             <NavLink class="nt-side-item" href="writing" ActiveClass="active" title="Writing Practice">
                 <Icon Name="pen"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Writing Practice</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Writing Practice
+                </span>
             </NavLink>
         </div>
-        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Your Notebooks</div>
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">
+            Your Notebooks
+        </div>
         <div class="flex flex-col gap-0.5">
             <button type="button"
                     class="nt-side-item w-full text-left @(ActiveNotebookId is null ? "active" : string.Empty)"
@@ -80,33 +94,78 @@
                     All Notebooks
                 </span>
             </button>
-            @foreach (var notebook in Notebooks)
+            @if (_openEdit)
             {
-                <button type="button" @key="notebook.Id"
-                        class="nt-side-item w-full text-left @(ActiveNotebookId == notebook.Id ? "active" : string.Empty)"
-                        title="@notebook.Name" @onclick="() => SelectAsync(notebook.Id)">
-                    <span class="h-3.5 w-3.5 shrink-0 rounded-[3px]" style="background:@notebook.ColorHex"></span>
-                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">@notebook.Name</span>
+                <div class="nt-side-item w-full">
+                    <span class="h-3.5 w-3.5 shrink-0 rounded-[3px]">
+                    </span>
+                    <input class="nt-input w-full" value="@InputValue" @oninput="OnInputChanged" @onkeydown="OnKeyDown"
+                           @onblur="OnBlur" @ref="_inputNotebook"/>
+                </div>
+            }
+            @if (_loading)
+            {
+                <div class="grid grid-cols-1 gap-3 lg:grid-cols-2" aria-busy="true">
+                    @for (var i = 0; i < 4; i++)
+                    {
+                        <div class="h-36 animate-pulse rounded-nt bg-hov">
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                @foreach (var notebook in Notebooks)
+                {
+                    <button type="button" @key="notebook.Id"
+                            class="group relative flex items-center justify-between nt-side-item w-full text-left @(ActiveNotebookId == notebook.Id ? "active" : string.Empty)"
+                            title="@notebook.Name" @onclick="() => SelectAsync(notebook.Id)">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="h-3.5 w-3.5 shrink-0 rounded-[3px]" style="background:@notebook.ColorHex">
+                            </span>
+                            <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                                @notebook.Name
+                            </span>
+                        </div>
+                        <div
+                            class="shrink-0 transition-opacity @(ActiveNotebookId == notebook.Id ? "opacity-100" : "opacity-0 group-hover:opacity-100") @(Collapsed ? "md:hidden" : string.Empty)"
+                            @onclick:stopPropagation="true">
+                            <button type="button" class="nt-icon-btn is-danger h-6 w-6" title="Delete"
+                                    aria-label="Delete" @onclick="() => DeleteNotebookAsync(notebook.Id)">
+                                <Icon Name="trash" Size="12"/>
+                            </button>
+                        </div>
+                    </button>
+                }
+                <button class="nt-side-item" ActiveClass="active" title="New Notebook" @onclick="AddNewNotebook">
+                    <Icon Name="plus"/>
+                    <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                        New Notebook
+                    </span>
                 </button>
             }
-            <NavLink class="nt-side-item" href="create" ActiveClass="active" title="New Notebook">
-                <Icon Name="plus"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">New Notebook</span>
-            </NavLink>
         </div>
-        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">Tracking</div>
+        <div class="nt-side-title @(Collapsed ? "md:hidden" : string.Empty)">
+            Tracking
+        </div>
         <div class="flex flex-col gap-0.5">
             <NavLink class="nt-side-item" href="stats" ActiveClass="active" title="Statistics">
                 <Icon Name="chart"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Statistics</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Statistics
+                </span>
             </NavLink>
             <NavLink class="nt-side-item" href="notebooks" ActiveClass="active" title="Manage Notebooks">
                 <Icon Name="database"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Manage Notebooks</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Manage Notebooks
+                </span>
             </NavLink>
             <NavLink class="nt-side-item" href="settings" ActiveClass="active" title="Settings">
                 <Icon Name="settings"/>
-                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">Settings</span>
+                <span class="truncate @(Collapsed ? "md:hidden" : string.Empty)">
+                    Settings
+                </span>
             </NavLink>
         </div>
     </div>

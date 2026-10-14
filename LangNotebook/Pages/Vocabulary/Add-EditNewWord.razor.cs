@@ -14,7 +14,7 @@ public partial class Add_EditNewWord : ComponentBase
     [Parameter] public EventCallback<VocabEntry> EntryChanged { get; set; }
     [Parameter] public EventCallback<VocabEntry> OnSaved { get; set; }
     private string _readingLabel = "Reading label";
-    private bool CanSave => !string.IsNullOrWhiteSpace(Entry?.Term) && !string.IsNullOrWhiteSpace(Entry.Meaning)
+    private bool CanSave => !string.IsNullOrWhiteSpace(Entry.Term) && !string.IsNullOrWhiteSpace(Entry.Meaning)
                             && Entry.NotebookId > 0;
 
     protected override void OnParametersSet() => _readingLabel =
@@ -35,7 +35,7 @@ public partial class Add_EditNewWord : ComponentBase
             Entry.Level = (ProficiencyLevel)value;
     }
 
-    private void OnDraftSuspendedChanged(ChangeEventArgs args) => Entry!.IsSuspended = args.Value is bool b && b;
+    private void OnDraftSuspendedChanged(ChangeEventArgs args) => Entry.IsSuspended = args.Value is bool b && b;
 
     private async Task SaveDraftAsync()
     {

@@ -1,0 +1,214 @@
+﻿@page "/settings"
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject SettingsService SettingsSvc
+@inject BackupService Backup
+@inject IJSRuntime JS
+
+<PageTitle>Settings · Language Notebook</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-16">
+    <header class="min-w-0">
+        <h1 class="m-0 mt-3 text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[36px]">Settings</h1>
+        <p class="m-0 mt-1 text-sm text-mute">
+            All data resides locally in your browser and is never sent anywhere
+        </p>
+    </header>
+
+    <div class="max-w-3xl">
+        <section class="mt-10" aria-labelledby="st-goals">
+            <h2 id="st-goals" class="m-0 text-base font-semibold text-ink">Learning Goals</h2>
+            <p class="m-0 mt-0.5 text-sm text-mute">Number of cards and words you want to achieve.</p>
+            <div class="mt-3 border-t border-line">
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Daily reviews goal
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Number of cards you want to review each day
+                        </span>
+                    </span>
+                    <input class="nt-input sm:w-56" type="number" min="5" step="5" @bind="_settings.DailyReviewGoal"/>
+                </label>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Weekly writing goal
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Target number of written words per week
+                        </span>
+                    </span>
+                    <input class="nt-input sm:w-56" type="number" min="50" step="50"
+                           @bind="_settings.WeeklyWritingGoal"/>
+                </label>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            New cards per session
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Maximum new cards introduced in a review session
+                        </span>
+                    </span>
+                    <input class="nt-input sm:w-56" type="number" min="0" step="1" @bind="_settings.NewCardsPerSession"
+                    />
+                </label>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Max cards per session
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Total maximum cards in a single review session
+                        </span>
+                    </span>
+                    <input class="nt-input sm:w-56" type="number" min="5" step="5" @bind="_settings.MaxCardsPerSession"
+                    />
+                </label>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Default prompt direction
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Direction used when starting a review session
+                        </span>
+                    </span>
+                    <select class="nt-input sm:w-56" value="@((int)_settings.DefaultDirection)"
+                            @onchange="OnDirectionChanged">
+                        <option value="0">
+                            See term → recall meaning
+                        </option>
+                        <option value="1">
+                            See meaning → recall term
+                        </option>
+                        <option value="2">
+                            Mix both directions
+                        </option>
+                    </select>
+                </label>
+                <label class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center 
+                    sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Display name
+                        </span>
+                    </span>
+                    <input class="nt-input sm:w-56" @bind="_settings.DisplayName" @bind:event="oninput"/>
+                </label>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button type="button" class="nt-btn nt-btn-primary" @onclick="SaveSettingsAsync">
+                    Save settings
+                </button>
+            </div>
+        </section>
+        <section class="mt-12" aria-labelledby="st-backup">
+            <h2 id="st-backup" class="m-0 text-base font-semibold text-ink">
+                Backup &amp; Restore
+            </h2>
+            <div class="mt-3 flex gap-2.5 rounded-nt bg-nt-side px-3 py-2.5 text-sm text-ink">
+                <p class="m-0">
+                    Data stays on this device only. If you clear browser data or switch devices, please download a
+                    backup first.
+                </p>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button type="button" class="nt-btn" @onclick="ExportJsonAsync">
+                    <Icon Name="table" Size="14"/>
+                    Download JSON file
+                </button>
+                <button type="button" class="nt-btn" @onclick="ExportDbAsync">
+                    <Icon Name="database" Size="14"/>
+                    Download SQLite file (.db)
+                </button>
+            </div>
+            <div class="mt-5 border-t border-line pt-4">
+                <label class="block">
+                    <span class="nt-label">
+                        Restore from file (.json or .db)
+                    </span>
+                    <InputFile OnChange="OnFileSelected" accept=".json,.db"
+                               class="nt-input cursor-pointer text-mute file:mr-3 file:cursor-pointer file:rounded-nt file:border-0 file:bg-hov file:px-2.5 file:py-1 file:text-xs file:font-medium file:text-ink hover:file:bg-nt-press"/>
+                </label>
+                <label class="mt-3 flex items-center gap-2 text-sm text-ink">
+                    <input type="checkbox" class="h-4 w-4 accent-[var(--nt-accent)]" checked="@_replaceOnImport"
+                           @onchange="OnReplaceChanged"/>
+                    Clear existing data before importing (JSON files only)
+                </label>
+                @if (!string.IsNullOrEmpty(_importMessage))
+                {
+                    <div class="mt-3 flex gap-2.5 rounded-nt bg-nt-accent-soft px-3 py-2.5 text-sm text-ink"
+                         role="status">
+                        <span aria-hidden="true">📥</span>
+                        <span class="min-w-0 break-words">@_importMessage</span>
+                    </div>
+                }
+            </div>
+        </section>
+        <section class="mt-12" aria-labelledby="st-danger">
+            <h2 id="st-danger" class="m-0 text-base font-semibold text-nt-danger">
+                Delete all data
+            </h2>
+            <div class="mt-3 rounded-nt p-4 [box-shadow:inset_0_0_0_1px_var(--nt-danger)]">
+                <p class="m-0 text-sm text-mute">
+                    This action wipes out all notebooks, vocabulary, structures, and writings on this device. Cannot be
+                    undone.
+                </p>
+                <button type="button"
+                        class="nt-btn mt-3 text-nt-danger! [box-shadow:inset_0_0_0_1px_var(--nt-danger)] hover:bg-nt-danger/10"
+                        @onclick="WipeAsync">
+                    <Icon Name="trash" Size="14"/>
+                    Wipe and regenerate sample data
+                </button>
+            </div>
+        </section>
+        <section class="mt-12" aria-labelledby="st-about">
+            <h2 id="st-about" class="m-0 text-base font-semibold text-ink">
+                About App
+            </h2>
+            <dl class="m-0 mt-3 border-t border-line text-sm">
+                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
+                    <dt class="w-44 shrink-0 text-mute">
+                        Platform
+                    </dt>
+                    <dd class="m-0 text-ink">
+                        Blazor WebAssembly (.NET 8) + C#
+                    </dd>
+                </div>
+                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
+                    <dt class="w-44 shrink-0 text-mute">
+                        Database
+                    </dt>
+                    <dd class="m-0 text-ink">
+                        SQLite via EF Core, stored in IndexedDB
+                    </dd>
+                </div>
+                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
+                    <dt class="w-44 shrink-0 text-mute">
+                        Review algorithm
+                    </dt>
+                    <dd class="m-0 text-ink">
+                        SM-2 (Spaced Repetition)
+                    </dd>
+                </div>
+                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
+                    <dt class="w-44 shrink-0 text-mute">
+                        Network connection
+                    </dt>
+                    <dd class="m-0 text-ink">
+                        Not required – works offline
+                    </dd>
+                </div>
+            </dl>
+        </section>
+    </div>
+</div>

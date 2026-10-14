@@ -1,7 +1,8 @@
 ﻿@using LangNotebook.Components
 @using LangNotebook.Helper
 
-<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="@(Entry.Id == 0 ? "Add New Word" : "Edit Word")" Size="lg">
+<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="@(Entry.Id == 0 ? "Add New Word" : "Edit Word")"
+       Size="lg">
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label class="block">
             <span class="nt-label">
@@ -44,13 +45,13 @@
             <span class="nt-label">
                 Example sentence
             </span>
-            <input class="nt-input" @bind="Entry.Example" @bind:event="oninput"/>
+            <textarea class="nt-input" @bind="Entry.Example" @bind:event="oninput"></textarea>
         </label>
         <label class="block sm:col-span-2">
             <span class="nt-label">
                 Example sentence meaning
             </span>
-            <input class="nt-input" @bind="Entry.ExampleMeaning" @bind:event="oninput"/>
+            <textarea class="nt-input" @bind="Entry.ExampleMeaning" @bind:event="oninput"></textarea>
         </label>
         <label class="block">
             <span class="nt-label">

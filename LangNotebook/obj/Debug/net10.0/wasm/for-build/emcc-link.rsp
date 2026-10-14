@@ -5,7 +5,7 @@
 -s EXPORT_ES6=1 -lexports.js
 -s LLD_REPORT_UNDEFINED
 -s ERROR_ON_UNDEFINED_SYMBOLS=1
--s INITIAL_MEMORY=36175872
+-s INITIAL_MEMORY=36241408
 -s STACK_SIZE=5MB
 -s WASM_BIGINT=1
 --pre-js "C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Runtime.Mono.browser-wasm\10.0.12\runtimes\browser-wasm\native\src\es6\dotnet.es6.pre.js"

@@ -42,7 +42,6 @@ public sealed class LibraryService(
             }
             else
                 db.Notebooks.Update(notebook);
-
             await db.SaveChangesAsync();
         }
         await storage.PersistAsync();

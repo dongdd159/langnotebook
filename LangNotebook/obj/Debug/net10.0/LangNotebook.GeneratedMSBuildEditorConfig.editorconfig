@@ -57,13 +57,21 @@ build_metadata.AdditionalFiles.CssScope = b-uijbcp07xn
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-4w0ostu6um
 
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Grammar/Add-EditGrammar.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JhbW1hclxBZGQtRWRpdEdyYW1tYXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-w1hhtbqg1c
+
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Grammar/Grammar.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JhbW1hclxHcmFtbWFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-sig1g10tc1
+
 [C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-yyne7aou7h
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Settings.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ3MucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-zfaywu7myd
+[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Setting/Settings.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ1xTZXR0aW5ncy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-mc303uqedy
 
 [C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/Add-EditNewWord.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxBZGQtRWRpdE5ld1dvcmQucmF6b3I=

@@ -27,20 +27,17 @@ public partial class Vocabulary : ComponentBase
 
     protected override void OnInitialized() => State.Changed += OnStateChanged;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
     {
+        _loading = true;
         _notebooks = await Library.GetNotebooksAsync();
         _appContext = new()
         {
             Levels = Levels,
             Notebooks = _notebooks
         };
-        await LoadAsync();
-    }
-
-    private async Task LoadAsync()
-    {
-        _loading = true;
         _filter.NotebookId = State.ActiveNotebookId;
         _items = await Library.GetVocabAsync(_filter);
         _tags = await Library.GetTagsAsync(State.ActiveNotebookId);
@@ -100,7 +97,6 @@ public partial class Vocabulary : ComponentBase
         State.ShowSuccess("Saved.");
         await LoadAsync();
         State.NotifyChanged();
-        await JS.InvokeVoidAsync("console.log", _editorOpen);
     }
 
     private async Task ToggleFavoriteAsync(VocabEntry entry)
