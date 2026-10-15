@@ -306,7 +306,7 @@
         </div>
     </div>
     
-    <Add_EditNewWord @bind-IsOpen="_editorOpen" @bind-Entry="_selectedEntry" OnSaved="AddNewWord"/>
+    <Add_EditNewWord @bind-IsOpen="_editorOpen" @bind-Entry="_selectedEntry" Tags="_tags" OnSaved="AddNewWord"/>
     
     <BulkImport @bind-IsOpen="_importOpen" OnRunImport="AfterImportAsync"></BulkImport>
     

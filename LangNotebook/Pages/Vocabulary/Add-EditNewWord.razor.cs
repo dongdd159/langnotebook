@@ -13,6 +13,8 @@ public partial class Add_EditNewWord : ComponentBase
     [Parameter] public required VocabEntry Entry { get; set; }
     [Parameter] public EventCallback<VocabEntry> EntryChanged { get; set; }
     [Parameter] public EventCallback<VocabEntry> OnSaved { get; set; }
+    [Parameter] public EventCallback<string> OnCreateTag { get; set; }
+    [Parameter] public List<string> Tags { get; set; }
     private string _readingLabel = "Reading label";
     private bool CanSave => !string.IsNullOrWhiteSpace(Entry.Term) && !string.IsNullOrWhiteSpace(Entry.Meaning)
                             && Entry.NotebookId > 0;

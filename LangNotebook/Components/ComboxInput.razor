@@ -1,0 +1,47 @@
+﻿@{
+    var selected = Selected();
+    var rows = GetRows(selected);
+}
+
+<div class="relative">
+    <div class="nt-input flex min-h-9 cursor-text flex-wrap items-center gap-1 focus-within:[box-shadow:inset_0_0_0_2px_var(--nt-accent)]"
+         @onclick="() => FocusInputAsync()">
+        @foreach (var tag in selected)
+        {
+            var tone = Tone(tag);
+            var captured = tag;
+            <span @key="tag" class="@($"nt-tag nt-tag-{tone} max-w-full gap-0.5 pr-0.5")">
+                <span class="min-w-0 break-all">@tag</span>
+                <button type="button" tabindex="-1" aria-label="@($"Discard {tag}")" title="Discard"
+                        class="inline-flex size-4 shrink-0 items-center justify-center rounded-nt text-current opacity-60 hover:bg-black/10 hover:opacity-100"
+                        @onclick="() => RemoveAsync(captured)" @onclick:stopPropagation="true">
+                    <Icon Name="close" Size="12" />
+                </button>
+            </span>
+        }
+        <input @ref="_input" type="text" role="combobox" autocomplete="off" aria-autocomplete="list"
+               class="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm text-ink outline-none placeholder:text-faint"
+               aria-expanded="@(_open ? "true" : "false")" aria-controls="@_listId"
+               aria-activedescendant="@(_open && _active >= 0 ? $"{_listId}-{_active}" : null)"
+               placeholder="@(selected.Count == 0 ? Placeholder : "Tag…")" value="@_text" @oninput="OnInput"
+               @onfocus="OnFocus" @onblur="OnBlurAsync" @onkeydown="OnKeyDownAsync" @attributes="Attributes" />
+    </div>
+    @if (_open && rows.Count > 0)
+    {
+        <div id="@_listId" role="listbox" aria-multiselectable="true" @onmousedown:preventDefault
+             class="absolute left-0 right-0 z-30 mt-1 max-h-60 overflow-y-auto rounded-nt border border-line bg-nt-bg p-1 shadow-pop">
+            @for (var i = 0; i < rows.Count; i++)
+            {
+                var index = i;
+                var option = rows[i];
+                <button type="button" id="@($"{_listId}-{index}")" role="option" aria-selected="false"
+                        class="@($"flex min-h-8 w-full items-center gap-2 rounded-nt px-2 py-1 text-left text-sm text-ink hover:bg-hov {(index == _active ? "bg-hov" : string.Empty)}")"
+                        @onclick="() => AddAsync(option)">
+                    <span class="@($"nt-tag nt-tag-{Tone(option)} min-w-0 break-all")">
+                        @option
+                    </span>
+                </button>
+            }
+        </div>
+    }
+</div>

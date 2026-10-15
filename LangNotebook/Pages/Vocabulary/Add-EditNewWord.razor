@@ -69,7 +69,8 @@
             <span class="nt-label">
                 Tags (comma-separated)
             </span>
-            <input class="nt-input" @bind="Entry.Tags" @bind:event="oninput" placeholder="TOEIC, work"/>
+            @* <input class="nt-input" @bind="Entry.Tags" @bind:event="oninput" placeholder="TOEIC, work"/> *@
+            <ComboxInput @bind-Value="Entry.Tags" Options="Tags" Placeholder="TOEIC, work"/>
         </label>
         <label class="block">
             <span class="nt-label">

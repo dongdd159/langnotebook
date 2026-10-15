@@ -136,11 +136,7 @@ public sealed class LibraryService(
                 continue;
             var entry = new VocabEntry
             {
-                NotebookId = notebookId,
-                Term = parts[0],
-                CreatedUtc = now,
-                UpdatedUtc = now,
-                DueUtc = now,
+                NotebookId = notebookId, Term = parts[0], CreatedUtc = now, UpdatedUtc = now, DueUtc = now,
                 Tags = defaultTags
             };
             if (parts.Length == 2)
