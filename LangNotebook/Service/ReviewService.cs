@@ -8,7 +8,8 @@ namespace LangNotebook.Service;
 public class ReviewService(
     IDbContextFactory<ApplicationContext> _factory,
     BrowserDbStorage _storage,
-    DatabaseInitializer _initializer)
+    DatabaseInitializer _initializer,
+    LibraryService _library)
 {
     
     private async Task<ApplicationContext> CreateAsync()
@@ -34,8 +35,8 @@ public class ReviewService(
         return (vocabDue + grammarDue, vocabNew + grammarNew);
     }
 
-    public async Task<List<ReviewCard>> BuildSessionAsync(ReviewScope scope, int? notebookId, AppSettings settings,
-        bool includeNew = true)
+    public async Task<List<ReviewCard>> BuildSessionAsync(ReviewScope scope, ItemFilter itemFilter,
+        AppSettings settings, bool includeNew = true)
     {
         await using var db = await CreateAsync();
         var now = DateTime.UtcNow;
@@ -45,7 +46,10 @@ public class ReviewService(
         if (scope != ReviewScope.GrammarOnly)
         {
             var vocab = await db.VocabEntries.AsNoTracking()
-                .Where(x => !x.IsSuspended && (!notebookId.HasValue || x.NotebookId == notebookId.Value)).ToListAsync();
+                .Where(x => !x.IsSuspended &&
+                            (!itemFilter.NotebookId.HasValue || x.NotebookId == itemFilter.NotebookId.Value))
+                .ToListAsync();
+            vocab = LibraryService.ApplyCommonFilters(vocab, itemFilter, _ => string.Empty).ToList();
             foreach (var entry in vocab)
             {
                 var card = ToCard(entry);
@@ -58,8 +62,10 @@ public class ReviewService(
         }
         if (scope != ReviewScope.VocabularyOnly)
         {
-            var grammar = await db.GrammarPatterns.AsNoTracking()
-                .Where(x => !x.IsSuspended && (!notebookId.HasValue || x.NotebookId == notebookId.Value)).ToListAsync();
+            var grammar = await db.GrammarPatterns.AsNoTracking().Where(x =>
+                    !x.IsSuspended && (!itemFilter.NotebookId.HasValue || x.NotebookId == itemFilter.NotebookId.Value))
+                .ToListAsync();
+            grammar = LibraryService.ApplyCommonFilters(grammar, itemFilter, _ => string.Empty).ToList();
             foreach (var pattern in grammar)
             {
                 var card = ToCard(pattern);

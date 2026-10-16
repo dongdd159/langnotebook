@@ -1,0 +1,361 @@
+﻿@page "/review"
+@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject SettingsService SettingsSvc
+@inject ReviewService Reviews
+@inject LibraryService Library
+
+<PageTitle>Review · Language Notebook</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 outline-none sm:px-8 sm:pt-10 lg:px-16"
+     tabindex="0" @ref="_root" @onkeydown="OnKeyDown">
+    @if (_phase == Phase.Setup)
+    {
+        <header class="min-w-0">
+            <h1 class="m-0 mt-3 text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[36px]">
+                Review Session
+            </h1>
+            <p class="m-0 mt-1 text-sm text-mute">
+                @_dueCount cards due · @_newCount new cards
+            </p>
+        </header>
+        <div class="max-w-3xl">
+            <div class="mt-8 border-t border-line">
+                <details class="group border-b border-line">
+                    <summary
+                        class="flex cursor-pointer list-none items-center justify-between gap-4 py-3 outline-none marker:content-none [&::-webkit-details-marker]:hidden focus-visible:[box-shadow:inset_0_0_0_2px_var(--nt-accent)]">
+                        <span class="min-w-0">
+                            <span class="block text-sm text-ink">Scope</span>
+                            <span class="block text-xs text-mute">Card group to include in this session</span>
+                        </span>
+                        <span class="flex shrink-0 items-center gap-1.5">
+                            <span class="inline-flex text-faint transition-transform group-open:rotate-90"
+                                  aria-hidden="true">
+                                <Icon Name="chevron" Size="14"/>
+                            </span>
+                        </span>
+                    </summary>
+                    <div class="mb-3 ml-1 border-l-2 border-line pl-4">
+                        <fieldset class="m-0 min-w-0 border-0 p-0 py-2.5">
+                            <legend class="p-0 text-sm text-ink">Card group</legend>
+                            <div class="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2" role="radiogroup">
+                                @foreach (var scope in Scopes)
+                                {
+                                    <label class="flex min-h-9 cursor-pointer select-none items-center gap-2 rounded-nt px-2.5 py-1.5 text-sm text-ink [box-shadow:inset_0_0_0_1px_var(--nt-line)] hover:bg-hov has-checked:bg-nt-accent-soft has-checked:text-nt-accent has-checked:shadow-none has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
+                                        <input type="radio" class="sr-only" name="review-scope" value="@((int)scope)"
+                                               checked="@(_scope == scope)" @onchange="OnScopeChanged" />
+                                        <span class="min-w-0 flex-1 break-words">@Labels.Scope(scope)</span>
+                                        @if (_scope == scope)
+                                        {
+                                            <span class="shrink-0" aria-hidden="true">✓</span>
+                                        }
+                                    </label>
+                                }
+                            </div>
+                        </fieldset>
+                        <label class="flex flex-col gap-1.5 border-t border-line py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                            <span class="min-w-0">
+                                <span class="block text-sm text-ink">Tag</span>
+                                <span class="block text-xs text-mute">Which kinds of cards to mix in</span>
+                            </span>
+                            <select class="nt-input h-8! w-auto! py-0! text-xs md:h-7!" aria-label="Filter by tag"
+                                    value="@_filter.Tag" @onchange="OnTagChanged">
+                                <option value="">
+                                    All Tags
+                                </option>
+                                @foreach (var tag in _tags)
+                                {
+                                    <option value="@tag">
+                                        @tag
+                                    </option>
+                                }
+                            </select>
+                        </label>
+                    </div>
+                </details>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Direction
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Grammar structures are always prompted as formula → meaning
+                        </span>
+                    </span>
+                    <select class="nt-input sm:w-56" value="@((int)_direction)" @onchange="OnDirectionChanged">
+                        <option value="0">
+                            Term → Meaning
+                        </option>
+                        <option value="1">
+                            Meaning → Term
+                        </option>
+                        <option value="2">
+                            Mix both directions
+                        </option>
+                    </select>
+                </label>
+                <label class="flex cursor-pointer items-center justify-between gap-8 border-b border-line py-3">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Learn new cards in this session
+                        </span>
+                        <span class="block text-xs text-mute">
+                            Turn off if you only want to review due cards
+                        </span>
+                    </span>
+                    <input type="checkbox" class="h-4 w-4 shrink-0 accent-[var(--nt-accent)]" checked="@_includeNew"
+                           @onchange="OnIncludeNewChanged"/>
+                </label>
+            </div>
+            <button type="button" class="nt-btn nt-btn-primary mt-6 h-10! px-5! text-sm! md:h-9!" @onclick="StartAsync">
+                <Icon Name="clock" Size="14"/>
+                Start
+            </button>
+            @* Keyboard Shortcuts Callout *@
+            <div class="mt-8 flex gap-2.5 rounded-nt bg-nt-side px-3 py-2.5 text-sm text-ink">
+                <span aria-hidden="true">⌨️</span>
+                <p class="m-0 min-w-0 leading-7">
+                    Shortcuts:
+                    <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
+                        Space
+                    </kbd>
+                    flip card ·
+                    <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
+                        1
+                    </kbd>
+                    Again ·
+                    <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
+                        2
+                    </kbd>
+                    Hard ·
+                    <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
+                        3
+                    </kbd>
+                    Good ·
+                    <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
+                        4
+                    </kbd>
+                    Easy
+                </p>
+            </div>
+        </div>
+    }
+    else if (_phase == Phase.Session && _current is not null)
+    {
+        <div class="mx-auto mt-3 max-w-3xl">
+            <div class="flex items-center gap-3">
+                <div class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-hov" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="@SessionPercent" aria-label="Review progress">
+                    <div class="h-full rounded-full bg-nt-accent transition-[width]" style="width: @(SessionPercent)%">
+                    </div>
+                </div>
+                <span class="shrink-0 text-xs tabular-nums text-mute">
+                    @(_stats.Done + 1) / @_stats.Total
+                </span>
+                <button type="button" class="nt-btn shrink-0" @onclick="FinishSession">
+                    End
+                </button>
+            </div>
+            <p class="m-0 mt-2 truncate text-xs text-faint">
+                @_current.NotebookName
+            </p>
+            <section class="mt-4 overflow-hidden rounded-nt border border-line bg-nt-bg shadow-card" aria-live="polite">
+                <div class="flex items-center gap-2 px-4 pt-3 text-xs text-mute">
+                    <span class="nt-tag nt-tag-0">
+                        @Labels.Kind(_current.Kind)
+                    </span>
+                    @if (_current.IsNew)
+                    {
+                        <span class="nt-tag nt-tag-4">
+                            thẻ mới
+                        </span>
+                    }
+                </div>
+                <div
+                    class="flex min-h-[200px] flex-col items-center justify-center gap-2 px-4 py-8 text-center sm:min-h-[240px] sm:px-10">
+                    <div class="break-words text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[40px]">
+                        @FrontText
+                    </div>
+                    @if (!_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
+                    {
+                        <div class="text-base text-mute sm:text-lg">
+                            @_current.Reading
+                        </div>
+                    }
+                </div>
+                @if (!_revealed)
+                {
+                    <div class="flex flex-col items-center gap-2 border-t border-line px-4 py-4">
+                        <button type="button" class="nt-btn nt-btn-primary h-10! px-5! text-sm! md:h-9!"
+                                @onclick="Reveal">
+                            Show Answer
+                        </button>
+                        <span class="hidden text-xs text-faint md:block">
+                            or press 
+                            <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono">
+                                Space
+                            </kbd>
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col items-center gap-2 border-t border-line px-4 py-6 text-center sm:px-10">
+                        <div class="break-words text-xl font-semibold leading-snug text-ink sm:text-2xl">
+                            @BackText
+                        </div>
+                        @if (_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
+                        {
+                            <div class="text-base text-mute">
+                                @_current.Reading
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_current.Extra))
+                        {
+                            <p class="m-0 max-w-xl text-sm text-mute">
+                                @_current.Extra
+                            </p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_current.Example))
+                        {
+                            <div
+                                class="mt-2 w-full max-w-xl border-l-2 border-nt-press pl-3 text-left text-sm text-ink">
+                                @foreach (var line in _current.Example.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <div class="break-words">
+                                        @line
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(_current.ExampleMeaning))
+                                {
+                                    <div class="mt-0.5 break-words text-mute">
+                                        @_current.ExampleMeaning
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 border-t border-line p-3 sm:grid-cols-4">
+                        @foreach (var grade in Grades)
+                        {
+                            var gradeIndex = Array.IndexOf(Grades, grade);
+                            var gradeTone = gradeIndex switch
+                            {
+                                0 => "bg-[var(--tag-8-bg)] text-[color:var(--tag-8-fg)]",
+                                1 => "bg-[var(--tag-2-bg)] text-[color:var(--tag-2-fg)]",
+                                2 => "bg-[var(--tag-5-bg)] text-[color:var(--tag-5-fg)]",
+                                _ => "bg-[var(--tag-4-bg)] text-[color:var(--tag-4-fg)]"
+                            };
+                            <button type="button"
+                                    class="@($"nt-btn h-auto! flex-col gap-0.5 py-2.5 shadow-none! hover:brightness-95 {gradeTone}")"
+                                    @onclick="@(() => GradeAsync(grade))">
+                                <span class="flex items-center gap-1.5">
+                                    <kbd class="rounded-nt bg-black/10 px-1 font-mono text-[11px] font-normal">
+                                        @(gradeIndex + 1)
+                                    </kbd>
+                                    <span class="text-sm font-semibold">
+                                        @SrsScheduler.GradeLabel(grade)
+                                    </span>
+                                </span>
+                                <span class="text-xs font-normal opacity-75">
+                                    @SrsScheduler.PreviewLabel(_current.Item, grade, DateTime.UtcNow)
+                                </span>
+                            </button>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    }
+    else if (_phase == Phase.Empty)
+    {
+        <div class="flex flex-col items-center gap-2 px-4 py-20 text-center">
+            <div class="text-4xl" aria-hidden="true">
+                🎉
+            </div>
+            <h2 class="m-0 text-base font-semibold text-ink">
+                No cards to review
+            </h2>
+            <p class="m-0 max-w-sm text-sm text-mute">
+                You've completed all due cards. Add new vocabulary or check back later.
+            </p>
+            <div class="mt-3 flex flex-wrap justify-center gap-2">
+                <a class="nt-btn no-underline" href="vocabulary">
+                    <Icon Name="plus" Size="14"/>
+                    Add Vocabulary
+                </a>
+                <button type="button" class="nt-btn nt-btn-primary" @onclick="ResetToSetup">
+                    Change Scope
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="mx-auto mt-3 max-w-3xl">
+            <header class="min-w-0">
+                <h1 class="m-0 mt-3 text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[36px]">
+                    Session Complete
+                </h1>
+                <p class="m-0 mt-1 text-sm text-mute">
+                    Reviewed @_stats.Done cards in @Labels.Duration(_elapsedSeconds).
+                </p>
+            </header>
+            <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-nt bg-[var(--tag-8-bg)] px-3 py-3 text-[color:var(--tag-8-fg)]">
+                    <div class="text-2xl font-bold tabular-nums">
+                        @_stats.Again
+                    </div>
+                    <div class="text-xs">
+                        Again
+                    </div>
+                </div>
+                <div class="rounded-nt bg-[var(--tag-2-bg)] px-3 py-3 text-[color:var(--tag-2-fg)]">
+                    <div class="text-2xl font-bold tabular-nums">
+                        @_stats.Hard
+                    </div>
+                    <div class="text-xs">
+                        Hard
+                    </div>
+                </div>
+                <div class="rounded-nt bg-[var(--tag-5-bg)] px-3 py-3 text-[color:var(--tag-5-fg)]">
+                    <div class="text-2xl font-bold tabular-nums">
+                        @_stats.Good
+                    </div>
+                    <div class="text-xs">
+                        Good
+                    </div>
+                </div>
+                <div class="rounded-nt bg-[var(--tag-4-bg)] px-3 py-3 text-[color:var(--tag-4-fg)]">
+                    <div class="text-2xl font-bold tabular-nums">
+                        @_stats.Easy
+                    </div>
+                    <div class="text-xs">
+                        Easy
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between gap-4 border-y border-line py-3 text-sm">
+                <span class="text-mute">
+                    Accuracy
+                </span>
+                <strong class="font-semibold tabular-nums text-ink">
+                    @(Math.Round(_stats.Accuracy * 100))%
+                </strong>
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-2">
+                <button type="button" class="nt-btn nt-btn-primary" @onclick="ResetToSetup">
+                    Continue Reviewing
+                </button>
+                <a class="nt-btn no-underline" href="stats">
+                    <Icon Name="chart" Size="14"/>
+                    View Stats
+                </a>
+            </div>
+        </div>
+    }
+</div>

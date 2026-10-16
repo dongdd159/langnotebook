@@ -11,7 +11,6 @@
 <PageTitle>Sentence Patterns &amp; Structures · Language Notebook</PageTitle>
 
 <CascadingValue Value="_appContext">
-
     <div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-16">
         <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
             <div class="min-w-0">
@@ -27,7 +26,6 @@
                 </button>
             </div>
         </div>
-
         <div class="mt-6 flex flex-wrap items-center gap-2 border-y border-line py-2">
             <div class="relative min-w-[12rem] flex-1 sm:max-w-xs">
                 <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint">
@@ -77,7 +75,6 @@
                 Due Only
             </label>
         </div>
-
         <div class="mt-4">
             @if (_loading)
             {
@@ -185,7 +182,7 @@
         </div>
     </div>
 
-    <Add_EditGrammar @bind-IsOpen="_editorOpen" @bind-Entry="_draft" OnSaved="AddNewPattern"></Add_EditGrammar>
+    <Add_EditGrammar @bind-IsOpen="_editorOpen" @bind-Entry="_draft" Tags="_tags" OnSaved="AddNewPattern"/>
 
 </CascadingValue>
 

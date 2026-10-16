@@ -17,8 +17,6 @@ public partial class Grammar : ComponentBase
     private bool _loading = true;
     private bool _editorOpen;
     private GrammarPattern _draft = new();
-    private bool CanSave => !string.IsNullOrWhiteSpace(_draft.Pattern) && !string.IsNullOrWhiteSpace(_draft.Meaning)
-                                                                       && _draft.NotebookId > 0;
 
     protected override void OnInitialized() => State.Changed += OnStateChanged;
 
