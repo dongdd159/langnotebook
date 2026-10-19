@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj": {}
+    "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj": {}
   },
   "projects": {
-    "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj": {
+    "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj",
+        "projectUniqueName": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj",
         "projectName": "LangNotebook",
-        "projectPath": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj",
-        "packagesPath": "C:\\Users\\danga\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\obj\\",
+        "projectPath": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj",
+        "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\danga\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -27,7 +23,6 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "http://ro-soft3-srv:8082/repository/nuget-group/": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -57,7 +52,7 @@
             "Microsoft.AspNetCore.App.Internal.Assets": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.12, )",
+              "version": "[10.0.11, )",
               "autoReferenced": true
             },
             "Microsoft.AspNetCore.Components.WebAssembly": {
@@ -76,13 +71,13 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.12, )",
+              "version": "[10.0.11, )",
               "autoReferenced": true
             },
             "Microsoft.NET.Sdk.WebAssembly.Pack": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.12, )",
+              "version": "[10.0.13, )",
               "autoReferenced": true
             }
           },
@@ -97,12 +92,18 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[10.0.13, 10.0.13]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

@@ -18,73 +18,73 @@ build_property.EntryPointFilePath =
 build_property._SupportedPlatformList = browser
 build_property.RootNamespace = LangNotebook
 build_property.RootNamespace = LangNotebook
-build_property.ProjectDir = C:\Users\danga\source\repos6\LangNotebook.0.1\LangNotebook\
+build_property.ProjectDir = C:\Users\ASUS\Downloads\Projekt\langnotebook\LangNotebook\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = false
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\danga\source\repos6\LangNotebook.0.1\LangNotebook
+build_property.MSBuildProjectDirectory = C:\Users\ASUS\Downloads\Projekt\langnotebook\LangNotebook
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/App.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/App.razor]
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/NotFound.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTm90Rm91bmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/_Imports.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Components/ComboxInput.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Components/ComboxInput.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDb21ib3hJbnB1dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-jqrbprxqwj
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Components/Icon.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Components/Icon.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xJY29uLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-uak275yp2r
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Components/Modal.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Components/Modal.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNb2RhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-f3copr3x3b
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Layout/MainLayout.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE1haW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-uijbcp07xn
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Layout/NavMenu.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = TGF5b3V0XE5hdk1lbnUucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-4w0ostu6um
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Grammar/Add-EditGrammar.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Grammar/Add-EditGrammar.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JhbW1hclxBZGQtRWRpdEdyYW1tYXIucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-w1hhtbqg1c
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Grammar/Grammar.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Grammar/Grammar.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3JhbW1hclxHcmFtbWFyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-sig1g10tc1
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Home.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-yyne7aou7h
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Setting/Settings.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Setting/Settings.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ1xTZXR0aW5ncy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-mc303uqedy
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/Add-EditNewWord.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Vocabulary/Add-EditNewWord.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxBZGQtRWRpdE5ld1dvcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = b-gmvmx2t1ta
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/BulkImport.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Vocabulary/BulkImport.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxCdWxrSW1wb3J0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-sq6bcr2d8d
 
-[C:/Users/danga/source/repos6/LangNotebook.0.1/LangNotebook/Pages/Vocabulary/Vocabulary.razor]
+[C:/Users/ASUS/Downloads/Projekt/langnotebook/LangNotebook/Pages/Vocabulary/Vocabulary.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm9jYWJ1bGFyeVxWb2NhYnVsYXJ5LnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-8to668h8qz

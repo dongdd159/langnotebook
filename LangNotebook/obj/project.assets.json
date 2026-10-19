@@ -2,7 +2,7 @@
   "version": 4,
   "targets": {
     "net10.0": {
-      "Microsoft.AspNetCore.App.Internal.Assets/10.0.12": {
+      "Microsoft.AspNetCore.App.Internal.Assets/10.0.11": {
         "type": "package",
         "build": {
           "build/Microsoft.AspNetCore.App.Internal.Assets.props": {},
@@ -685,13 +685,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/10.0.12": {
+      "Microsoft.NET.ILLink.Tasks/10.0.11": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.12": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.13": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -836,7 +836,7 @@
       }
     },
     "net10.0/browser-wasm": {
-      "Microsoft.AspNetCore.App.Internal.Assets/10.0.12": {
+      "Microsoft.AspNetCore.App.Internal.Assets/10.0.11": {
         "type": "package",
         "build": {
           "build/Microsoft.AspNetCore.App.Internal.Assets.props": {},
@@ -1519,13 +1519,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/10.0.12": {
+      "Microsoft.NET.ILLink.Tasks/10.0.11": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.12": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.13": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -1584,10 +1584,10 @@
     }
   },
   "libraries": {
-    "Microsoft.AspNetCore.App.Internal.Assets/10.0.12": {
-      "sha512": "+sIBo9AMBZH46qHWHQdfzcGMt+RuBaPYrUMOAM9VjA7MQ9QtIez3lq1C3E05+Yroa94KKt3DSWaxmCI4H28a9Q==",
+    "Microsoft.AspNetCore.App.Internal.Assets/10.0.11": {
+      "sha512": "tYYYBZsuF2DSz1I3hcfB8qC4nNekIKufkYZOJ2R28fNK3PkS7fJao/mIX5H84NH94UACZQ4dhvt8GDlkrJFwLg==",
       "type": "package",
-      "path": "microsoft.aspnetcore.app.internal.assets/10.0.12",
+      "path": "microsoft.aspnetcore.app.internal.assets/10.0.11",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1603,7 +1603,7 @@
         "build/Microsoft.AspNetCore.App.Internal.Assets.targets",
         "buildMultiTargeting/Microsoft.AspNetCore.App.Internal.Assets.targets",
         "buildTransitive/Microsoft.AspNetCore.App.Internal.Assets.targets",
-        "microsoft.aspnetcore.app.internal.assets.10.0.12.nupkg.sha512",
+        "microsoft.aspnetcore.app.internal.assets.10.0.11.nupkg.sha512",
         "microsoft.aspnetcore.app.internal.assets.nuspec"
       ]
     },
@@ -2704,10 +2704,10 @@
         "microsoft.jsinterop.webassembly.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/10.0.12": {
-      "sha512": "xi+BDjFpW+Sb+MHFHaH6Y/gV9I8BluFwRXc1QyCdoZbIK26eNiBeFuMTe/FMwc33G1wdHCyDg7CVTmb8OdQrMQ==",
+    "Microsoft.NET.ILLink.Tasks/10.0.11": {
+      "sha512": "IBf7lbovvjGWVWXZX5cJ/cO0WXbId0Zq4BuSeT94mGZuOAP66oMeH9PTBZ9Jpp3Jb6jtK0qm/NyUbPRo1gC/wQ==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/10.0.12",
+      "path": "microsoft.net.illink.tasks/10.0.11",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -2720,7 +2720,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.10.0.12.nupkg.sha512",
+        "microsoft.net.illink.tasks.10.0.11.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net/ILLink.Tasks.deps.json",
         "tools/net/ILLink.Tasks.dll",
@@ -2754,10 +2754,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.12": {
-      "sha512": "MIeBVeWkbKdggl3kmmIUnx8ZNEgjD2m1gTN/0W+TDRn6zcL1WZdq5hXhGQ0wjuSlw/8tvwwCg79PemfkJ3+5JA==",
+    "Microsoft.NET.Sdk.WebAssembly.Pack/10.0.13": {
+      "sha512": "Jnsswa0pti2lHaOx8gx5SwqcVaZrb82fhsjjjt8xNOZ1pzNvlnzP0ivjY6xT4m+CYCbrz3UkM44s1z9Q+GGh+A==",
       "type": "package",
-      "path": "microsoft.net.sdk.webassembly.pack/10.0.12",
+      "path": "microsoft.net.sdk.webassembly.pack/10.0.13",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -2787,7 +2787,7 @@
         "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets",
         "build/Wasm.web.config",
         "build/browser.runtimeconfig.template.json",
-        "microsoft.net.sdk.webassembly.pack.10.0.12.nupkg.sha512",
+        "microsoft.net.sdk.webassembly.pack.10.0.13.nupkg.sha512",
         "microsoft.net.sdk.webassembly.pack.nuspec",
         "tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll",
         "tools/net10.0/Microsoft.NET.WebAssembly.Webcil.dll",
@@ -2885,33 +2885,28 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.12",
+      "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.11",
       "Microsoft.AspNetCore.Components.WebAssembly >= 10.0.12",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 10.0.12",
       "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.12",
-      "Microsoft.NET.ILLink.Tasks >= 10.0.12",
-      "Microsoft.NET.Sdk.WebAssembly.Pack >= 10.0.12"
+      "Microsoft.NET.ILLink.Tasks >= 10.0.11",
+      "Microsoft.NET.Sdk.WebAssembly.Pack >= 10.0.13"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\danga\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\ASUS\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj",
+      "projectUniqueName": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj",
       "projectName": "LangNotebook",
-      "projectPath": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\LangNotebook.csproj",
-      "packagesPath": "C:\\Users\\danga\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\danga\\source\\repos6\\LangNotebook.0.1\\LangNotebook\\obj\\",
+      "projectPath": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\LangNotebook.csproj",
+      "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ASUS\\Downloads\\Projekt\\langnotebook\\LangNotebook\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\danga\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -2920,7 +2915,6 @@
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\dotnet\\library-packs": {},
-        "http://ro-soft3-srv:8082/repository/nuget-group/": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2950,7 +2944,7 @@
           "Microsoft.AspNetCore.App.Internal.Assets": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.12, )",
+            "version": "[10.0.11, )",
             "autoReferenced": true
           },
           "Microsoft.AspNetCore.Components.WebAssembly": {
@@ -2969,13 +2963,13 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.12, )",
+            "version": "[10.0.11, )",
             "autoReferenced": true
           },
           "Microsoft.NET.Sdk.WebAssembly.Pack": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.12, )",
+            "version": "[10.0.13, )",
             "autoReferenced": true
           }
         },
@@ -2990,12 +2984,18 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[10.0.13, 10.0.13]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
