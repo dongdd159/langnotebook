@@ -1,8 +1,9 @@
 ﻿@using LangNotebook.Components
 @using LangNotebook.Helper
 
-<Modal @bind-Visible="IsOpen" Title="@(Entry.Id == 0 ? "Add Pattern" : "Edit Pattern")" Size="lg">
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="@(Entry.Id == 0 ? "Add Pattern" : "Edit Pattern")"
+       Size="lg">
+<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label class="block">
             <span class="nt-label">
                 Notebook
@@ -62,7 +63,7 @@
             <span class="nt-label">
                 Tags (comma separated)
             </span>
-            <input class="nt-input" @bind="Entry.Tags" @bind:event="oninput"/>
+            <ComboxInput @bind-Value="Entry.Tags" Options="Tags" Placeholder="TOEIC, work"/>
         </label>
         <label class="block">
             <span class="nt-label">Level</span>

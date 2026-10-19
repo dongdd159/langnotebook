@@ -1,23 +1,29 @@
-﻿using LangNotebook.Helper;
-using LangNotebook.Models;
+﻿using LangNotebook.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace LangNotebook.Pages.Vocabulary;
 
 public partial class Add_EditNewWord : ComponentBase
 {
-    [CascadingParameter] public VocabularyCascadingContext Context { get; set; } = default!;
-    [Parameter] public bool IsOpen { get; set; }
-    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
-    [Parameter] public required VocabEntry Entry { get; set; }
-    [Parameter] public EventCallback<VocabEntry> EntryChanged { get; set; }
-    [Parameter] public EventCallback<VocabEntry> OnSaved { get; set; }
-    [Parameter] public EventCallback<string> OnCreateTag { get; set; }
-    [Parameter] public List<string> Tags { get; set; }
+    [CascadingParameter] 
+    public VocabularyCascadingContext Context { get; set; } = default!;
+    [Parameter] 
+    public bool IsOpen { get; set; }
+    [Parameter] 
+    public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] 
+    public required VocabEntry Entry { get; set; }
+    [Parameter] 
+    public EventCallback<VocabEntry> EntryChanged { get; set; }
+    [Parameter] 
+    public EventCallback<VocabEntry> OnSaved { get; set; }
+    [Parameter] 
+    public EventCallback<string> OnCreateTag { get; set; }
+    [Parameter] 
+    public List<string> Tags { get; set; }
     private string _readingLabel = "Reading label";
-    private bool CanSave => !string.IsNullOrWhiteSpace(Entry.Term) && !string.IsNullOrWhiteSpace(Entry.Meaning)
-                            && Entry.NotebookId > 0;
+    private bool CanSave => !string.IsNullOrWhiteSpace(Entry.Term) && !string.IsNullOrWhiteSpace(Entry.Meaning) &&
+                            Entry.NotebookId > 0;
 
     protected override void OnParametersSet() => _readingLabel =
         Context.Notebooks.FirstOrDefault(x => x.Id == Entry.NotebookId)?.ReadingLabel ?? "Reading label";

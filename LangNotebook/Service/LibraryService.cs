@@ -234,7 +234,7 @@ public sealed class LibraryService(
             .OrderByDescending(x => x.UpdatedUtc).Take(take).ToListAsync();
     }
 
-    private static IEnumerable<T> ApplyCommonFilters<T>(List<T> items, ItemFilter filter,
+    public static IEnumerable<T> ApplyCommonFilters<T>(List<T> items, ItemFilter filter,
         Func<T, string> searchTextSelector) where T : StudyItemBase
     {
         IEnumerable<T> result = items;
