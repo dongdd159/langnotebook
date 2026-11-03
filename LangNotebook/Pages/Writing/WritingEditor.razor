@@ -1,0 +1,271 @@
+﻿@page "/writing/new"
+@page "/writing/{Id:int}"
+@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@implements IAsyncDisposable
+@inject AppState State
+@inject WritingService Writings
+@inject LibraryService Library
+@inject NavigationManager Nav
+
+<PageTitle>@(_piece.Id == 0 ? "New article" : _piece.DisplayTitle) · Writing Practice</PageTitle>
+
+<div class="mx-auto w-full max-w-[1200px] px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-12">
+
+    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div class="min-w-0 flex-1 basis-80">
+            <input
+                class="mt-3 w-full min-w-0 border-0 bg-transparent p-0 text-[28px] font-bold leading-tight tracking-tight text-ink outline-none placeholder:text-faint sm:text-[36px]"
+                aria-label="Article title" placeholder="Give the article a title…"
+                @bind="_piece.Title" @bind:event="oninput"/>
+
+            <p class="m-0 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute">
+                @{ var statusTone = _piece.Status == Models.WritingStatus.Draft ? "nt-tag-0" : "nt-tag-4"; }
+                <span class="nt-tag @statusTone">@Labels.Status(_piece.Status)</span>
+                @if (_piece.Id > 0)
+                {
+                    <span>updated @Labels.RelativeDate(_piece.UpdatedUtc)</span>
+                }
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" class="nt-btn" @onclick="@(() => Nav.NavigateTo("writing"))">Back</button>
+            <button type="button" class="nt-btn" @onclick="ToggleStatusAsync">
+                @(_piece.Status == Models.WritingStatus.Draft ? "Mark as complete" : "Move to draft")
+            </button>
+            <button type="button" class="nt-btn nt-btn-primary" @onclick="SaveAsync">Save article</button>
+        </div>
+    </div>
+
+    @if (_prompt is not null)
+    {
+        <div class="mt-6 flex gap-2.5 rounded-nt bg-[var(--tag-3-bg)] px-3 py-2.5 text-sm text-[color:var(--tag-3-fg)]">
+            <div class="min-w-0">
+                <strong class="block font-semibold">@_prompt.Title</strong>
+                <p class="m-0 mt-0.5 break-words">@_prompt.PromptText</p>
+            </div>
+        </div>
+    }
+
+    <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div class="min-w-0">
+            <div class="border-y border-line py-2.5">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-mute">
+                    <span class="text-sm text-ink"><strong
+                            class="font-semibold tabular-nums">@_analysis.WordCount</strong> / @_piece.TargetWordCount words</span>
+                    <span>@_analysis.SentenceCount sentences · @_analysis.ParagraphCount paragraphs</span>
+                    <span class="inline-flex items-center gap-1 tabular-nums"><Icon Name="clock"
+                                                                                    Size="12"/> @Labels.Duration(_elapsedSeconds)</span>
+
+                    <label class="ml-auto flex items-center gap-1.5">
+                        Target
+                        <input class="nt-input h-7! w-20! py-0! text-xs! tabular-nums" type="number" min="20" step="10"
+                               @bind="_piece.TargetWordCount" @bind:event="onchange"/>
+                    </label>
+                </div>
+
+                <div class="mt-2 h-1 overflow-hidden rounded-full bg-hov" role="progressbar"
+                     aria-label="Word count progress"
+                     aria-valuemin="0" aria-valuemax="100"
+                     aria-valuenow="@(_piece.TargetWordCount > 0 ? Math.Min(100, 100 * _analysis.WordCount / _piece.TargetWordCount) : 0)">
+                    <div class="h-full rounded-full bg-nt-accent transition-[width]"
+                         style="width: @(_piece.TargetWordCount > 0 ? Math.Min(100, 100 * _analysis.WordCount / _piece.TargetWordCount) : 0)%"></div>
+                </div>
+            </div>
+
+            <textarea
+                class="mt-4 min-h-[420px] w-full resize-y font-ui rounded-nt border-0 bg-transparent p-3 text-base leading-7 text-ink outline-none [box-shadow:inset_0_0_0_1px_var(--nt-line)] placeholder:text-faint focus:[box-shadow:inset_0_0_0_2px_var(--nt-accent)] sm:p-4"
+                rows="20" aria-label="Article content"
+                placeholder="Start writing here…"
+                value="@_piece.Content"
+                @oninput="OnContentInput"></textarea>
+
+            <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button type="button" class="nt-btn nt-btn-primary" @onclick="AnalyzeAndSaveAsync">Grade article
+                </button>
+                <span class="min-w-0 flex-1 basis-64 text-xs text-mute">Automated score based on length, sentence and vocabulary variety, and target term usage ratio.</span>
+            </div>
+        </div>
+
+        <aside class="flex min-w-0 flex-col gap-4">
+
+            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-score">
+                @{
+                    var scoreTone = ScoreBucket(_analysis.TotalScore) switch
+                    {
+                        "high" => "nt-tag-4",
+                        "mid" => "nt-tag-5",
+                        "low" => "nt-tag-2",
+                        _ => "nt-tag-8"
+                    };
+                }
+
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="wr-score" class="m-0 text-sm font-semibold text-ink">Automated Score</h2>
+                    <span class="nt-tag @scoreTone text-sm font-semibold tabular-nums">@_analysis.TotalScore/100</span>
+                </div>
+                <p class="m-0 mt-1 text-xs text-mute">@WritingAnalyzer.ScoreBand(_analysis.TotalScore)</p>
+
+                <ul class="m-0 mt-3 flex list-none flex-col gap-2.5 p-0">
+                    <li>
+                        <div class="flex justify-between text-xs"><span class="text-mute">Length</span><span
+                                class="tabular-nums text-ink">@_analysis.ScoreLength/30</span></div>
+                        <div class="mt-1 h-1 overflow-hidden rounded-full bg-hov">
+                            <div class="h-full rounded-full bg-nt-accent"
+                                 style="width: @(100 * _analysis.ScoreLength / 30)%"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex justify-between text-xs"><span class="text-mute">Sentence Variety</span><span
+                                class="tabular-nums text-ink">@_analysis.ScoreVariety/20</span></div>
+                        <div class="mt-1 h-1 overflow-hidden rounded-full bg-hov">
+                            <div class="h-full rounded-full bg-nt-accent"
+                                 style="width: @(100 * _analysis.ScoreVariety / 20)%"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex justify-between text-xs"><span class="text-mute">Vocabulary</span><span
+                                class="tabular-nums text-ink">@_analysis.ScoreDiversity/25</span></div>
+                        <div class="mt-1 h-1 overflow-hidden rounded-full bg-hov">
+                            <div class="h-full rounded-full bg-nt-accent"
+                                 style="width: @(100 * _analysis.ScoreDiversity / 25)%"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex justify-between text-xs"><span class="text-mute">Target Word Usage</span><span
+                                class="tabular-nums text-ink">@_analysis.ScoreTargetUsage/25</span></div>
+                        <div class="mt-1 h-1 overflow-hidden rounded-full bg-hov">
+                            <div class="h-full rounded-full bg-nt-accent"
+                                 style="width: @(100 * _analysis.ScoreTargetUsage / 25)%"></div>
+                        </div>
+                    </li>
+                </ul>
+
+                @if (_analysis.Feedback.Count > 0)
+                {
+                    <div class="mt-4 flex flex-col gap-1.5">
+                        @foreach (var item in _analysis.Feedback)
+                        {
+                            var kind = item.Kind.ToString().ToLowerInvariant();
+                            var feedbackTone = kind.Contains("good") || kind.Contains("success") || kind.Contains("ok")
+                                ? "bg-[var(--tag-4-bg)] text-[color:var(--tag-4-fg)]"
+                                : kind.Contains("warn") || kind.Contains("tip") || kind.Contains("info")
+                                    ? "bg-[var(--tag-3-bg)] text-[color:var(--tag-3-fg)]"
+                                    : kind.Contains("bad") || kind.Contains("error") || kind.Contains("danger")
+                                        ? "bg-[var(--tag-8-bg)] text-[color:var(--tag-8-fg)]"
+                                        : "bg-nt-side text-ink";
+                            <div class="rounded-nt px-2.5 py-1.5 text-xs leading-5 @feedbackTone">@item.Message</div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-terms">
+                <h2 id="wr-terms" class="m-0 text-sm font-semibold text-ink">Target Vocabulary</h2>
+
+                @if (_targetTerms.Count == 0)
+                {
+                    <p class="m-0 mt-2 text-xs text-mute">No target words. You can add them in the box below.</p>
+                }
+                else
+                {
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        @foreach (var term in _targetTerms)
+                        {
+                            var used = _analysis.UsedTargetTerms.Contains(term, StringComparer.OrdinalIgnoreCase);
+                            var termTone = used ? "nt-tag-4" : "nt-tag-0";
+
+                            <span class="nt-tag @termTone max-w-full gap-1 break-all">
+                                @if (used)
+                                {
+                                    <span aria-hidden="true">✓</span>
+                                }
+                                @term
+                            </span>
+                        }
+                    </div>
+                }
+
+                <label class="mt-3 block">
+                    <span class="nt-label">Add / edit target words (separated by commas)</span>
+                    <input class="nt-input" value="@_targetTermsRaw" @oninput="OnTargetTermsInput"/>
+                </label>
+
+                @if (_suggestions.Count > 0)
+                {
+                    <div class="mt-3">
+                        <span class="text-xs text-mute">Suggestions from your notebook:</span>
+                        <div class="mt-1.5 flex flex-wrap gap-1.5">
+                            @foreach (var suggestion in _suggestions)
+                            {
+                                <button type="button"
+                                        class="nt-tag nt-tag-0 max-w-full cursor-pointer gap-1 break-all border-0 hover:brightness-95"
+                                        @onclick="@(() => AddTargetTerm(suggestion.Term))">
+                                    <Icon Name="plus" Size="10"/> @suggestion.Term
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+
+            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-rubric">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="wr-rubric" class="m-0 text-sm font-semibold text-ink">Self-Assessment</h2>
+                    <span class="text-xs tabular-nums text-mute">@_piece.RubricTotal/20</span>
+                </div>
+
+                <div class="mt-2">
+                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                        <span class="min-w-0 text-sm text-ink">Task fulfillment</span>
+                        <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreTask"
+                                @onchange="OnScoreTaskChanged">
+                            @foreach (var value in Scores)
+                            {
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                        <span class="min-w-0 text-sm text-ink">Coherence & layout</span>
+                        <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreCoherence"
+                                @onchange="OnScoreCoherenceChanged">
+                            @foreach (var value in Scores)
+                            {
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                        <span class="min-w-0 text-sm text-ink">Vocabulary</span>
+                        <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreVocabulary"
+                                @onchange="OnScoreVocabularyChanged">
+                            @foreach (var value in Scores)
+                            {
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                        <span class="min-w-0 text-sm text-ink">Grammar</span>
+                        <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreGrammar"
+                                @onchange="OnScoreGrammarChanged">
+                            @foreach (var value in Scores)
+                            {
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                    </label>
+                </div>
+
+                <label class="mt-3 block">
+                    <span class="nt-label">Lessons learned / Notes</span>
+                    <textarea class="nt-input" rows="4" @bind="_piece.SelfNotes" @bind:event="oninput"></textarea>
+                </label>
+            </section>
+        </aside>
+    </div>
+
+</div>

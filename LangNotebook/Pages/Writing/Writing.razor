@@ -1,0 +1,212 @@
+﻿@page "/writing"
+@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@implements IDisposable
+@inject AppState State
+@inject WritingService Writings
+@inject LibraryService Library
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Writing Practice · Language Notebook</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-16">
+    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div class="min-w-0">
+            <h1 class="m-0 mt-3 text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[36px]">Writing Practice</h1>
+            <p class="m-0 mt-1 text-sm text-mute">@_pieces.Count articles · @_pieces.Sum(x => x.WordCount) words written</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="button" class="nt-btn" @onclick="@(() => OpenPromptEditor(null))">
+                <Icon Name="plus" Size="14" /> Add Prompt
+            </button>
+            <button type="button" class="nt-btn nt-btn-primary" @onclick="@(() => Nav.NavigateTo("writing/new"))">
+                <Icon Name="pen" Size="14" /> Write New Article
+            </button>
+        </div>
+    </div>
+    <section class="mt-10" aria-labelledby="wl-prompts">
+        <h2 id="wl-prompts" class="m-0 text-base font-semibold text-ink">Prompt Bank</h2>
+        <p class="m-0 mt-0.5 text-sm text-mute">Choose a prompt to start writing with target word counts and suggested vocabulary.</p>
+        @if (_prompts.Count == 0)
+        {
+            <div class="mt-3 flex gap-2.5 rounded-nt bg-nt-side px-3 py-2.5 text-sm text-ink">
+                <span aria-hidden="true">💡</span>
+                <p class="m-0">No prompts available. Add custom prompts to practice regularly.</p>
+            </div>
+        }
+        else
+        {
+            <div class="mt-3 grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
+                @foreach (var prompt in _prompts)
+                {
+                    <article @key="prompt.Id"
+                             class="group flex min-w-0 flex-col gap-2.5 rounded-nt border border-line bg-nt-bg p-4 shadow-card transition-shadow hover:shadow-pop">
+                        <header class="flex items-start justify-between gap-3">
+                            <h3 class="m-0 min-w-0 break-words text-sm font-semibold leading-snug text-ink">@prompt.Title</h3>
+                            <span class="nt-tag nt-tag-5 shrink-0">@Labels.Level(prompt.Level)</span>
+                        </header>
+
+                        <p class="m-0 line-clamp-3 text-sm text-mute">@prompt.PromptText</p>
+
+                        @if (prompt.SuggestedTermList.Length > 0)
+                        {
+                            <div class="flex flex-wrap gap-1.5">
+                                @foreach (var term in prompt.SuggestedTermList)
+                                {
+                                    var termTone = term.Trim().ToLowerInvariant().Sum(c => (int)c) % 9;
+                                    <span class="nt-tag nt-tag-@(termTone) max-w-full break-all">@term</span>
+                                }
+                            </div>
+                        }
+                        <footer class="mt-1 flex items-center justify-between gap-2 border-t border-line pt-2.5">
+                            <span class="text-xs text-faint">Target @prompt.TargetWordCount words</span>
+
+                            <div class="-mr-1 flex items-center gap-0.5">
+                                <span class="flex gap-0.5 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                                    <button type="button" class="nt-icon-btn" title="Edit prompt" aria-label="Edit prompt" @onclick="@(() => OpenPromptEditor(prompt))"><Icon Name="edit" Size="14" /></button>
+                                    <button type="button" class="nt-icon-btn is-danger" title="Delete prompt" aria-label="Delete prompt" @onclick="@(() => DeletePromptAsync(prompt))"><Icon Name="trash" Size="14" /></button>
+                                </span>
+                                <button type="button" class="nt-btn nt-btn-primary ml-1"
+                                        @onclick="@(() => Nav.NavigateTo($"writing/new?promptId={prompt.Id}"))">Write This</button>
+                            </div>
+                        </footer>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="mt-12" aria-labelledby="wl-pieces">
+        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <h2 id="wl-pieces" class="m-0 text-base font-semibold text-ink">Written Articles</h2>
+
+            <div class="relative min-w-[12rem] flex-1 sm:max-w-xs sm:flex-none">
+                <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint">
+                    <Icon Name="search" Size="14" />
+                </span>
+                <input class="nt-input h-8! py-0! pl-8! md:h-7!" type="search" aria-label="Search articles"
+                       placeholder="Search articles…" value="@_search" @oninput="OnSearchInput" />
+            </div>
+        </div>
+
+        @if (_pieces.Count == 0)
+        {
+            <div class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                <h2 class="m-0 text-base font-semibold text-ink">No articles yet</h2>
+                <p class="m-0 max-w-sm text-sm text-mute">Select a prompt above or click “Write New Article” to get started.</p>
+                <button type="button" class="nt-btn nt-btn-primary mt-2" @onclick="@(() => Nav.NavigateTo("writing/new"))">
+                    <Icon Name="pen" Size="14" /> Write New Article
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="mt-3 border-t border-line" role="table" aria-label="Article list">
+                <div class="hidden grid-cols-[minmax(0,34fr)_minmax(0,12fr)_minmax(0,14fr)_minmax(0,12fr)_minmax(0,16fr)_2rem] items-center gap-x-4 border-b border-line py-1.5 text-xs text-faint md:grid" role="row">
+                    <div role="columnheader">Title</div>
+                    <div role="columnheader">Word Count</div>
+                    <div role="columnheader">Auto Score</div>
+                    <div role="columnheader">Self Score</div>
+                    <div role="columnheader">Updated</div>
+                    <div role="columnheader"><span class="sr-only">Actions</span></div>
+                </div>
+                @foreach (var piece in _pieces)
+                {
+                    var scoreTone = ScoreBucket(piece.AutoScore) switch
+                    {
+                        "high" => "nt-tag-4",
+                        "mid" => "nt-tag-5",
+                        "low" => "nt-tag-2",
+                        _ => "nt-tag-0"
+                    };
+                    var statusTone = piece.Status == Models.WritingStatus.Draft ? "nt-tag-0" : "nt-tag-4";
+                    <div @key="piece.Id" role="row"
+                         class="group grid min-h-12 grid-cols-[minmax(0,1fr)_auto_2rem] items-center gap-x-4 gap-y-1 border-b border-line py-2.5 transition-colors hover:bg-hov md:grid-cols-[minmax(0,34fr)_minmax(0,12fr)_minmax(0,14fr)_minmax(0,12fr)_minmax(0,16fr)_2rem] md:py-2">
+
+                        <div role="cell" class="min-w-0">
+                            <a class="block truncate text-sm font-medium text-ink no-underline hover:underline" href="@($"writing/{piece.Id}")">@piece.DisplayTitle</a>
+                            <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint">
+                                <span class="nt-tag @statusTone">@Labels.Status(piece.Status)</span>
+                                <span class="md:hidden">@piece.WordCount / @piece.TargetWordCount words · self-score @piece.RubricTotal/20 · @Labels.RelativeDate(piece.UpdatedUtc)</span>
+                            </div>
+                        </div>
+
+                        <div role="cell" class="hidden text-sm tabular-nums text-ink md:block">
+                            @piece.WordCount <span class="text-faint">/ @piece.TargetWordCount</span>
+                        </div>
+
+                        <div role="cell" class="justify-self-end md:justify-self-start">
+                            <span class="nt-tag @scoreTone font-medium tabular-nums">@piece.AutoScore/100</span>
+                        </div>
+
+                        <div role="cell" class="hidden text-sm tabular-nums text-ink md:block">@piece.RubricTotal/20</div>
+
+                        <div role="cell" class="hidden text-sm text-mute md:block">@Labels.RelativeDate(piece.UpdatedUtc)</div>
+
+                        <div role="cell" class="flex justify-end md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                            <button type="button" class="nt-icon-btn is-danger" title="Delete" aria-label="Delete article" @onclick="@(() => DeletePieceAsync(piece))"><Icon Name="trash" Size="14" /></button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<Modal @bind-Visible="_promptEditorOpen" Title="@(_promptDraft.Id == 0 ? "Add Writing Prompt" : "Edit Prompt")" Size="lg">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label class="block">
+            <span class="nt-label">Notebook</span>
+            <select class="nt-input" value="@_promptDraft.NotebookId" @onchange="OnPromptNotebookChanged">
+                @foreach (var notebook in _notebooks)
+                {
+                    <option value="@notebook.Id">@notebook.Name</option>
+                }
+            </select>
+        </label>
+
+        <label class="block">
+            <span class="nt-label">Topic</span>
+            <input class="nt-input" @bind="_promptDraft.Topic" @bind:event="oninput" />
+        </label>
+
+        <label class="block sm:col-span-2">
+            <span class="nt-label">Prompt Title *</span>
+            <input class="nt-input" @bind="_promptDraft.Title" @bind:event="oninput" />
+        </label>
+
+        <label class="block sm:col-span-2">
+            <span class="nt-label">Prompt Content *</span>
+            <textarea class="nt-input" rows="4" @bind="_promptDraft.PromptText" @bind:event="oninput"></textarea>
+        </label>
+
+        <label class="block">
+            <span class="nt-label">Target Word Count</span>
+            <input class="nt-input tabular-nums" type="number" min="20" step="10" @bind="_promptDraft.TargetWordCount" />
+        </label>
+
+        <label class="block">
+            <span class="nt-label">Level</span>
+            <select class="nt-input" value="@((int)_promptDraft.Level)" @onchange="OnPromptLevelChanged">
+                @foreach (var level in Levels)
+                {
+                    <option value="@((int)level)">@Labels.Level(level)</option>
+                }
+            </select>
+        </label>
+
+        <div class="block sm:col-span-2">
+            <span class="nt-label">Suggested Vocabulary</span>
+            <input class="nt-input" @bind="_promptDraft.SuggestedTerms" @bind:event="oninput" />
+        </div>
+    </div>
+
+    <div class="mt-5 flex justify-end gap-2">
+        <button type="button" class="nt-btn" @onclick="@(() => _promptEditorOpen = false)">Cancel</button>
+        <button type="button" class="nt-btn nt-btn-primary" @onclick="SavePromptAsync" disabled="@(!CanSavePrompt)">Save</button>
+    </div>
+</Modal>
+
