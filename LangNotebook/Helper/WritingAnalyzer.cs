@@ -8,6 +8,7 @@ public class WritingAnalyzer
 {
     private static readonly Regex WordRegex = new(@"[\p{L}\p{N}']+", RegexOptions.Compiled);
     private static readonly Regex SentenceRegex = new(@"[^.!?。！？\n]+[.!?。！？]?", RegexOptions.Compiled);
+
     private static readonly HashSet<string> StopWords = new(StringComparer.OrdinalIgnoreCase)
     {
         "the", "and", "that", "this", "with", "have", "has", "for", "are", "was", "were", "you", "your", "但是", "です",
@@ -25,7 +26,7 @@ public class WritingAnalyzer
             {
                 MissingTargetTerms = terms, Feedback = new List<WritingFeedback>
                 {
-                    new() { Kind = "info", Message = "Bắt đầu viết để nhận nhận xét tự động." }
+                    new() { Kind = "info", Message = "Start writing to receive automatic feedback." }
                 }
             };
         var isCjk = DetectCjk(trimmed);
@@ -71,54 +72,66 @@ public class WritingAnalyzer
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = $"Bài còn ngắn so với mục tiêu ({wordCount}/{target}). Hãy thêm ví dụ hoặc lý do cụ thể."
+                Message =
+                    $"The article is still short compared to your target ({wordCount}/{target}). Try adding specific examples or reasons."
             });
         else if (ratio > 1.4)
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = $"Bài dài hơn nhiều so với mục tiêu ({wordCount}/{target}). Thử cắt bớt phần lặp ý."
+                Message =
+                    $"The article is much longer than your target ({wordCount}/{target}). Try trimming redundant points."
             });
         else
             feedback.Add(new WritingFeedback
             {
                 Kind = "good",
-                Message = $"Độ dài hợp lý: {wordCount}/{target} từ."
+                Message = $"Good length: {wordCount}/{target} words."
             });
+
         if (longest > (isCjk ? 90 : 35))
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = $"Có câu dài tới {longest} từ. Câu quá dài dễ mất mạch – nên tách làm hai."
+                Message =
+                    $"You have a sentence with up to {longest} words. Overly long sentences can disrupt the flow – consider splitting it into two."
             });
+
         if (sentenceLengths.Count >= 3 && StandardDeviation(sentenceLengths) < 2.5)
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = "Các câu gần như dài bằng nhau. Xen kẽ câu ngắn và câu dài để văn phong tự nhiên hơn."
+                Message =
+                    "Your sentences are nearly uniform in length. Alternate between short and long sentences for a more natural style."
             });
+
         if (overused.Count > 0)
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = $"Từ bị lặp nhiều: {string.Join(", ", overused)}. Thử thay bằng từ đồng nghĩa."
+                Message = $"Frequently repeated words: {string.Join(", ", overused)}. Try replacing them with synonyms."
             });
+
         if (paragraphs <= 1 && wordCount > 120)
             feedback.Add(new WritingFeedback
             {
                 Kind = "warn",
-                Message = "Bài đang là một khối liền. Chia đoạn theo ý sẽ giúp người đọc theo dõi dễ hơn."
+                Message =
+                    "The article is currently a single block of text. Breaking it into paragraphs will make it easier to follow."
             });
+
         if (terms.Count > 0)
             feedback.Add(missing.Count == 0
-                ? new WritingFeedback { Kind = "good", Message = "Đã dùng hết từ vựng mục tiêu. Rất tốt!" }
+                ? new WritingFeedback { Kind = "good", Message = "Used all target vocabulary. Great job!" }
                 : new WritingFeedback
                 {
                     Kind = "info",
-                    Message = $"Chưa dùng: {string.Join(", ", missing)}."
+                    Message = $"Not used yet: {string.Join(", ", missing)}."
                 });
+
         if (diversity >= 0.6 && wordCount > 60)
-            feedback.Add(new WritingFeedback { Kind = "good", Message = "Vốn từ đa dạng, ít lặp." });
+            feedback.Add(new WritingFeedback
+                { Kind = "good", Message = "Rich and varied vocabulary with minimal repetition." });
         return new WritingAnalysis
         {
             WordCount = wordCount, CharacterCount = trimmed.Length, SentenceCount = sentences.Count,
@@ -135,16 +148,16 @@ public class WritingAnalyzer
             return 0;
         return DetectCjk(content) ? content.Count(ch => !char.IsWhiteSpace(ch)) : WordRegex.Matches(content).Count;
     }
-    
+
     public static string ScoreBand(int totalScore) => totalScore switch
     {
-        >= 85 => "Rất tốt",
-        >= 70 => "Khá",
-        >= 55 => "Trung bình",
-        >= 40 => "Cần cải thiện",
-        _ => "Mới bắt đầu"
+        >= 85 => "Excellent",
+        >= 70 => "Good",
+        >= 55 => "Average",
+        >= 40 => "Needs Improvement",
+        _ => "Beginner"
     };
-    
+
     private static int ComputeVarietyScore(List<int> sentenceLengths, bool isCjk)
     {
         if (sentenceLengths.Count < 2)
@@ -156,7 +169,7 @@ public class WritingAnalyzer
         if (sd >= threshold * 0.6) return 13;
         return 8;
     }
-    
+
     private static double StandardDeviation(List<int> values)
     {
         if (values.Count < 2)
@@ -165,11 +178,11 @@ public class WritingAnalyzer
         var variance = values.Sum(v => (v - mean) * (v - mean)) / values.Count;
         return Math.Sqrt(variance);
     }
-    
+
     private static bool DetectCjk(string text)
     {
         var cjk = text.Count(ch =>
-            (ch >= 0x3040 && ch <= 0x30FF) || (ch >= 0x4E00 && ch <= 0x9FFF) || (ch >= 0xAC00 && ch <= 0xD7AF));    
+            (ch >= 0x3040 && ch <= 0x30FF) || (ch >= 0x4E00 && ch <= 0x9FFF) || (ch >= 0xAC00 && ch <= 0xD7AF));
         var letters = text.Count(char.IsLetter);
         return letters > 0 && (double)cjk / letters > 0.3;
     }

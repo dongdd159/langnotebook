@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LangNotebook")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1274956ed53d04f795bf12130c34cd39984aff31")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+919c6891f090ca12bc7143266ed99524312266cb")]
 [assembly: System.Reflection.AssemblyProductAttribute("LangNotebook")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LangNotebook")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
