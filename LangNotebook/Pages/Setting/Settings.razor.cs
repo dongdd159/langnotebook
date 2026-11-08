@@ -9,7 +9,63 @@ public partial class Settings : ComponentBase
     private bool _replaceOnImport = true;
     private string _importMessage = string.Empty;
 
-    protected override async Task OnInitializedAsync() => _settings = await SettingsSvc.GetAsync();
+    private Service.AiSettings _aiSettings = new();
+    private string _aiProviderId = Service.AiProviders.AnthropicId;
+    private string _aiModel = string.Empty;
+    private string _aiBaseUrl = string.Empty;
+    private string _apiKeyInput = string.Empty;
+
+    private Service.AiProvider SelectedProvider => Service.AiProviders.Find(_aiProviderId);
+    private bool IsCustomProvider => _aiProviderId == Service.AiProviders.CustomId;
+    private bool HasSavedApiKey => !string.IsNullOrEmpty(_aiSettings.ProfileFor(_aiProviderId).ApiKey);
+
+    private string ApiKeyStatus => HasSavedApiKey
+        ? "A key is saved on this device"
+        : SelectedProvider.KeyRequired ? "No key saved yet" : "Optional for servers that don't need one";
+
+    private bool CanSaveAiSettings =>
+        !string.IsNullOrWhiteSpace(_aiModel)
+        && Service.AiProviders.ResolveEndpoint(SelectedProvider, _aiBaseUrl) is not null
+        && (!SelectedProvider.KeyRequired || HasSavedApiKey || !string.IsNullOrWhiteSpace(_apiKeyInput));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settings = await SettingsSvc.GetAsync();
+        _aiSettings = await AiSettings.LoadAsync();
+        ShowAiProvider(Service.AiProviders.Find(_aiSettings.ProviderId).Id);
+    }
+
+    private void OnAiProviderChanged(ChangeEventArgs args) =>
+        ShowAiProvider(Service.AiProviders.Find(args.Value?.ToString()).Id);
+
+    private void ShowAiProvider(string providerId)
+    {
+        _aiProviderId = providerId;
+        var profile = _aiSettings.ProfileFor(providerId);
+        _aiModel = string.IsNullOrWhiteSpace(profile.Model) ? SelectedProvider.DefaultModel : profile.Model;
+        _aiBaseUrl = profile.BaseUrl;
+        _apiKeyInput = string.Empty;
+    }
+
+    private async Task SaveAiSettingsAsync()
+    {
+        var profile = _aiSettings.ProfileFor(_aiProviderId);
+        profile.Model = _aiModel.Trim();
+        profile.BaseUrl = _aiBaseUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(_apiKeyInput))
+            profile.ApiKey = _apiKeyInput.Trim();
+        _aiSettings.ProviderId = _aiProviderId;
+        await AiSettings.SaveAsync(_aiSettings);
+        _apiKeyInput = string.Empty;
+        State.ShowSuccess("AI settings saved on this device.");
+    }
+
+    private async Task RemoveApiKeyAsync()
+    {
+        _aiSettings.ProfileFor(_aiProviderId).ApiKey = string.Empty;
+        await AiSettings.SaveAsync(_aiSettings);
+        State.ShowSuccess("API key removed.");
+    }
 
     private void OnDirectionChanged(ChangeEventArgs args)
     {

@@ -4,6 +4,7 @@
 @inject AppState State
 @inject SettingsService SettingsSvc
 @inject BackupService Backup
+@inject AiSettingsStore AiSettings
 @inject IJSRuntime JS
 
 <PageTitle>Settings · Language Notebook</PageTitle>
@@ -12,7 +13,7 @@
     <header class="min-w-0">
         <h1 class="m-0 mt-3 text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[36px]">Settings</h1>
         <p class="m-0 mt-1 text-sm text-mute">
-            All data resides locally in your browser and is never sent anywhere
+            All data resides locally in your browser. Only articles you choose to evaluate with AI are sent out
         </p>
     </header>
 
@@ -111,6 +112,74 @@
                 </button>
             </div>
         </section>
+        <section class="mt-12" aria-labelledby="st-ai">
+            <h2 id="st-ai" class="m-0 text-base font-semibold text-ink">AI Review</h2>
+            <p class="m-0 mt-0.5 text-sm text-mute">
+                Evaluating an article sends its text to the provider you choose, using your key, and usage is billed
+                to your account there. Keys stay in this browser and are never included in backups.
+            </p>
+            <div class="mt-3 border-t border-line">
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">Provider</span>
+                        <span class="block text-xs text-mute">
+                            @(_aiSettings.ProviderId == _aiProviderId ? "Used for AI review" : "Save to switch to this provider")
+                        </span>
+                    </span>
+                    <select class="nt-input sm:w-56" value="@_aiProviderId" @onchange="OnAiProviderChanged">
+                        @foreach (var provider in AiProviders.All)
+                        {
+                            <option value="@provider.Id">@provider.Name</option>
+                        }
+                    </select>
+                </label>
+                @if (IsCustomProvider)
+                {
+                    <label
+                        class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                        <span class="min-w-0">
+                            <span class="block text-sm text-ink">Endpoint URL</span>
+                            <span class="block text-xs text-mute">
+                                Any server with an OpenAI-compatible chat completions API that allows browser requests
+                                (CORS)
+                            </span>
+                        </span>
+                        <input class="nt-input sm:w-56" type="url" autocomplete="off" spellcheck="false"
+                               placeholder="http://localhost:11434/v1"
+                               @bind="_aiBaseUrl" @bind:event="oninput"/>
+                    </label>
+                }
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">Model</span>
+                        <span class="block text-xs text-mute">The exact model ID from your provider</span>
+                    </span>
+                    <input class="nt-input sm:w-56" autocomplete="off" spellcheck="false"
+                           placeholder="@SelectedProvider.ModelHint"
+                           @bind="_aiModel" @bind:event="oninput"/>
+                </label>
+                <label
+                    class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">API key</span>
+                        <span class="block text-xs text-mute">@ApiKeyStatus</span>
+                    </span>
+                    <input class="nt-input sm:w-56" type="password" autocomplete="off" spellcheck="false"
+                           placeholder="@(HasSavedApiKey ? "Enter a new key to replace it" : "Paste your API key")"
+                           @bind="_apiKeyInput" @bind:event="oninput"/>
+                </label>
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                @if (HasSavedApiKey)
+                {
+                    <button type="button" class="nt-btn" @onclick="RemoveApiKeyAsync">Remove key</button>
+                }
+                <button type="button" class="nt-btn nt-btn-primary" disabled="@(!CanSaveAiSettings)"
+                        @onclick="SaveAiSettingsAsync">Save AI settings</button>
+            </div>
+        </section>
         <section class="mt-12" aria-labelledby="st-backup">
             <h2 id="st-backup" class="m-0 text-base font-semibold text-ink">
                 Backup &amp; Restore
@@ -205,7 +274,7 @@
                         Network connection
                     </dt>
                     <dd class="m-0 text-ink">
-                        Not required – works offline
+                        Not required – works offline, except AI review
                     </dd>
                 </div>
             </dl>

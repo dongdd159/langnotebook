@@ -1,4 +1,5 @@
 ﻿using LangNotebook.Dto;
+using LangNotebook.Helper;
 using LangNotebook.Models;
 using LangNotebook.Service;
 using Microsoft.AspNetCore.Components;
@@ -21,6 +22,12 @@ public partial class WritingEditor : ComponentBase
     private List<VocabEntry> _suggestions = new();
     private int _elapsedSeconds;
     private CancellationTokenSource? _timerCts;
+    private WritingAiReview? _aiReview;
+    private AiReviewException? _aiError;
+    private bool _aiBusy;
+    private CancellationTokenSource? _aiCts;
+
+    private bool CanEvaluate => !_aiBusy && !string.IsNullOrWhiteSpace(_piece.Content);
 
     protected override async Task OnParametersSetAsync()
     {
@@ -32,6 +39,7 @@ public partial class WritingEditor : ComponentBase
                 _piece = existing;
                 _elapsedSeconds = existing.DurationSeconds;
                 _targetTermsRaw = existing.UsedTerms;
+                _aiReview = WritingAiReviewMapper.Deserialize(existing.AiReviewJson);
                 if (existing.PromptId.HasValue)
                     _prompt = await Writings.GetPromptAsync(existing.PromptId.Value);
             }
@@ -137,6 +145,7 @@ public partial class WritingEditor : ComponentBase
         _piece.AutoScore = _analysis.TotalScore;
         _piece.DurationSeconds = _elapsedSeconds;
         _piece.UsedTerms = _targetTermsRaw;
+        _piece.AiReviewJson = _aiReview is null ? string.Empty : WritingAiReviewMapper.Serialize(_aiReview);
         if (string.IsNullOrWhiteSpace(_piece.Title))
             _piece.Title = _prompt?.Title ?? $"Article {DateTime.Now:dd/MM HH:mm}";
         var id = await Writings.SavePieceAsync(_piece);
@@ -149,6 +158,49 @@ public partial class WritingEditor : ComponentBase
     {
         Recalculate();
         await SaveAsync();
+    }
+
+    private async Task EvaluateWithAiAsync()
+    {
+        if (!CanEvaluate)
+            return;
+        _aiBusy = true;
+        _aiError = null;
+        using var cts = new CancellationTokenSource();
+        _aiCts = cts;
+        try
+        {
+            _aiReview = await WritingAi.ReviewAsync(new AiReviewRequest(
+                _piece.Content,
+                _piece.TargetWordCount,
+                _targetTerms,
+                _prompt?.Title,
+                _prompt?.PromptText,
+                _prompt?.Level.ToString()), cts.Token);
+            _aiBusy = false;
+            await SaveAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (AiReviewException ex)
+        {
+            _aiError = ex;
+        }
+        finally
+        {
+            _aiBusy = false;
+            _aiCts = null;
+        }
+    }
+
+    private void CancelAiReview() => _aiCts?.Cancel();
+
+    private void ApplyAiChanges(string improvedText)
+    {
+        _piece.Content = improvedText;
+        Recalculate();
+        State.ShowSuccess("Changes applied. Save the article to keep them.");
     }
 
     private async Task ToggleStatusAsync()
@@ -170,6 +222,7 @@ public partial class WritingEditor : ComponentBase
         _timerCts?.Cancel();
         _timerCts?.Dispose();
         _timerCts = null;
+        _aiCts?.Cancel();
         return ValueTask.CompletedTask;
     }
 }
