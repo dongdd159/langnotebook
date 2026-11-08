@@ -31,6 +31,7 @@ public partial class Icon : ComponentBase
         "grid" => "<rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/>",
         "upload" => "<path d='M12 16V4'/><path d='m7 9 5-5 5 5'/><path d='M4 20h16'/>",
         "close" => "<path d='M18 6 6 18'/><path d='m6 6 12 12'/>",
+        "check" => "<path d='M20 6 9 17l-5-5'/>",
         "filter" => "<path d='M3 5h18l-7 8v6l-4 2v-8z'/>",
         "sort" => "<path d='M7 4v16'/><path d='m3 16 4 4 4-4'/><path d='M17 20V4'/><path d='m13 8 4-4 4 4'/>",
         "clock" => "<circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/>",

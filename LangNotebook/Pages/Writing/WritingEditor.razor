@@ -7,6 +7,7 @@
 @inject AppState State
 @inject WritingService Writings
 @inject LibraryService Library
+@inject WritingAiService WritingAi
 @inject NavigationManager Nav
 
 <PageTitle>@(_piece.Id == 0 ? "New article" : _piece.DisplayTitle) · Writing Practice</PageTitle>
@@ -83,9 +84,17 @@
                 @oninput="OnContentInput"></textarea>
 
             <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <button type="button" class="nt-btn nt-btn-primary" @onclick="AnalyzeAndSaveAsync">Grade article
-                </button>
-                <span class="min-w-0 flex-1 basis-64 text-xs text-mute">Automated score based on length, sentence and vocabulary variety, and target term usage ratio.</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" class="nt-btn nt-btn-primary" disabled="@(!CanEvaluate)" @onclick="EvaluateWithAiAsync">
+                        <Icon Name="star" Size="14"/> @(_aiBusy ? "Evaluating…" : "Evaluate with AI")
+                    </button>
+                    @if (_aiBusy)
+                    {
+                        <button type="button" class="nt-btn nt-btn-ghost" @onclick="CancelAiReview">Cancel</button>
+                    }
+                    <button type="button" class="nt-btn" @onclick="AnalyzeAndSaveAsync">Grade article</button>
+                </div>
+                <span class="min-w-0 flex-1 basis-64 text-xs text-mute">Grade article gives an automated score based on length, sentence and vocabulary variety, and target term usage ratio.</span>
             </div>
         </div>
 
@@ -267,5 +276,13 @@
             </section>
         </aside>
     </div>
+
+    @if (_aiBusy || _aiError is not null || _aiReview is not null)
+    {
+        <WritingAiReviewPanel Review="_aiReview" IsBusy="_aiBusy" Error="_aiError" CanEvaluate="CanEvaluate"
+                              IsStale="@(_aiReview is not null && _aiReview.SourceText != _piece.Content)"
+                              OnEvaluate="EvaluateWithAiAsync" OnApply="ApplyAiChanges"
+                              OnDecisionChanged="() => StateHasChanged()"/>
+    }
 
 </div>

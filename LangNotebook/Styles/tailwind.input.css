@@ -54,6 +54,8 @@
     --nt-accent-soft: #e7f3f8;
     --nt-danger: #eb5757;
     --nt-overlay: rgba(15, 15, 15, 0.6);
+    --diff-removed: #c4322b;
+    --diff-added: #1e7b4a;
 
     --tag-0-bg: #e3e2e0; --tag-0-fg: #32302c; /* xam */
     --tag-1-bg: #eee0da; --tag-1-fg: #442a1e; /* nau */
@@ -82,6 +84,8 @@
         --nt-accent-soft: #1f3142;
         --nt-danger: #ff7369;
         --nt-overlay: rgba(0, 0, 0, 0.7);
+        --diff-removed: #ff8a80;
+        --diff-added: #6fd39b;
 
         --tag-0-bg: #373737; --tag-0-fg: #ffffffcf;
         --tag-1-bg: #603b2c; --tag-1-fg: #ffffffcf;
@@ -110,6 +114,8 @@
     --nt-accent-soft: #1f3142;
     --nt-danger: #ff7369;
     --nt-overlay: rgba(0, 0, 0, 0.7);
+    --diff-removed: #ff8a80;
+    --diff-added: #6fd39b;
 
     --tag-0-bg: #373737; --tag-0-fg: #ffffffcf;
     --tag-1-bg: #603b2c; --tag-1-fg: #ffffffcf;

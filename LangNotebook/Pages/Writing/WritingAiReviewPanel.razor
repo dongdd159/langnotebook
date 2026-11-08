@@ -1,0 +1,251 @@
+@using LangNotebook.Components
+@using LangNotebook.Dto
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject IJSRuntime JS
+
+<section id="ai-review" class="mt-8 scroll-mt-6 border-t border-line pt-6" aria-labelledby="ai-review-title">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+            <h2 id="ai-review-title" class="m-0 flex items-center gap-2 text-xl font-semibold text-ink">
+                <span class="inline-flex text-nt-accent"><Icon Name="star" Size="20"/></span>
+                AI Review
+            </h2>
+            <p class="m-0 mt-1 text-xs text-mute">
+                Evaluation and improvements, with explanations@(Review is not null && !IsBusy ? $" · {Labels.RelativeDate(Review.CreatedUtc)}" : "")
+            </p>
+        </div>
+        @if (Review is not null && !IsBusy)
+        {
+            <button type="button" class="nt-btn" disabled="@(!CanEvaluate)" @onclick="OnEvaluate">
+                <Icon Name="reset" Size="14"/> Re-evaluate
+            </button>
+        }
+    </div>
+
+    @if (Error is not null)
+    {
+        <div class="mt-4 rounded-nt bg-[var(--tag-8-bg)] px-4 py-3 text-[color:var(--tag-8-fg)]" role="alert">
+            <strong class="block text-sm font-semibold">Couldn't evaluate the article</strong>
+            <p class="m-0 mt-1 text-sm">@Error.Message Your article hasn't changed.</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+                @if (Error.Failure is AiReviewFailure.SettingsProblem)
+                {
+                    <a class="nt-btn no-underline" href="settings">Open Settings</a>
+                }
+                else
+                {
+                    <button type="button" class="nt-btn" @onclick="OnEvaluate">
+                        <Icon Name="reset" Size="14"/> Try again
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    @if (IsBusy)
+    {
+        <div class="mt-4 flex animate-pulse flex-col gap-4" role="status" aria-label="Evaluating your article">
+            <div class="grid grid-cols-1 gap-6 rounded-nt bg-nt-bg p-6 shadow-card md:grid-cols-[240px_minmax(0,1fr)]">
+                <div class="flex flex-col gap-2">
+                    <div class="h-3 w-16 rounded-nt bg-hov"></div>
+                    <div class="h-12 w-28 rounded-nt bg-hov"></div>
+                    <div class="h-3 rounded-nt bg-hov"></div>
+                    <div class="h-3 rounded-nt bg-hov"></div>
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    @for (var i = 0; i < 4; i++)
+                    {
+                        <div class="h-20 rounded-nt bg-hov"></div>
+                    }
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 rounded-nt bg-nt-bg p-6 shadow-card">
+                <div class="h-3.5 w-40 rounded-nt bg-hov"></div>
+                <div class="h-3 rounded-nt bg-hov"></div>
+                <div class="h-3 rounded-nt bg-hov"></div>
+                <div class="h-3 w-2/3 rounded-nt bg-hov"></div>
+            </div>
+        </div>
+    }
+    else if (Review is not null)
+    {
+        <div class="mt-4 grid grid-cols-1 gap-6 rounded-nt bg-nt-bg p-4 shadow-card sm:p-6 md:grid-cols-[240px_minmax(0,1fr)]">
+            <div class="min-w-0">
+                <span class="text-xs font-medium text-mute">Overall score</span>
+                <div class="mt-1 flex items-baseline gap-1">
+                    <span class="text-5xl font-bold tabular-nums text-ink">@Review.TotalScore</span>
+                    <span class="text-sm text-mute">/100</span>
+                </div>
+                <span class="nt-tag mt-2 @ScoreTone">@WritingAnalyzer.ScoreBand(Review.TotalScore)</span>
+                <p class="m-0 mt-2 break-words text-sm text-ink">@Review.Summary</p>
+            </div>
+            <ul class="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
+                @foreach (var criterion in Review.Criteria)
+                {
+                    <li class="min-w-0 rounded-nt border border-line p-3">
+                        <div class="flex justify-between gap-2 text-xs font-medium text-ink">
+                            <span>@criterion.Name</span>
+                            <span class="tabular-nums">@criterion.Score/@WritingAiCriterion.MaxScore</span>
+                        </div>
+                        <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-hov">
+                            <div class="h-full rounded-full bg-nt-accent"
+                                 style="width: @(100 * criterion.Score / WritingAiCriterion.MaxScore)%"></div>
+                        </div>
+                        <p class="m-0 mt-1.5 break-words text-xs leading-[18px] text-mute">@criterion.Comment</p>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="min-w-0 rounded-nt bg-nt-bg p-4 shadow-card">
+                <h3 class="m-0 text-sm font-semibold text-ink">Strengths</h3>
+                <ul class="m-0 mt-2.5 flex list-none flex-col gap-2.5 p-0">
+                    @foreach (var item in Review.Strengths)
+                    {
+                        <li class="flex gap-2 text-sm text-ink">
+                            <span class="mt-0.5 inline-flex shrink-0 text-[color:var(--diff-added)]"><Icon Name="check" Size="16"/></span>
+                            <span class="min-w-0 break-words">@item</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="min-w-0 rounded-nt bg-nt-bg p-4 shadow-card">
+                <h3 class="m-0 text-sm font-semibold text-ink">To improve</h3>
+                <ul class="m-0 mt-2.5 flex list-none flex-col gap-2.5 p-0">
+                    @foreach (var item in Review.Improvements)
+                    {
+                        <li class="flex gap-2 text-sm text-ink">
+                            <span class="mt-0.5 inline-flex shrink-0 text-[color:var(--tag-2-fg)]"><Icon Name="chevron" Size="16"/></span>
+                            <span class="min-w-0 break-words">@item</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-4 overflow-hidden rounded-nt bg-nt-bg shadow-card">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
+                <div class="flex flex-wrap items-center gap-4">
+                    <h3 class="m-0 text-sm font-semibold text-ink">Improved article</h3>
+                    <div class="flex gap-0.5 rounded-nt bg-hov p-0.5">
+                        <button type="button" class="@TabClass(!_showFinal)" aria-pressed="@(!_showFinal)"
+                                @onclick="() => _showFinal = false">Compare changes</button>
+                        <button type="button" class="@TabClass(_showFinal)" aria-pressed="@_showFinal"
+                                @onclick="() => _showFinal = true">Final version</button>
+                    </div>
+                </div>
+                <span class="text-xs tabular-nums text-mute">
+                    @Review.Changes.Count @(Review.Changes.Count == 1 ? "edit" : "edits") · @WritingAnalyzer.CountWords(Review.SourceText) → @WritingAnalyzer.CountWords(FinalText) words
+                </span>
+            </div>
+
+            @if (_showFinal)
+            {
+                <p class="m-0 whitespace-pre-wrap break-words px-4 py-6 text-base leading-7 text-ink sm:px-12 sm:py-8">@FinalText</p>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 lg:h-[560px] lg:grid-cols-[minmax(0,1fr)_424px]">
+                    <div class="min-h-0 overflow-y-auto p-4 sm:p-6">
+                        @if (Review.Changes.Count == 0)
+                        {
+                            <p class="m-0 text-sm text-mute">No edits suggested. This article already reads well.</p>
+                        }
+                        <p class="m-0 whitespace-pre-wrap break-words text-base leading-7 text-ink">@RenderDiff</p>
+                        @if (Review.Changes.Count > 0)
+                        {
+                            <div class="mt-4 flex flex-wrap items-center gap-4 text-xs">
+                                <span class="text-[color:var(--diff-removed)] line-through">removed</span>
+                                <span class="font-medium text-[color:var(--diff-added)] underline">added</span>
+                                <span class="font-medium text-[color:var(--nt-accent-hover)]">[1] select to see why</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="flex min-h-0 flex-col gap-3 border-t border-line bg-nt-side p-4 lg:border-l lg:border-t-0">
+                        <h4 class="m-0 text-sm font-semibold text-ink">Why each change</h4>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="nt-chip @(_filter is null ? "is-on" : "")"
+                                    aria-pressed="@(_filter is null)" @onclick="() => _filter = null">All @Review.Changes.Count</button>
+                            @foreach (var category in Categories)
+                            {
+                                var count = Review.Changes.Count(x => x.Category == category.Key);
+                                if (count > 0)
+                                {
+                                    <button type="button" class="nt-chip @(_filter == category.Key ? "is-on" : "")"
+                                            aria-pressed="@(_filter == category.Key)"
+                                            @onclick="() => _filter = category.Key">@category.Label @count</button>
+                                }
+                            }
+                        </div>
+                        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+                            @for (var i = 0; i < Review.Changes.Count; i++)
+                            {
+                                var index = i;
+                                var change = Review.Changes[i];
+                                if (_filter is not null && change.Category != _filter)
+                                    continue;
+                                <article id="@($"ai-change-{index}")" class="rounded-nt p-3 @CardClass(index, change)"
+                                         @onclick="() => _selected = index">
+                                    <div class="flex items-center gap-2">
+                                        <span class="@BadgeClass(index)">@(index + 1)</span>
+                                        <span class="nt-tag @CategoryTone(change.Category)">@CategoryLabel(change.Category)</span>
+                                        <span class="ml-auto flex items-center gap-1">
+                                            @if (change.Decision == AiChangeDecision.Pending)
+                                            {
+                                                <button type="button" class="nt-icon-btn border border-line" title="Accept change"
+                                                        aria-label="@($"Accept change {index + 1}")"
+                                                        @onclick="() => Decide(change, AiChangeDecision.Accepted)">
+                                                    <Icon Name="check" Size="16"/>
+                                                </button>
+                                                <button type="button" class="nt-icon-btn border border-line" title="Skip change"
+                                                        aria-label="@($"Skip change {index + 1}")"
+                                                        @onclick="() => Decide(change, AiChangeDecision.Skipped)">
+                                                    <Icon Name="close" Size="16"/>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="nt-tag @(change.Decision == AiChangeDecision.Accepted ? "nt-tag-4" : "nt-tag-0")">@change.Decision</span>
+                                                <button type="button" class="nt-icon-btn" title="Undo"
+                                                        aria-label="@($"Undo decision for change {index + 1}")"
+                                                        @onclick="() => Decide(change, AiChangeDecision.Pending)">
+                                                    <Icon Name="reset" Size="16"/>
+                                                </button>
+                                            }
+                                        </span>
+                                    </div>
+                                    <p class="m-0 mt-2 break-words text-sm text-[color:var(--diff-removed)] line-through">@change.Original</p>
+                                    <p class="m-0 mt-2 break-words text-sm font-medium text-[color:var(--diff-added)]">@change.Improved</p>
+                                    <p class="m-0 mt-2 break-words text-xs leading-[18px] text-mute">@change.Explanation</p>
+                                </article>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3">
+                <span class="min-w-0 flex-1 basis-64 text-xs text-mute">@FooterNote</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" class="nt-btn nt-btn-ghost" @onclick="CopyAsync">Copy</button>
+                    @if (_showFinal)
+                    {
+                        <button type="button" class="nt-btn nt-btn-primary" disabled="@(IsStale || !HasApplicableChanges)"
+                                @onclick="() => ApplyAsync(x => x.Decision != AiChangeDecision.Skipped)">Apply this version</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="nt-btn" disabled="@(IsStale || AcceptedCount == 0)"
+                                @onclick="() => ApplyAsync(x => x.Decision == AiChangeDecision.Accepted)">Apply @AcceptedCount accepted</button>
+                        <button type="button" class="nt-btn nt-btn-primary" disabled="@(IsStale || !HasApplicableChanges)"
+                                @onclick="() => ApplyAsync(x => x.Decision != AiChangeDecision.Skipped)">Apply all</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</section>

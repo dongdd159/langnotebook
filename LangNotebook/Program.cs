@@ -21,4 +21,6 @@ builder.Services.AddScoped<WritingService>();
 builder.Services.AddScoped<StatsService>();
 builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<BackupService>();
+builder.Services.AddScoped<AiSettingsStore>();
+builder.Services.AddScoped<WritingAiService>();
 await builder.Build().RunAsync();

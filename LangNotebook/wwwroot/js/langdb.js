@@ -72,6 +72,16 @@ window.langDb = (function () {
             });
         },
 
+        scrollIntoView: function (id, block) {
+            const element = document.getElementById(id);
+            if (element)
+                element.scrollIntoView({behavior: 'smooth', block: block || 'nearest'});
+        },
+
+        copyText: function (text) {
+            return navigator.clipboard.writeText(text);
+        },
+
         download: function (fileName, contentType, bytes) {
             try {
                 const blob = new Blob([bytes], {type: contentType || 'application/octet-stream'});
