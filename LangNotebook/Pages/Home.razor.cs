@@ -8,10 +8,7 @@ public partial class Home : ComponentBase, IDisposable
 {
     private const double RingCircumference = 2 * Math.PI * 44;
 
-    private static readonly string[] DayNames =
-        ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-
-    private static readonly string[] WeekLabels = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    private static readonly string[] WeekLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     // Literal class names so Tailwind picks them up when scanning *.razor.cs.
     private static readonly string[] HeatClasses =
@@ -50,11 +47,7 @@ public partial class Home : ComponentBase, IDisposable
 
     private static string TodayLabel
     {
-        get
-        {
-            var now = DateTime.Now;
-            return $"{DayNames[(int)now.DayOfWeek]}, {now:dd/MM/yyyy}";
-        }
+        get => DateTime.Now.ToString("dddd, MMMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private string? EstimateLabel
@@ -65,7 +58,7 @@ public partial class Home : ComponentBase, IDisposable
             if (_stats is null || queue == 0 || _stats.AverageSecondsPerCard <= 0)
                 return null;
             var minutes = (int)Math.Ceiling(queue * _stats.AverageSecondsPerCard / 60);
-            return $"≈ {minutes} phút";
+            return $"≈ {Plural(minutes, "min")}";
         }
     }
 
@@ -111,19 +104,19 @@ public partial class Home : ComponentBase, IDisposable
 
         _stages =
         [
-            new Segment("Mới", stats.NewCount, "bg-nt-press"),
-            new Segment("Đang học", stats.LearningCount, "bg-[#e8883a]"),
-            new Segment("Mới thuộc", stats.YoungCount, "bg-[color-mix(in_srgb,var(--nt-accent)_45%,transparent)]"),
-            new Segment("Đã thuộc", stats.MatureCount, "bg-nt-accent")
+            new Segment("New", stats.NewCount, "bg-nt-press"),
+            new Segment("Learning", stats.LearningCount, "bg-[#e8883a]"),
+            new Segment("Young", stats.YoungCount, "bg-[color-mix(in_srgb,var(--nt-accent)_45%,transparent)]"),
+            new Segment("Mature", stats.MatureCount, "bg-nt-accent")
         ];
 
         int Grade(ReviewGrade g) => stats.GradeBreakdown.TryGetValue(g, out var c) ? c : 0;
         _grades =
         [
-            new Segment("Quên", Grade(ReviewGrade.Again), "bg-nt-danger"),
-            new Segment("Khó", Grade(ReviewGrade.Hard), "bg-[#e8883a]"),
-            new Segment("Tốt", Grade(ReviewGrade.Good), "bg-nt-accent"),
-            new Segment("Dễ", Grade(ReviewGrade.Easy), "bg-[#2fa36b]")
+            new Segment("Again", Grade(ReviewGrade.Again), "bg-nt-danger"),
+            new Segment("Hard", Grade(ReviewGrade.Hard), "bg-[#e8883a]"),
+            new Segment("Good", Grade(ReviewGrade.Good), "bg-nt-accent"),
+            new Segment("Easy", Grade(ReviewGrade.Easy), "bg-[#2fa36b]")
         ];
     }
 
@@ -138,12 +131,14 @@ public partial class Home : ComponentBase, IDisposable
         return Pct(count, max);
     }
 
-    private static string Fmt(int value) => value.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture).Replace(',', '.');
+    private static string Fmt(int value) => value.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture);
+
+    private static string Plural(int count, string noun) => count == 1 ? $"{count} {noun}" : $"{Fmt(count)} {noun}s";
 
     private static string FormatPercent(double value) => $"{Math.Round(value * 100)}%";
 
     private static string FormatSeconds(double value) =>
-        value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture).Replace('.', ',') + " giây";
+        value.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)+ " s";
 
     private static string RelativeDay(DateTime utc)
     {
@@ -151,10 +146,10 @@ public partial class Home : ComponentBase, IDisposable
         var days = (DateTime.Now.Date - date).Days;
         return days switch
         {
-            <= 0 => "Hôm nay",
-            1 => "Hôm qua",
-            < 7 => $"{days} ngày trước",
-            _ => date.ToString("dd/MM/yyyy")
+            <= 0 => "Today",
+            1 => "Yesterday",
+            < 7 => $"{days} days ago",
+            _ => date.ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture)
         };
     }
 
@@ -162,7 +157,7 @@ public partial class Home : ComponentBase, IDisposable
 
     private string PieceMeta(WritingPiece piece)
     {
-        var parts = new List<string> { RelativeDay(piece.UpdatedUtc), $"{Fmt(piece.WordCount)} từ" };
+        var parts = new List<string> { RelativeDay(piece.UpdatedUtc), Plural(piece.WordCount, "word") };
         var notebook = NotebookName(piece.NotebookId);
         if (notebook.Length > 0)
             parts.Add(notebook);
@@ -171,16 +166,16 @@ public partial class Home : ComponentBase, IDisposable
 
     private static (string Label, string Css) StageTag(LearningStage stage) => stage switch
     {
-        LearningStage.New => ("Mới", "nt-tag-0"),
-        LearningStage.Learning => ("Đang học", "nt-tag-2"),
-        LearningStage.Young => ("Mới thuộc", "nt-tag-5"),
-        _ => ("Đã thuộc", "nt-tag-4")
+        LearningStage.New => ("New", "nt-tag-0"),
+        LearningStage.Learning => ("Learning", "nt-tag-2"),
+        LearningStage.Young => ("Young", "nt-tag-5"),
+        _ => ("Mature", "nt-tag-4")
     };
 
     private static (string Label, string Css) ScoreTag(WritingPiece piece)
     {
         if (piece.Status == WritingStatus.Draft)
-            return ("Nháp", "nt-tag-0");
+            return ("Draft", "nt-tag-0");
         var css = piece.AutoScore >= 80 ? "nt-tag-4" : piece.AutoScore >= 60 ? "nt-tag-3" : "nt-tag-8";
         return ($"{piece.AutoScore}/100", css);
     }
