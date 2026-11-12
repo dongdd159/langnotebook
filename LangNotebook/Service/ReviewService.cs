@@ -35,6 +35,23 @@ public class ReviewService(
         return (vocabDue + grammarDue, vocabNew + grammarNew);
     }
 
+    public async Task<(int VocabDue, int GrammarDue, int New)> CountQueueByKindAsync(int? notebookId)
+    {
+        await using var db = await CreateAsync();
+        var now = DateTime.UtcNow;
+        var vocabDue = await db.VocabEntries.AsNoTracking().CountAsync(x =>
+            !x.IsSuspended && x.Repetitions > 0 && x.DueUtc <= now &&
+            (!notebookId.HasValue || x.NotebookId == notebookId.Value));
+        var grammarDue = await db.GrammarPatterns.AsNoTracking().CountAsync(x =>
+            !x.IsSuspended && x.Repetitions > 0 && x.DueUtc <= now &&
+            (!notebookId.HasValue || x.NotebookId == notebookId.Value));
+        var vocabNew = await db.VocabEntries.AsNoTracking().CountAsync(x =>
+            !x.IsSuspended && x.Repetitions == 0 && (!notebookId.HasValue || x.NotebookId == notebookId.Value));
+        var grammarNew = await db.GrammarPatterns.AsNoTracking().CountAsync(x =>
+            !x.IsSuspended && x.Repetitions == 0 && (!notebookId.HasValue || x.NotebookId == notebookId.Value));
+        return (vocabDue, grammarDue, vocabNew + grammarNew);
+    }
+
     public async Task<List<ReviewCard>> BuildSessionAsync(ReviewScope scope, ItemFilter itemFilter,
         AppSettings settings, bool includeNew = true)
     {

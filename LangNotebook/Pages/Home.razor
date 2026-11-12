@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using LangNotebook.Components
 @using LangNotebook.Helper
 @using LangNotebook.Service
 @inject AppState State
@@ -10,159 +11,342 @@
 @inject NavigationManager Nav
 
 <PageTitle>Tổng quan · Sổ tay ngoại ngữ</PageTitle>
-<div class="page">
-    <div class="page-head">
-        <div>
-            <h1>Hôm nay học gì?</h1>
-            <p class="page-sub">
-                @DateTime.Now.ToString("dddd, dd/MM/yyyy")
-            </p>
+
+<div class="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-14">
+    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div class="min-w-0">
+            <p class="m-0 text-[13px] text-mute">@TodayLabel</p>
+            <h1 class="m-0 mt-1 text-[28px] font-bold leading-tight tracking-tight sm:text-[30px]">
+                Hôm nay học gì?
+            </h1>
         </div>
-        <div class="page-actions">
-            <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("review"))">
-                Bắt đầu ôn tập
-            </button>
-            <button class="btn" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
-                Thêm từ mới
-            </button>
-        </div>
+        <button type="button" class="nt-btn" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
+            <Icon Name="plus" Size="14"/>
+            Thêm từ mới
+        </button>
     </div>
+
     @if (_stats is null)
     {
-        <div class="skeleton-grid">
-            <div class="skeleton">
-            </div>
-            <div class="skeleton">
-            </div>
-            <div class="skeleton">
-            </div>
-            <div class="skeleton">
-            </div>
+        <div class="grid gap-4 md:grid-cols-2" aria-busy="true">
+            @for (var i = 0; i < 4; i++)
+            {
+                <div class="h-48 animate-pulse rounded-lg bg-hov"></div>
+            }
         </div>
     }
     else
     {
-        <div class="stat-grid">
-            <StatCard Label="Thẻ đến hạn" Value="@_dueCount.ToString()" Hint="@($"{_newCount} thẻ chưa học")" Accent="#4f7df0"/>
-            <StatCard Label="Chuỗi ngày học" Value="@($"{_stats.StreakDays} ngày")" Hint="@($"Kỷ lục {_stats.LongestStreak} ngày")" Accent="#e8883a"/>
-            <StatCard Label="Đã thuộc" Value="@_stats.MatureCount.ToString()" Hint="@($"trên tổng {_stats.TotalVocab + _stats.TotalGrammar} thẻ")" Accent="#2fa36b"/>
-            <StatCard Label="Độ chính xác 30 ngày" Value="@FormatPercent(_stats.AccuracyLast30Days)" Hint="@($"{_stats.ReviewsLast7Days} lượt ôn trong 7 ngày")" Accent="#8a5cf0"/>
-        </div>
-        <div class="card">
-            <div class="card-head">
-                <h2>
-                    Mục tiêu hôm nay
-                </h2>
-                <span class="muted">
-                    @_stats.ReviewsToday / @_goal lượt ôn
-                </span>
-            </div>
-            <div class="progress">
-                <div class="progress-bar" style="width: @(GoalPercent)%">
+        @* Queue + goal *@
+        <section class="grid gap-4 md:grid-cols-2">
+            <div class="flex flex-col gap-5 rounded-lg border border-line p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="m-0 text-[15px] font-semibold">Hàng đợi ôn tập</h2>
+                    @if (EstimateLabel is not null)
+                    {
+                        <span class="text-[13px] text-mute">@EstimateLabel</span>
+                    }
+                </div>
+                <div class="flex flex-wrap items-baseline gap-7">
+                    <div>
+                        <div class="text-[44px] font-bold leading-none tracking-tight">@Fmt(DueCount)</div>
+                        <div class="mt-1.5 text-[13px] text-mute">thẻ đến hạn</div>
+                    </div>
+                    <div>
+                        <div class="text-[28px] font-semibold leading-none text-mute">@Fmt(_newCount)</div>
+                        <div class="mt-1.5 text-[13px] text-mute">thẻ mới</div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                    <span class="nt-tag nt-tag-5 rounded-full! px-2.5!">Từ vựng · @_vocabDue</span>
+                    <span class="nt-tag nt-tag-6 rounded-full! px-2.5!">Ngữ pháp · @_grammarDue</span>
+                    <span class="nt-tag nt-tag-0 rounded-full! px-2.5!">Mới · @_newCount</span>
+                </div>
+                <div class="mt-auto">
+                    <button type="button" class="nt-btn nt-btn-primary h-11! px-5! text-[15px]! font-semibold!"
+                            disabled="@(DueCount + _newCount == 0)" @onclick="@(() => Nav.NavigateTo("review"))">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M7 4v16l13-8z"/>
+                        </svg>
+                        Bắt đầu ôn tập
+                    </button>
                 </div>
             </div>
-            <p class="muted small">
-                @if (_stats.ReviewsToday >= _goal)
-                {
-                    <text>
-                        Đã hoàn thành mục tiêu hôm nay. Nếu còn hứng, cứ ôn thêm!
-                    </text>
-                }
-                else
-                {
-                    <text>
-                        Còn @(Math.Max(0, _goal - _stats.ReviewsToday)) lượt nữa là đạt mục tiêu.
-                    </text>
-                }
-            </p>
-        </div>
-        <div class="two-col">
-            <div class="card">
-                <div class="card-head">
-                    <h2>
-                        Từ vựng vừa ghi
-                    </h2>
-                    <a class="link" href="vocabulary">
-                        Xem tất cả
-                    </a>
-                </div>
-                @if (_recentVocab.Count == 0)
-                {
-                    <p class="muted">
-                        Chưa có từ nào. Hãy mở trang Từ vựng để ghi từ đầu tiên.
-                    </p>
-                }
-                else
-                {
-                    <ul class="mini-list">
-                        @foreach (var entry in _recentVocab)
-                        {
-                            <li>
-                                <div>
-                                    <strong>
-                                        @entry.Term
-                                    </strong>
-                                    @if (!string.IsNullOrWhiteSpace(entry.Reading))
-                                    {
-                                        <span class="reading">
-                                            @entry.Reading
-                                        </span>
-                                    }
-                                </div>
-                                <span class="muted">
-                                    @entry.Meaning
-                                </span>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-            <div class="card">
-                <div class="card-head">
-                    <h2>
-                        Bài viết gần đây
-                    </h2>
-                    <a class="link" href="writing">
-                        Xem tất cả
-                    </a>
-                </div>
 
+            <div class="flex flex-col gap-5 rounded-lg border border-line p-6">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 class="m-0 text-[15px] font-semibold">Mục tiêu hôm nay</h2>
+                    <a class="text-[13px]" href="settings">Đổi mục tiêu</a>
+                </div>
+                <div class="flex flex-wrap items-center gap-6">
+                    <svg width="104" height="104" viewBox="0 0 104 104" role="img"
+                         aria-label="@($"Đã ôn {ReviewsToday} trên {_goal} lượt")">
+                        <circle cx="52" cy="52" r="44" fill="none" stroke-width="10" style="stroke: var(--nt-hover)"/>
+                        <circle cx="52" cy="52" r="44" fill="none" stroke-width="10" stroke-linecap="round"
+                                stroke-dasharray="@RingDash" stroke-dashoffset="@RingOffset"
+                                transform="rotate(-90 52 52)" style="stroke: var(--nt-accent)"/>
+                        <text x="52" y="50" text-anchor="middle" font-size="22" font-weight="700"
+                              style="fill: var(--nt-text)">@ReviewsToday</text>
+                        <text x="52" y="68" text-anchor="middle" font-size="12"
+                              style="fill: var(--nt-muted)">/ @_goal lượt</text>
+                    </svg>
+                    <div class="flex min-w-0 flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d9730d" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 22c4.4 0 7-3 7-7 0-4.5-4-7-5-11-2 2-3 4-3 6-1-1-2-2-2-4-2 2-4 5-4 9 0 4 3 7 7 7z"/>
+                            </svg>
+                            <span class="text-[22px] font-bold">@_stats.StreakDays ngày</span>
+                        </div>
+                        <span class="text-[13px] text-mute">Chuỗi hiện tại · kỷ lục @_stats.LongestStreak ngày</span>
+                        <span class="text-[13px]">
+                            @if (GoalRemaining == 0)
+                            {
+                                <text>Đã đạt mục tiêu hôm nay. Còn hứng thì cứ ôn thêm!</text>
+                            }
+                            else
+                            {
+                                <text>Còn @GoalRemaining lượt nữa là đạt mục tiêu.</text>
+                            }
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-2 text-xs text-mute">Tuần này</div>
+                    <div class="grid grid-cols-7 gap-1.5">
+                        @foreach (var day in _week)
+                        {
+                            <div class="flex flex-col items-center gap-1"
+                                 title="@(day.Done ? "Đã học" : day.IsFuture ? string.Empty : "Chưa học")">
+                                <span class="@($"block h-2 w-full max-w-9 rounded-full {(day.Done ? "bg-nt-accent" : day.IsToday ? "bg-[color-mix(in_srgb,var(--nt-accent)_45%,transparent)]" : "bg-hov")}")"></span>
+                                <span class="@($"text-xs {(day.IsToday ? "font-medium text-nt-text" : "text-mute")}")">@day.Label</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* KPI row *@
+        <section aria-label="Chỉ số chính" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+                <span class="text-[13px] text-mute">Đã thuộc</span>
+                <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(_stats.MatureCount)</span>
+                <span class="text-xs text-mute">trên tổng @Fmt(TotalCards) thẻ</span>
+            </div>
+            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+                <span class="text-[13px] text-mute">Độ chính xác 30 ngày</span>
+                <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatPercent(_stats.AccuracyLast30Days)</span>
+                <span class="text-xs text-mute">@Fmt(_stats.ReviewsLast7Days) lượt ôn trong 7 ngày</span>
+            </div>
+            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+                <span class="text-[13px] text-mute">Thời gian TB mỗi thẻ</span>
+                <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatSeconds(_stats.AverageSecondsPerCard)</span>
+                <span class="text-xs text-mute">@Fmt(_stats.ReviewsTotal) lượt ôn tổng cộng</span>
+            </div>
+            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+                <span class="text-[13px] text-mute">Tổng thẻ</span>
+                <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(TotalCards)</span>
+                <span class="text-xs text-mute">@Fmt(_stats.TotalVocab) từ vựng · @Fmt(_stats.TotalGrammar) ngữ pháp</span>
+            </div>
+        </section>
+
+        @* Activity + memory *@
+        <section class="grid gap-4 lg:grid-cols-2">
+            <div class="flex min-w-0 flex-col gap-4 rounded-lg border border-line p-6">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 class="m-0 text-[15px] font-semibold">Hoạt động 12 tuần</h2>
+                    <span class="text-[13px] text-mute">@Fmt(_heatTotal) lượt ôn · @_heatActiveDays ngày học</span>
+                </div>
+                <div class="nt-scroll overflow-x-auto">
+                    <div class="flex gap-2">
+                        <div class="grid grid-rows-[repeat(7,16px)] gap-1 text-[11px] leading-4 text-mute" aria-hidden="true">
+                            <span></span><span>T2</span><span></span><span>T4</span><span></span><span>T6</span><span></span>
+                        </div>
+                        <div role="img" aria-label="Biểu đồ nhiệt số lượt ôn mỗi ngày trong 12 tuần qua"
+                             class="grid grid-flow-col grid-rows-[repeat(7,16px)] auto-cols-[16px] gap-1">
+                            @foreach (var cell in _heat)
+                            {
+                                <span class="@($"rounded-[3px] {HeatClass(cell.Level)}")"
+                                      title="@($"{cell.Date:dd/MM}: {cell.Count} lượt")"></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-mute" aria-hidden="true">
+                    Ít
+                    @for (var level = 0; level <= 4; level++)
+                    {
+                        <span class="@($"h-3 w-3 rounded-[3px] {HeatClass(level)}")"></span>
+                    }
+                    Nhiều
+                </div>
+            </div>
+
+            <div class="flex min-w-0 flex-col gap-5 rounded-lg border border-line p-6">
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <h2 class="m-0 text-[15px] font-semibold">Tiến độ ghi nhớ</h2>
+                        <span class="text-[13px] text-mute">@Fmt(TotalCards) thẻ</span>
+                    </div>
+                    <div role="img" class="flex h-3 gap-0.5 overflow-hidden rounded-full bg-hov"
+                         aria-label="@string.Join(", ", _stages.Select(s => $"{s.Label} {s.Count}"))">
+                        @foreach (var stage in _stages.Where(s => s.Count > 0))
+                        {
+                            <span class="@stage.Css" style="width: @Pct(stage.Count, TotalCards)"></span>
+                        }
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                        @foreach (var stage in _stages)
+                        {
+                            <div class="flex items-center gap-2">
+                                <span class="@($"h-2.5 w-2.5 rounded-sm {stage.Css}")"></span>
+                                <span class="flex-1 text-mute">@stage.Label</span>
+                                <span class="font-semibold">@Fmt(stage.Count)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="h-px bg-line"></div>
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <h3 class="m-0 text-sm font-semibold">Đánh giá khi ôn</h3>
+                        <span class="text-[13px] text-mute">@Fmt(GradeTotal) lượt</span>
+                    </div>
+                    @foreach (var grade in _grades)
+                    {
+                        <div class="grid grid-cols-[64px_minmax(0,1fr)_48px] items-center gap-2.5 text-[13px]">
+                            <span class="text-mute">@grade.Label</span>
+                            <span class="block h-2 overflow-hidden rounded-full bg-hov">
+                                <span class="@($"block h-full rounded-full {grade.Css}")" style="width: @GradeWidth(grade.Count)"></span>
+                            </span>
+                            <span class="text-right font-semibold">@Fmt(grade.Count)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        @* Notebooks + writing *@
+        <section class="grid gap-4 lg:grid-cols-2">
+            <div class="flex min-w-0 flex-col gap-1 rounded-lg border border-line p-6">
+                <h2 class="m-0 mb-2 text-[15px] font-semibold">Sổ tay</h2>
+                @if (_stats.Notebooks.Count == 0)
+                {
+                    <p class="m-0 text-sm text-mute">Chưa có sổ tay nào có thẻ. Hãy thêm từ hoặc mẫu ngữ pháp đầu tiên.</p>
+                }
+                else
+                {
+                    foreach (var nb in _stats.Notebooks)
+                    {
+                        var total = nb.VocabCount + nb.GrammarCount;
+                        <div @key="nb.NotebookId" class="grid grid-cols-[12px_minmax(0,1fr)_auto] items-center gap-3 py-3">
+                            <span class="h-3 w-3 rounded-[3px]" style="background: @nb.ColorHex"></span>
+                            <span class="flex min-w-0 flex-col gap-1.5">
+                                <span class="flex justify-between gap-2">
+                                    <span class="truncate font-medium">@nb.Name</span>
+                                    <span class="whitespace-nowrap text-xs text-mute">@Fmt(nb.VocabCount) từ · @Fmt(nb.GrammarCount) ngữ pháp</span>
+                                </span>
+                                <span class="block h-1.5 overflow-hidden rounded-full bg-hov"
+                                      title="@($"Đã thuộc {nb.MatureCount}/{total}")">
+                                    <span class="block h-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></span>
+                                </span>
+                            </span>
+                            <span class="whitespace-nowrap rounded-nt bg-nt-accent-soft px-2 text-xs font-medium leading-[22px] text-nt-accent">
+                                @nb.DueCount đến hạn
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="flex min-w-0 flex-col gap-4 rounded-lg border border-line p-6">
+                <div class="flex items-baseline justify-between gap-2">
+                    <h2 class="m-0 text-[15px] font-semibold">Luyện viết</h2>
+                    <a class="text-[13px]" href="writing">Xem tất cả</a>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="rounded-md bg-nt-side p-3">
+                        <div class="text-xl font-bold">@Fmt(_stats.PiecesTotal)</div>
+                        <div class="text-xs text-mute">bài viết</div>
+                    </div>
+                    <div class="rounded-md bg-nt-side p-3">
+                        <div class="text-xl font-bold">@Fmt(_stats.WordsWrittenThisWeek)</div>
+                        <div class="text-xs text-mute">từ tuần này</div>
+                    </div>
+                    <div class="rounded-md bg-nt-side p-3">
+                        <div class="text-xl font-bold">@Math.Round(_stats.AverageAutoScore)</div>
+                        <div class="text-xs text-mute">điểm TB / 100</div>
+                    </div>
+                </div>
                 @if (_recentPieces.Count == 0)
                 {
-                    <p class="muted">
-                        Chưa có bài viết nào. Thử chọn một đề trong trang Luyện viết.
-                    </p>
+                    <p class="m-0 text-sm text-mute">Chưa có bài viết nào. Thử chọn một đề trong trang Luyện viết.</p>
                 }
                 else
                 {
-                    <ul class="mini-list">
+                    <div class="flex flex-col">
                         @foreach (var piece in _recentPieces)
                         {
-                            <li>
-                                <div>
-                                    <a class="link" href="@($"writing/{piece.Id}")">
-                                        @piece.DisplayTitle
-                                    </a>
-                                </div>
-                                <span class="muted">
-                                    @piece.WordCount từ · @piece.AutoScore/100
+                            var tag = ScoreTag(piece);
+                            <a href="@($"writing/{piece.Id}")" @key="piece.Id"
+                               class="flex items-center justify-between gap-3 border-t border-line py-2.5 text-nt-text no-underline hover:no-underline">
+                                <span class="flex min-w-0 flex-col">
+                                    <span class="truncate font-medium">@piece.DisplayTitle</span>
+                                    <span class="truncate text-xs text-mute">
+                                        @PieceMeta(piece)
+                                    </span>
                                 </span>
-                            </li>
+                                <span class="@($"nt-tag {tag.Css} whitespace-nowrap")">@tag.Label</span>
+                            </a>
                         }
-                    </ul>
+                    </div>
                 }
             </div>
-        </div>
-        <div class="card">
-            <div class="card-head">
-                <h2>
-                    Hoạt động 30 ngày qua
-                </h2>
-                <span class="muted">
-                    @_stats.ReviewsTotal lượt ôn tổng cộng
-                </span>
+        </section>
+
+        @* Recent vocabulary *@
+        <section class="flex flex-col gap-2 rounded-lg border border-line p-6">
+            <div class="mb-1 flex items-baseline justify-between gap-2">
+                <h2 class="m-0 text-[15px] font-semibold">Từ vựng vừa ghi</h2>
+                <a class="text-[13px]" href="vocabulary">Xem tất cả</a>
             </div>
-            <ActivityBars Data="@_stats.DailyReviews"/>
-        </div>
+            @if (_recentVocab.Count == 0)
+            {
+                <p class="m-0 text-sm text-mute">Chưa có từ nào. Hãy mở trang Từ vựng để ghi từ đầu tiên.</p>
+            }
+            else
+            {
+                <div class="nt-scroll overflow-x-auto">
+                    <table class="w-full min-w-[560px] border-collapse text-sm">
+                        <thead>
+                        <tr class="text-left text-xs text-mute">
+                            <th scope="col" class="border-b border-line py-2 pr-2 font-medium">Từ</th>
+                            <th scope="col" class="border-b border-line p-2 font-medium">Cách đọc</th>
+                            <th scope="col" class="border-b border-line p-2 font-medium">Nghĩa</th>
+                            <th scope="col" class="border-b border-line p-2 font-medium">Sổ tay</th>
+                            <th scope="col" class="border-b border-line py-2 pl-2 text-right font-medium">Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var entry in _recentVocab)
+                        {
+                            var stage = StageTag(entry.Stage);
+                            <tr @key="entry.Id">
+                                <td class="border-b border-line py-2.5 pr-2 font-semibold">@entry.Term</td>
+                                <td class="border-b border-line p-2.5 text-mute">@entry.Reading</td>
+                                <td class="border-b border-line p-2.5">@entry.Meaning</td>
+                                <td class="border-b border-line p-2.5 text-mute">@NotebookName(entry.NotebookId)</td>
+                                <td class="border-b border-line py-2.5 pl-2 text-right">
+                                    <span class="@($"nt-tag {stage.Css}")">@stage.Label</span>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
     }
 </div>
