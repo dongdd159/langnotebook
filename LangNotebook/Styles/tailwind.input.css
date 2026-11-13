@@ -33,6 +33,7 @@
     --color-nt-accent-soft: var(--nt-accent-soft);
     --color-nt-on-accent: var(--nt-on-accent);
     --color-nt-danger: var(--nt-danger);
+    --color-nt-warn: var(--nt-warn);
     --color-nt-overlay: var(--nt-overlay);
 
     --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
@@ -71,6 +72,7 @@
     --nt-accent-soft: #eaf0fa;
     --nt-on-accent: #ffffff;
     --nt-danger: #b3392f;
+    --nt-warn: #a8650f;
     --nt-overlay: rgba(28, 37, 51, 0.5);
     --nt-rule: #eef1f5;          /* ruled lines */
     --nt-margin: #ecc4c4;        /* red margin line */
@@ -115,6 +117,7 @@
         --nt-accent-soft: #1f2a40;
         --nt-on-accent: #0d1117;
         --nt-danger: #f28b82;
+        --nt-warn: #e0a86a;
         --nt-overlay: rgba(0, 0, 0, 0.65);
         --nt-rule: #232932;
         --nt-margin: #53363b;
@@ -159,6 +162,7 @@
     --nt-accent-soft: #1f2a40;
     --nt-on-accent: #0d1117;
     --nt-danger: #f28b82;
+        --nt-warn: #e0a86a;
     --nt-overlay: rgba(0, 0, 0, 0.65);
     --nt-rule: #232932;
     --nt-margin: #53363b;

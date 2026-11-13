@@ -12,23 +12,24 @@
 
 <PageTitle>Overview · Language Notebook</PageTitle>
 
-<div class="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-14">
+<div class="mx-auto flex w-full max-w-[1080px] flex-col gap-7 px-4 pb-24 pt-6 sm:px-8 sm:pt-9 lg:px-12">
+    @* Title *@
     <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
         <div class="min-w-0">
-            <p class="m-0 text-[13px] text-mute">@TodayLabel</p>
-            <h1 class="m-0 mt-1 text-[28px] font-bold leading-tight tracking-tight sm:text-[30px]">
+            <p class="m-0 text-[13px] font-medium text-mute">@TodayLabel</p>
+            <h1 class="m-0 mt-1 text-[30px] font-semibold leading-tight tracking-tight sm:text-[40px]">
                 What are we studying <span class="nt-mark">today?</span>
             </h1>
         </div>
-        <button type="button" class="nt-btn" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
-            <Icon Name="plus" Size="14"/>
+        <button type="button" class="nt-btn h-10! px-4!" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
+            <Icon Name="plus" Size="15"/>
             Add new word
         </button>
     </div>
 
     @if (_stats is null)
     {
-        <div class="grid gap-4 md:grid-cols-2" aria-busy="true">
+        <div class="grid gap-5 md:grid-cols-2" aria-busy="true">
             @for (var i = 0; i < 4; i++)
             {
                 <div class="h-48 animate-pulse rounded-lg bg-hov"></div>
@@ -38,89 +39,81 @@
     else
     {
         @* Queue + goal *@
-        <section class="grid gap-4 md:grid-cols-2">
-            <div class="flex flex-col gap-5 nt-card p-6">
-                <div class="flex items-center justify-between gap-3 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
-                    <h2 class="m-0 text-[17px] font-semibold">Review queue</h2>
+        <section class="grid gap-5 md:grid-cols-2">
+            <div class="nt-card flex flex-col">
+                <div class="nt-card-head">
+                    <h2>Review queue</h2>
                     @if (EstimateLabel is not null)
                     {
                         <span class="text-[13px] text-mute">@EstimateLabel</span>
                     }
                 </div>
-                <div class="flex flex-wrap items-baseline gap-7">
-                    <div>
-                        <div class="text-[44px] font-bold leading-none tracking-tight">@Fmt(DueCount)</div>
-                        <div class="mt-1.5 text-[13px] text-mute">cards due</div>
+                <div class="flex flex-1 flex-col gap-5 p-5">
+                    <div class="flex flex-wrap items-end gap-8">
+                        <div>
+                            <div class="text-5xl font-semibold leading-none tracking-tight text-nt-accent">@Fmt(DueCount)</div>
+                            <div class="mt-1.5 text-[13px] text-mute">cards due</div>
+                        </div>
+                        <div>
+                            <div class="text-[28px] font-semibold leading-none">@Fmt(_newCount)</div>
+                            <div class="mt-1.5 text-[13px] text-mute">new cards</div>
+                        </div>
+                        <div>
+                            <div class="text-[28px] font-semibold leading-none">
+                                @Fmt(_vocabDue) <span class="font-normal text-faint">/</span> @Fmt(_grammarDue)
+                            </div>
+                            <div class="mt-1.5 text-[13px] text-mute">vocabulary / grammar</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-[28px] font-semibold leading-none text-mute">@Fmt(_newCount)</div>
-                        <div class="mt-1.5 text-[13px] text-mute">new cards</div>
+                    <div class="mt-auto">
+                        <button type="button" class="nt-btn nt-btn-primary h-11! px-5! text-[15px]!"
+                                disabled="@(DueCount + _newCount == 0)" @onclick="@(() => Nav.NavigateTo("review"))">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M7 4v16l13-8z"/>
+                            </svg>
+                            Start review
+                        </button>
                     </div>
-                </div>
-                <div class="flex flex-wrap gap-1.5">
-                    <span class="nt-tag nt-tag-5 rounded-full! px-2.5!">Vocabulary · @_vocabDue</span>
-                    <span class="nt-tag nt-tag-6 rounded-full! px-2.5!">Grammar · @_grammarDue</span>
-                    <span class="nt-tag nt-tag-0 rounded-full! px-2.5!">New · @_newCount</span>
-                </div>
-                <div class="mt-auto">
-                    <button type="button" class="nt-btn nt-btn-primary h-11! px-5! text-[15px]! font-semibold!"
-                            disabled="@(DueCount + _newCount == 0)" @onclick="@(() => Nav.NavigateTo("review"))">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M7 4v16l13-8z"/>
-                        </svg>
-                        Start review
-                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-5 nt-note p-6">
-                <div class="flex items-center justify-between gap-3 -mx-6 -mt-6 border-b border-note-line px-6 py-3.5">
-                    <h2 class="m-0 text-[17px] font-semibold">Today's goal</h2>
+            <div class="nt-note flex flex-col">
+                <div class="nt-card-head">
+                    <h2>Today’s goal</h2>
                     <a class="text-[13px]" href="settings">Change goal</a>
                 </div>
-                <div class="flex flex-wrap items-center gap-6">
-                    <svg width="104" height="104" viewBox="0 0 104 104" role="img"
-                         aria-label="@($"{ReviewsToday} of {_goal} reviews done")">
-                        <circle cx="52" cy="52" r="44" fill="none" stroke-width="10" style="stroke: var(--nt-hover)"/>
-                        <circle cx="52" cy="52" r="44" fill="none" stroke-width="10" stroke-linecap="round"
-                                stroke-dasharray="@RingDash" stroke-dashoffset="@RingOffset"
-                                transform="rotate(-90 52 52)" style="stroke: var(--nt-accent)"/>
-                        <text x="52" y="50" text-anchor="middle" font-size="22" font-weight="700"
-                              style="fill: var(--nt-text)">@ReviewsToday</text>
-                        <text x="52" y="68" text-anchor="middle" font-size="12"
-                              style="fill: var(--nt-muted)">/ @_goal reviews</text>
-                    </svg>
-                    <div class="flex min-w-0 flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d9730d" stroke-width="2"
-                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 22c4.4 0 7-3 7-7 0-4.5-4-7-5-11-2 2-3 4-3 6-1-1-2-2-2-4-2 2-4 5-4 9 0 4 3 7 7 7z"/>
-                            </svg>
-                            <span class="text-[22px] font-bold">@Plural(_stats.StreakDays, "day")</span>
+                <div class="flex flex-col gap-5 p-5">
+                    <div>
+                        <div class="flex items-baseline justify-between gap-3">
+                            <span class="text-[28px] font-semibold">
+                                @ReviewsToday <span class="text-[15px] font-normal text-mute">of @_goal reviews</span>
+                            </span>
+                            <span class="text-[13px] text-mute">
+                                @(GoalRemaining == 0 ? "Goal reached" : $"{GoalRemaining} to go")
+                            </span>
                         </div>
-                        <span class="text-[13px] text-mute">Current streak · best @Plural(_stats.LongestStreak, "day")</span>
-                        <span class="text-[13px]">
-                            @if (GoalRemaining == 0)
-                            {
-                                <text>Goal reached for today. Feel free to keep going!</text>
-                            }
-                            else
-                            {
-                                <text>@Plural(GoalRemaining, "more review") to reach your goal.</text>
-                            }
-                        </span>
+                        <div class="mt-2 h-2 overflow-hidden rounded-full bg-note-line" role="progressbar"
+                             aria-label="Today's review goal" aria-valuemin="0" aria-valuemax="@_goal" aria-valuenow="@ReviewsToday">
+                            <div class="h-full rounded-full bg-nt-accent" style="width: @Pct(ReviewsToday, _goal)"></div>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div class="mb-2 text-xs text-mute">This week</div>
-                    <div class="grid grid-cols-7 gap-1.5">
+                    <div class="flex gap-7">
+                        <div>
+                            <div class="text-[22px] font-semibold">@Plural(_stats.StreakDays, "day")</div>
+                            <div class="text-[13px] text-mute">current streak</div>
+                        </div>
+                        <div>
+                            <div class="text-[22px] font-semibold">@Plural(_stats.LongestStreak, "day")</div>
+                            <div class="text-[13px] text-mute">longest streak</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1.5" aria-label="This week">
                         @foreach (var day in _week)
                         {
                             <div class="flex flex-col items-center gap-1"
                                  title="@(day.Done ? "Studied" : day.IsFuture ? string.Empty : "Not studied")">
-                                <span class="@($"block h-2 w-full max-w-9 rounded-full {(day.Done ? "bg-nt-accent" : day.IsToday ? "bg-[color-mix(in_srgb,var(--nt-accent)_45%,transparent)]" : "bg-hov")}")"></span>
-                                <span class="@($"text-xs {(day.IsToday ? "font-medium text-nt-text" : "text-mute")}")">@day.Label</span>
+                                <span class="@($"block h-1.5 w-full max-w-9 rounded-full {WeekBarClass(day)}")"></span>
+                                <span class="@($"text-xs {(day.IsToday ? "font-semibold text-ink" : "text-mute")}")">@day.Label</span>
                             </div>
                         }
                     </div>
@@ -128,76 +121,78 @@
             </div>
         </section>
 
-        @* KPI row *@
-        <section aria-label="Key metrics" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
-                <span class="text-[13px] text-mute">Mature</span>
-                <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(_stats.MatureCount)</span>
-                <span class="text-xs text-mute">of @Fmt(TotalCards) cards total</span>
+        @* Key metrics: one card, four columns *@
+        <section aria-label="Key metrics" class="nt-card grid grid-cols-2 overflow-hidden lg:grid-cols-4">
+            <div class="flex flex-col gap-1 border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Mature cards</span>
+                <span class="text-[28px] font-semibold leading-tight tracking-tight">@Fmt(_stats.MatureCount)</span>
+                <span class="text-xs text-mute">of @Fmt(TotalCards) total</span>
             </div>
-            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
-                <span class="text-[13px] text-mute">30-day accuracy</span>
-                <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatPercent(_stats.AccuracyLast30Days)</span>
-                <span class="text-xs text-mute">@Fmt(_stats.ReviewsLast7Days) reviews in the last 7 days</span>
+            <div class="flex flex-col gap-1 border-b border-line px-5 py-4 lg:border-b-0 lg:border-r">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">30-day accuracy</span>
+                <span class="text-[28px] font-semibold leading-tight tracking-tight">@FormatPercent(_stats.AccuracyLast30Days)</span>
+                <span class="text-xs text-mute">@Plural(_stats.ReviewsLast7Days, "review") in the last 7 days</span>
             </div>
-            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
-                <span class="text-[13px] text-mute">Avg. time per card</span>
-                <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatSeconds(_stats.AverageSecondsPerCard)</span>
-                <span class="text-xs text-mute">@Fmt(_stats.ReviewsTotal) reviews all time</span>
+            <div class="flex flex-col gap-1 border-r border-line px-5 py-4">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Avg. time per card</span>
+                <span class="text-[28px] font-semibold leading-tight tracking-tight">@FormatSeconds(_stats.AverageSecondsPerCard)</span>
+                <span class="text-xs text-mute">last 30 days</span>
             </div>
-            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
-                <span class="text-[13px] text-mute">Total cards</span>
-                <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(TotalCards)</span>
+            <div class="flex flex-col gap-1 px-5 py-4">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Total cards</span>
+                <span class="text-[28px] font-semibold leading-tight tracking-tight">@Fmt(TotalCards)</span>
                 <span class="text-xs text-mute">@Fmt(_stats.TotalVocab) vocabulary · @Fmt(_stats.TotalGrammar) grammar</span>
             </div>
         </section>
 
         @* Activity + memory *@
-        <section class="grid gap-4 lg:grid-cols-2">
-            <div class="flex min-w-0 flex-col gap-4 nt-card p-6">
-                <div class="flex flex-wrap items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
-                    <h2 class="m-0 text-[17px] font-semibold">Activity, last 12 weeks</h2>
-                    <span class="text-[13px] text-mute">@Fmt(_heatTotal) reviews · @Plural(_heatActiveDays, "active day")</span>
+        <section class="grid gap-5 lg:grid-cols-2">
+            <div class="nt-card min-w-0">
+                <div class="nt-card-head">
+                    <h2>Activity</h2>
+                    <span class="text-[13px] text-mute">Last 12 weeks · @Plural(_heatTotal, "review") · @Plural(_heatActiveDays, "active day")</span>
                 </div>
-                <div class="nt-scroll overflow-x-auto">
-                    <div class="flex gap-2">
-                        <div class="grid grid-rows-[repeat(7,16px)] gap-1 text-[11px] leading-4 text-mute" aria-hidden="true">
-                            <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
-                        </div>
-                        <div role="img" aria-label="Heatmap of daily reviews over the last 12 weeks"
-                             class="grid grid-flow-col grid-rows-[repeat(7,16px)] auto-cols-[16px] gap-1">
-                            @foreach (var cell in _heat)
-                            {
-                                <span class="@($"rounded-[3px] {HeatClass(cell.Level)}")"
-                                      title="@($"{cell.Date:dd/MM}: {Plural(cell.Count, "review")}")"></span>
-                            }
+                <div class="flex flex-col gap-3.5 p-5">
+                    <div class="nt-scroll overflow-x-auto">
+                        <div class="flex gap-2">
+                            <div class="grid grid-rows-[repeat(7,16px)] gap-1 text-[11px] leading-4 text-mute" aria-hidden="true">
+                                <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+                            </div>
+                            <div role="img" aria-label="Heatmap of daily reviews over the last 12 weeks"
+                                 class="grid grid-flow-col grid-rows-[repeat(7,16px)] auto-cols-[16px] gap-1">
+                                @foreach (var cell in _heat)
+                                {
+                                    <span class="@($"rounded-[3px] {HeatClass(cell.Level)}")"
+                                          title="@($"{cell.Date:MMM d}: {Plural(cell.Count, "review")}")"></span>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex items-center gap-1.5 text-xs text-mute" aria-hidden="true">
-                    Less
-                    @for (var level = 0; level <= 4; level++)
-                    {
-                        <span class="@($"h-3 w-3 rounded-[3px] {HeatClass(level)}")"></span>
-                    }
-                    More
+                    <div class="flex items-center gap-1.5 text-xs text-mute" aria-hidden="true">
+                        Less
+                        @for (var level = 0; level <= 4; level++)
+                        {
+                            <span class="@($"h-3 w-3 rounded-[3px] {HeatClass(level)}")"></span>
+                        }
+                        More
+                    </div>
                 </div>
             </div>
 
-            <div class="flex min-w-0 flex-col gap-5 nt-card p-6">
-                <div class="flex flex-col gap-3">
-                    <div class="flex items-baseline justify-between gap-2">
-                        <h2 class="m-0 text-[17px] font-semibold">Memory progress</h2>
-                        <span class="text-[13px] text-mute">@Fmt(TotalCards) cards</span>
-                    </div>
-                    <div role="img" class="flex h-3 gap-0.5 overflow-hidden rounded-full bg-hov"
+            <div class="nt-card min-w-0">
+                <div class="nt-card-head">
+                    <h2>Memory progress</h2>
+                    <span class="text-[13px] text-mute">@Plural(TotalCards, "card")</span>
+                </div>
+                <div class="flex flex-col gap-4 p-5">
+                    <div role="img" class="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-hov"
                          aria-label="@string.Join(", ", _stages.Select(s => $"{s.Label} {s.Count}"))">
                         @foreach (var stage in _stages.Where(s => s.Count > 0))
                         {
                             <span class="@stage.Css" style="width: @Pct(stage.Count, TotalCards)"></span>
                         }
                     </div>
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                    <div class="grid grid-cols-2 gap-x-5 gap-y-2 text-[13px]">
                         @foreach (var stage in _stages)
                         {
                             <div class="flex items-center gap-2">
@@ -207,146 +202,158 @@
                             </div>
                         }
                     </div>
-                </div>
-                <div class="h-px bg-line"></div>
-                <div class="flex flex-col gap-2.5">
-                    <div class="flex items-baseline justify-between gap-2">
-                        <h3 class="m-0 text-sm font-semibold">Review ratings</h3>
-                        <span class="text-[13px] text-mute">@Fmt(GradeTotal) reviews</span>
-                    </div>
-                    @foreach (var grade in _grades)
-                    {
-                        <div class="grid grid-cols-[64px_minmax(0,1fr)_48px] items-center gap-2.5 text-[13px]">
-                            <span class="text-mute">@grade.Label</span>
-                            <span class="block h-2 overflow-hidden rounded-full bg-hov">
-                                <span class="@($"block h-full rounded-full {grade.Css}")" style="width: @GradeWidth(grade.Count)"></span>
-                            </span>
-                            <span class="text-right font-semibold">@Fmt(grade.Count)</span>
+                    <div class="flex flex-col gap-2.5 border-t border-line pt-4">
+                        <div class="flex items-baseline justify-between gap-2">
+                            <h3 class="m-0 font-sans text-[13px] font-semibold">Review ratings</h3>
+                            <span class="text-xs text-mute">@Fmt(GradeTotal) total</span>
                         </div>
-                    }
+                        @foreach (var grade in _grades)
+                        {
+                            <div class="grid grid-cols-[52px_minmax(0,1fr)_44px] items-center gap-2.5 text-[13px]">
+                                <span class="text-mute">@grade.Label</span>
+                                <span class="block h-1.5 overflow-hidden rounded-full bg-hov">
+                                    <span class="@($"block h-full rounded-full {grade.Css}")" style="width: @GradeWidth(grade.Count)"></span>
+                                </span>
+                                <span class="text-right font-semibold">@Fmt(grade.Count)</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </section>
 
-        @* Notebooks + writing *@
-        <section class="grid gap-4 lg:grid-cols-2">
-            <div class="flex min-w-0 flex-col gap-1 nt-card p-6">
-                <h2 class="-mx-6 -mt-6 mb-2 border-b border-index px-6 py-3.5 text-[17px] font-semibold">Notebooks</h2>
-                @if (_stats.Notebooks.Count == 0)
-                {
-                    <p class="m-0 text-sm text-mute">No notebook has cards yet. Add your first word or grammar pattern.</p>
-                }
-                else
-                {
-                    foreach (var nb in _stats.Notebooks)
+        @* Notebooks as divider tabs *@
+        <section aria-labelledby="home-nb">
+            <div class="mb-3.5 flex items-baseline justify-between gap-2">
+                <h2 id="home-nb" class="m-0 text-xl font-semibold">Notebooks</h2>
+                <a class="text-[13px]" href="notebooks">Manage</a>
+            </div>
+            @if (_stats.Notebooks.Count == 0)
+            {
+                <p class="nt-card m-0 p-5 text-sm text-mute">No notebook has cards yet. Add your first word or grammar pattern.</p>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach (var nb in _stats.Notebooks)
                     {
                         var total = nb.VocabCount + nb.GrammarCount;
-                        <div @key="nb.NotebookId" class="grid grid-cols-[12px_minmax(0,1fr)_auto] items-center gap-3 py-3">
-                            <span class="h-3 w-3 rounded-[3px]" style="background: @nb.ColorHex"></span>
-                            <span class="flex min-w-0 flex-col gap-1.5">
-                                <span class="flex justify-between gap-2">
-                                    <span class="truncate font-medium">@nb.Name</span>
-                                    <span class="whitespace-nowrap text-xs text-mute">@Fmt(nb.VocabCount) words · @Fmt(nb.GrammarCount) grammar</span>
-                                </span>
-                                <span class="block h-1.5 overflow-hidden rounded-full bg-hov"
-                                      title="@($"Mature {nb.MatureCount}/{total}")">
-                                    <span class="block h-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></span>
-                                </span>
-                            </span>
-                            <span class="whitespace-nowrap rounded-nt bg-nt-accent-soft px-2 text-xs font-medium leading-[22px] text-nt-accent">
-                                @nb.DueCount due
-                            </span>
+                        <div @key="nb.NotebookId" class="relative pt-3.5">
+                            <span class="absolute left-3.5 top-0 h-4 w-[72px] rounded-t-[5px]" style="background: @nb.ColorHex" aria-hidden="true"></span>
+                            <div class="nt-card flex flex-col gap-3 rounded-tl-[3px]! border-t-[3px]! px-4.5 py-4" style="border-top-color: @nb.ColorHex">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="truncate text-[15px] font-semibold">@nb.Name</div>
+                                        <div class="text-xs text-mute">@Fmt(nb.VocabCount) words · @Fmt(nb.GrammarCount) grammar</div>
+                                    </div>
+                                    <span class="shrink-0 whitespace-nowrap rounded-[4px] bg-nt-accent-soft px-2 text-xs font-semibold leading-[22px] text-nt-accent">
+                                        @nb.DueCount due
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-mute">
+                                        <span>Mature</span><span class="font-semibold text-ink">@Pct(nb.MatureCount, total)</span>
+                                    </div>
+                                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-hov">
+                                        <div class="h-full rounded-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     }
-                }
-            </div>
+                </div>
+            }
+        </section>
 
-            <div class="flex min-w-0 flex-col gap-4 nt-card p-6">
-                <div class="flex items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
-                    <h2 class="m-0 text-[17px] font-semibold">Writing practice</h2>
+        @* Writing + recent words *@
+        <section class="grid items-start gap-5 lg:grid-cols-2">
+            <div class="nt-card min-w-0">
+                <div class="nt-card-head">
+                    <h2>Writing practice</h2>
                     <a class="text-[13px]" href="writing">View all</a>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="rounded-md bg-nt-side p-3">
-                        <div class="text-xl font-bold">@Fmt(_stats.PiecesTotal)</div>
+                <div class="grid grid-cols-3 border-b border-line">
+                    <div class="border-r border-line px-5 py-3.5">
+                        <div class="text-xl font-semibold">@Fmt(_stats.PiecesTotal)</div>
                         <div class="text-xs text-mute">pieces</div>
                     </div>
-                    <div class="rounded-md bg-nt-side p-3">
-                        <div class="text-xl font-bold">@Fmt(_stats.WordsWrittenThisWeek)</div>
+                    <div class="border-r border-line px-5 py-3.5">
+                        <div class="text-xl font-semibold">@Fmt(_stats.WordsWrittenThisWeek)</div>
                         <div class="text-xs text-mute">words this week</div>
                     </div>
-                    <div class="rounded-md bg-nt-side p-3">
-                        <div class="text-xl font-bold">@Math.Round(_stats.AverageAutoScore)</div>
-                        <div class="text-xs text-mute">avg. score / 100</div>
+                    <div class="px-5 py-3.5">
+                        <div class="text-xl font-semibold">@Math.Round(_stats.AverageAutoScore)</div>
+                        <div class="text-xs text-mute">avg. score</div>
                     </div>
                 </div>
                 @if (_recentPieces.Count == 0)
                 {
-                    <p class="m-0 text-sm text-mute">No writing yet. Pick a prompt on the Writing Practice page.</p>
+                    <p class="m-0 p-5 text-sm text-mute">No writing yet. Pick a prompt on the Writing Practice page.</p>
                 }
                 else
                 {
-                    <div class="flex flex-col">
+                    <div class="px-5 pb-2 pt-1">
                         @foreach (var piece in _recentPieces)
                         {
-                            var tag = ScoreTag(piece);
+                            var score = ScoreCircle(piece);
                             <a href="@($"writing/{piece.Id}")" @key="piece.Id"
-                               class="flex items-center justify-between gap-3 border-t border-line py-2.5 text-nt-text no-underline hover:no-underline">
+                               class="flex min-h-[60px] items-center justify-between gap-3 border-b border-line text-ink no-underline last:border-b-0 hover:no-underline">
                                 <span class="flex min-w-0 flex-col">
-                                    <span class="truncate font-medium">@piece.DisplayTitle</span>
-                                    <span class="truncate text-xs text-mute">
-                                        @PieceMeta(piece)
-                                    </span>
+                                    <span class="truncate font-semibold">@piece.DisplayTitle</span>
+                                    <span class="truncate text-xs text-mute">@PieceMeta(piece)</span>
                                 </span>
-                                <span class="@($"nt-tag {tag.Css} whitespace-nowrap")">@tag.Label</span>
+                                <span class="@($"flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-current text-[13px] font-bold {score.Css}")"
+                                      title="Automated score">@score.Label</span>
                             </a>
                         }
                     </div>
                 }
             </div>
-        </section>
 
-        @* Recent vocabulary *@
-        <section class="flex flex-col gap-2 nt-card p-6">
-            <div class="mb-1 flex items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
-                <h2 class="m-0 text-[17px] font-semibold">Recently added words</h2>
-                <a class="text-[13px]" href="vocabulary">View all</a>
-            </div>
-            @if (_recentVocab.Count == 0)
-            {
-                <p class="m-0 text-sm text-mute">No words yet. Open the Vocabulary page to add your first one.</p>
-            }
-            else
-            {
-                <div class="nt-scroll overflow-x-auto">
-                    <table class="w-full min-w-[560px] border-collapse text-sm">
-                        <thead>
-                        <tr class="text-left text-xs text-mute">
-                            <th scope="col" class="border-b border-line py-2 pr-2 font-medium">Word</th>
-                            <th scope="col" class="border-b border-line p-2 font-medium">Reading</th>
-                            <th scope="col" class="border-b border-line p-2 font-medium">Meaning</th>
-                            <th scope="col" class="border-b border-line p-2 font-medium">Notebook</th>
-                            <th scope="col" class="border-b border-line py-2 pl-2 text-right font-medium">Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var entry in _recentVocab)
-                        {
-                            var stage = StageTag(entry.Stage);
-                            <tr @key="entry.Id">
-                                <td class="border-b border-line py-2.5 pr-2 font-semibold">@entry.Term</td>
-                                <td class="border-b border-line p-2.5 text-mute">@entry.Reading</td>
-                                <td class="border-b border-line p-2.5">@entry.Meaning</td>
-                                <td class="border-b border-line p-2.5 text-mute">@NotebookName(entry.NotebookId)</td>
-                                <td class="border-b border-line py-2.5 pl-2 text-right">
-                                    <span class="@($"nt-tag {stage.Css}")">@stage.Label</span>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
+            <div class="nt-card min-w-0">
+                <div class="nt-card-head">
+                    <h2>Recently added words</h2>
+                    <a class="text-[13px]" href="vocabulary">View all</a>
                 </div>
-            }
+                @if (_recentVocab.Count == 0)
+                {
+                    <p class="m-0 p-5 text-sm text-mute">No words yet. Open the Vocabulary page to add your first one.</p>
+                }
+                else
+                {
+                    <div class="nt-scroll overflow-x-auto px-5 pb-2">
+                        <table class="w-full min-w-[420px] border-collapse text-sm">
+                            <thead>
+                            <tr class="text-left text-xs text-mute">
+                                <th scope="col" class="border-b border-line py-2.5 pr-2 font-semibold">Word</th>
+                                <th scope="col" class="border-b border-line px-2 py-2.5 font-semibold">Meaning</th>
+                                <th scope="col" class="border-b border-line py-2.5 pl-2 text-right font-semibold">Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var entry in _recentVocab)
+                            {
+                                <tr @key="entry.Id">
+                                    <td class="border-b border-line py-2.5 pr-2">
+                                        <div class="font-semibold">@entry.Term</div>
+                                        @if (!string.IsNullOrWhiteSpace(entry.Reading))
+                                        {
+                                            <div class="text-xs text-mute">@entry.Reading</div>
+                                        }
+                                    </td>
+                                    <td class="border-b border-line px-2 py-2.5 text-mute">@entry.Meaning</td>
+                                    <td class="border-b border-line py-2.5 pl-2 text-right">
+                                        <span class="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-mute">
+                                            <span class="@($"h-2 w-2 rounded-full {StageDot(entry.Stage)}")"></span>@StageName(entry.Stage)
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
         </section>
     }
 </div>
