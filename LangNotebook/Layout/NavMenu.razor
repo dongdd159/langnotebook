@@ -10,14 +10,15 @@
 @inject IJSRuntime JS
 
 <nav class="flex h-full min-h-0 flex-col" aria-label="Main menu">
-    <div class="flex h-14 shrink-0 items-center justify-between gap-2 px-3">
-        <div class="flex min-w-0 items-center gap-2.5">
+    <div class="flex shrink-0 items-center justify-between gap-2 px-3 pb-2 pt-4">
+        <div class="@($"flex min-w-0 flex-1 items-center gap-2.5 rounded-md py-2 {(Collapsed ? "md:border-0 md:px-0" : string.Empty)} border border-white/20 px-2.5")">
             <span
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-nt bg-[#fcfbf8] text-[13px] font-semibold text-[#1f2a3a] select-none">
                 語
             </span>
-            <span class="truncate font-serif text-base font-semibold text-white @(Collapsed ? "md:hidden" : string.Empty)">
-                Language Notebook
+            <span class="flex min-w-0 flex-col leading-tight @(Collapsed ? "md:hidden" : string.Empty)">
+                <span class="truncate font-serif text-base font-semibold text-white">Language Notebook</span>
+                <span class="truncate text-[11px] text-[color:var(--nt-cover-muted)]">Personal study journal</span>
             </span>
         </div>
         @if (!Collapsed)

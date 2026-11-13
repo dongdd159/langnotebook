@@ -180,6 +180,30 @@ public partial class Home : ComponentBase, IDisposable
         return ($"{piece.AutoScore}/100", css);
     }
 
+    private static string StageDot(LearningStage stage) => stage switch
+    {
+        LearningStage.New => "bg-[#b5afa2]",
+        LearningStage.Learning => "bg-[#e9a35a]",
+        LearningStage.Young => "bg-[#8fb0e3]",
+        _ => "bg-nt-accent"
+    };
+
+    private static string StageName(LearningStage stage) => StageTag(stage).Label;
+
+    /// <summary>Circled score for a writing piece: green 80+, amber 60–79, red below 60, dash for drafts.</summary>
+    private static (string Label, string Css) ScoreCircle(WritingPiece piece)
+    {
+        if (piece.Status == WritingStatus.Draft || piece.AutoScore <= 0)
+            return ("—", "text-faint");
+        var css = piece.AutoScore >= 80 ? "text-[color:var(--diff-added)]"
+            : piece.AutoScore >= 60 ? "text-nt-warn"
+            : "text-nt-danger";
+        return (piece.AutoScore.ToString(), css);
+    }
+
+    private string WeekBarClass(WeekDay day) =>
+        day.Done ? "bg-nt-accent" : day.IsToday ? "bg-[#c9b77a]" : "bg-note-line";
+
     private void OnStateChanged() => InvokeAsync(async () =>
     {
         await LoadAsync();
