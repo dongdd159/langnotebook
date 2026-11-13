@@ -23,10 +23,4 @@ builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<AiSettingsStore>();
 builder.Services.AddScoped<WritingAiService>();
-var english = System.Globalization.CultureInfo.InvariantCulture;
-System.Globalization.CultureInfo.DefaultThreadCurrentCulture = english;
-System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = english;
-System.Globalization.CultureInfo.CurrentCulture = english;
-System.Globalization.CultureInfo.CurrentUICulture = english;
-
 await builder.Build().RunAsync();
