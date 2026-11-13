@@ -9,7 +9,7 @@ public static class Labels
         LearningStage.New => "New",
         LearningStage.Learning => "Learning",
         LearningStage.Young => "Young",
-        _ => "Mastered"
+        _ => "Mature"
     };
 
     public static string Level(ProficiencyLevel level) => level switch

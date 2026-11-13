@@ -14,60 +14,71 @@
 
 <div class="mx-auto w-full max-w-[1200px] px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-12">
 
-    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
-        <div class="min-w-0 flex-1 basis-80">
+    @* Action bar *@
+    <div class="nt-card flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
+        <a class="nt-btn nt-btn-ghost no-underline" href="writing">
+            <span class="inline-flex rotate-180"><Icon Name="chevron" Size="14"/></span> Back
+        </a>
+        @{ var statusTone = _piece.Status == Models.WritingStatus.Draft ? "nt-tag-0" : "nt-tag-4"; }
+        <span class="flex items-center gap-2 text-[13px] text-mute">
+            <span class="nt-tag @statusTone">@Labels.Status(_piece.Status)</span>
+            @if (_piece.Id > 0)
+            {
+                <span>updated @Labels.RelativeDate(_piece.UpdatedUtc)</span>
+            }
+        </span>
+        <span class="ml-auto flex flex-wrap items-center gap-2">
+            <button type="button" class="nt-btn nt-btn-ghost" @onclick="ToggleStatusAsync">
+                @(_piece.Status == Models.WritingStatus.Draft ? "Mark as complete" : "Move to draft")
+            </button>
+            <button type="button" class="nt-btn" @onclick="AnalyzeAndSaveAsync">Grade article</button>
+            <button type="button" class="nt-btn" disabled="@(!CanEvaluate)" @onclick="EvaluateWithAiAsync">
+                <Icon Name="star" Size="14"/> @(_aiBusy ? "Evaluating…" : "Review with AI")
+            </button>
+            @if (_aiBusy)
+            {
+                <button type="button" class="nt-btn nt-btn-ghost" @onclick="CancelAiReview">Cancel</button>
+            }
+            <button type="button" class="nt-btn nt-btn-primary" @onclick="SaveAsync">Save article</button>
+        </span>
+    </div>
+
+    <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        @* Paper *@
+        <section class="nt-card min-w-0 px-5 pb-5 pt-6 sm:px-8" aria-label="Article">
             <input
-                class="mt-3 w-full min-w-0 border-0 bg-transparent p-0 font-serif text-[28px] font-semibold leading-tight tracking-tight text-ink outline-none placeholder:text-faint sm:text-[36px]"
+                class="w-full min-w-0 border-0 border-b border-line bg-transparent p-0 pb-2.5 font-serif text-[28px] font-semibold leading-tight tracking-tight text-ink outline-none placeholder:text-faint focus:border-nt-accent sm:text-[32px]"
                 aria-label="Article title" placeholder="Give the article a title…"
                 @bind="_piece.Title" @bind:event="oninput"/>
 
-            <p class="m-0 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-mute">
-                @{ var statusTone = _piece.Status == Models.WritingStatus.Draft ? "nt-tag-0" : "nt-tag-4"; }
-                <span class="nt-tag @statusTone">@Labels.Status(_piece.Status)</span>
-                @if (_piece.Id > 0)
-                {
-                    <span>updated @Labels.RelativeDate(_piece.UpdatedUtc)</span>
-                }
-            </p>
-        </div>
+            @if (_prompt is not null)
+            {
+                <div class="nt-note mt-4 px-4 py-3 text-sm text-ink">
+                    <strong class="block font-semibold">Prompt: @_prompt.Title</strong>
+                    <p class="m-0 mt-0.5 break-words">@_prompt.PromptText</p>
+                </div>
+            }
 
-        <div class="flex flex-wrap items-center gap-2">
-            <button type="button" class="nt-btn" @onclick="@(() => Nav.NavigateTo("writing"))">Back</button>
-            <button type="button" class="nt-btn" @onclick="ToggleStatusAsync">
-                @(_piece.Status == Models.WritingStatus.Draft ? "Mark as complete" : "Move to draft")
-            </button>
-            <button type="button" class="nt-btn nt-btn-primary" @onclick="SaveAsync">Save article</button>
-        </div>
-    </div>
+            <textarea
+                class="nt-ruled mt-4 min-h-[460px] w-full resize-y border-0 bg-transparent p-0 font-serif text-[17px] text-ink outline-none placeholder:text-faint"
+                rows="20" aria-label="Article content"
+                placeholder="Start writing here…"
+                value="@_piece.Content"
+                @oninput="OnContentInput"></textarea>
 
-    @if (_prompt is not null)
-    {
-        <div class="nt-note mt-6 flex gap-2.5 px-4 py-3 text-sm text-ink">
-            <div class="min-w-0">
-                <strong class="block font-semibold">@_prompt.Title</strong>
-                <p class="m-0 mt-0.5 break-words">@_prompt.PromptText</p>
-            </div>
-        </div>
-    }
-
-    <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div class="min-w-0">
-            <div class="border-y border-line py-2.5">
+            <div class="mt-3 border-t border-line pt-3">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-mute">
                     <span class="text-sm text-ink"><strong
                             class="font-semibold tabular-nums">@_analysis.WordCount</strong> / @_piece.TargetWordCount words</span>
                     <span>@_analysis.SentenceCount sentences · @_analysis.ParagraphCount paragraphs</span>
-                    <span class="inline-flex items-center gap-1 tabular-nums"><Icon Name="clock"
-                                                                                    Size="12"/> @Labels.Duration(_elapsedSeconds)</span>
-
+                    <span class="inline-flex items-center gap-1 tabular-nums"><Icon Name="clock" Size="12"/> @Labels.Duration(_elapsedSeconds)</span>
                     <label class="ml-auto flex items-center gap-1.5">
                         Target
                         <input class="nt-input h-7! w-20! py-0! text-xs! tabular-nums" type="number" min="20" step="10"
                                @bind="_piece.TargetWordCount" @bind:event="onchange"/>
                     </label>
                 </div>
-
-                <div class="mt-2 h-1 overflow-hidden rounded-full bg-hov" role="progressbar"
+                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-hov" role="progressbar"
                      aria-label="Word count progress"
                      aria-valuemin="0" aria-valuemax="100"
                      aria-valuenow="@(_piece.TargetWordCount > 0 ? Math.Min(100, 100 * _analysis.WordCount / _piece.TargetWordCount) : 0)">
@@ -75,45 +86,75 @@
                          style="width: @(_piece.TargetWordCount > 0 ? Math.Min(100, 100 * _analysis.WordCount / _piece.TargetWordCount) : 0)%"></div>
                 </div>
             </div>
-
-            <textarea
-                class="nt-ruled mt-4 min-h-[420px] w-full resize-y font-serif rounded-nt border-0 p-3 text-[17px] text-ink outline-none [box-shadow:inset_0_0_0_1px_var(--nt-line)] placeholder:text-faint focus:[box-shadow:inset_0_0_0_2px_var(--nt-accent)] sm:p-4"
-                rows="20" aria-label="Article content"
-                placeholder="Start writing here…"
-                value="@_piece.Content"
-                @oninput="OnContentInput"></textarea>
-
-            <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" class="nt-btn nt-btn-primary" disabled="@(!CanEvaluate)" @onclick="EvaluateWithAiAsync">
-                        <Icon Name="star" Size="14"/> @(_aiBusy ? "Evaluating…" : "Evaluate with AI")
-                    </button>
-                    @if (_aiBusy)
-                    {
-                        <button type="button" class="nt-btn nt-btn-ghost" @onclick="CancelAiReview">Cancel</button>
-                    }
-                    <button type="button" class="nt-btn" @onclick="AnalyzeAndSaveAsync">Grade article</button>
-                </div>
-                <span class="min-w-0 flex-1 basis-64 text-xs text-mute">Grade article gives an automated score based on length, sentence and vocabulary variety, and target term usage ratio.</span>
-            </div>
-        </div>
+        </section>
 
         <aside class="flex min-w-0 flex-col gap-4">
 
+            <section class="nt-card p-4" aria-labelledby="wr-terms">
+                <div class="flex items-baseline justify-between gap-3">
+                    <h2 id="wr-terms" class="m-0 text-[17px] font-semibold text-ink">Target vocabulary</h2>
+                    @if (_targetTerms.Count > 0)
+                    {
+                        <span class="text-xs tabular-nums text-mute">@(_targetTerms.Count(t => _analysis.UsedTargetTerms.Contains(t, StringComparer.OrdinalIgnoreCase))) / @_targetTerms.Count used</span>
+                    }
+                </div>
+
+                @if (_targetTerms.Count == 0)
+                {
+                    <p class="m-0 mt-2 text-xs text-mute">No target words. You can add them in the box below.</p>
+                }
+                else
+                {
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        @foreach (var term in _targetTerms)
+                        {
+                            var used = _analysis.UsedTargetTerms.Contains(term, StringComparer.OrdinalIgnoreCase);
+                            <span class="@($"inline-flex max-w-full items-center gap-1 break-all rounded-full px-2.5 text-[13px] leading-[26px] {(used ? "bg-[var(--tag-4-bg)] text-[color:var(--tag-4-fg)]" : "text-mute [box-shadow:inset_0_0_0_1px_var(--nt-press)]")}")">
+                                @if (used)
+                                {
+                                    <Icon Name="check" Size="12"/>
+                                }
+                                @term
+                                <span class="sr-only">@(used ? "(used)" : "(not used yet)")</span>
+                            </span>
+                        }
+                    </div>
+                }
+
+                <label class="mt-3 block">
+                    <span class="nt-label">Add / edit target words (separated by commas)</span>
+                    <input class="nt-input" value="@_targetTermsRaw" @oninput="OnTargetTermsInput"/>
+                </label>
+
+                @if (_suggestions.Count > 0)
+                {
+                    <div class="mt-3">
+                        <span class="text-xs text-mute">Suggestions from your notebook:</span>
+                        <div class="mt-1.5 flex flex-wrap gap-1.5">
+                            @foreach (var suggestion in _suggestions)
+                            {
+                                <button type="button"
+                                        class="nt-tag nt-tag-0 max-w-full cursor-pointer gap-1 break-all border-0 hover:brightness-95"
+                                        @onclick="@(() => AddTargetTerm(suggestion.Term))">
+                                    <Icon Name="plus" Size="10"/> @suggestion.Term
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+
             <section class="nt-card p-4" aria-labelledby="wr-score">
                 @{
-                    var scoreTone = ScoreBucket(_analysis.TotalScore) switch
-                    {
-                        "high" => "nt-tag-4",
-                        "mid" => "nt-tag-5",
-                        "low" => "nt-tag-2",
-                        _ => "nt-tag-8"
-                    };
+                    var scoreTone = _analysis.TotalScore >= 80 ? "text-[color:var(--diff-added)]"
+                        : _analysis.TotalScore >= 60 ? "text-nt-warn"
+                        : "text-nt-danger";
                 }
 
                 <div class="flex items-center justify-between gap-3">
-                    <h2 id="wr-score" class="m-0 text-[17px] font-semibold text-ink">Automated Score</h2>
-                    <span class="nt-tag @scoreTone text-sm font-semibold tabular-nums">@_analysis.TotalScore/100</span>
+                    <h2 id="wr-score" class="m-0 text-[17px] font-semibold text-ink">Automated score</h2>
+                    <span class="@($"inline-flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] border-current text-sm font-bold tabular-nums {scoreTone}")"
+                          title="@($"{_analysis.TotalScore} / 100")">@_analysis.TotalScore</span>
                 </div>
                 <p class="m-0 mt-1 text-xs text-mute">@WritingAnalyzer.ScoreBand(_analysis.TotalScore)</p>
 
@@ -152,6 +193,8 @@
                     </li>
                 </ul>
 
+                <p class="m-0 mt-3 text-xs text-mute">Based on length, sentence and vocabulary variety, and how many target words you used.</p>
+
                 @if (_analysis.Feedback.Count > 0)
                 {
                     <div class="mt-4 flex flex-col gap-1.5">
@@ -171,58 +214,9 @@
                 }
             </section>
 
-            <section class="nt-card p-4" aria-labelledby="wr-terms">
-                <h2 id="wr-terms" class="m-0 text-[17px] font-semibold text-ink">Target Vocabulary</h2>
-
-                @if (_targetTerms.Count == 0)
-                {
-                    <p class="m-0 mt-2 text-xs text-mute">No target words. You can add them in the box below.</p>
-                }
-                else
-                {
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach (var term in _targetTerms)
-                        {
-                            var used = _analysis.UsedTargetTerms.Contains(term, StringComparer.OrdinalIgnoreCase);
-                            var termTone = used ? "nt-tag-4" : "nt-tag-0";
-
-                            <span class="nt-tag @termTone max-w-full gap-1 break-all">
-                                @if (used)
-                                {
-                                    <span aria-hidden="true">✓</span>
-                                }
-                                @term
-                            </span>
-                        }
-                    </div>
-                }
-
-                <label class="mt-3 block">
-                    <span class="nt-label">Add / edit target words (separated by commas)</span>
-                    <input class="nt-input" value="@_targetTermsRaw" @oninput="OnTargetTermsInput"/>
-                </label>
-
-                @if (_suggestions.Count > 0)
-                {
-                    <div class="mt-3">
-                        <span class="text-xs text-mute">Suggestions from your notebook:</span>
-                        <div class="mt-1.5 flex flex-wrap gap-1.5">
-                            @foreach (var suggestion in _suggestions)
-                            {
-                                <button type="button"
-                                        class="nt-tag nt-tag-0 max-w-full cursor-pointer gap-1 break-all border-0 hover:brightness-95"
-                                        @onclick="@(() => AddTargetTerm(suggestion.Term))">
-                                    <Icon Name="plus" Size="10"/> @suggestion.Term
-                                </button>
-                            }
-                        </div>
-                    </div>
-                }
-            </section>
-
             <section class="nt-note p-4" aria-labelledby="wr-rubric">
                 <div class="flex items-center justify-between gap-3">
-                    <h2 id="wr-rubric" class="m-0 text-[17px] font-semibold text-ink">Self-Assessment</h2>
+                    <h2 id="wr-rubric" class="m-0 text-[17px] font-semibold text-ink">Self-assessment</h2>
                     <span class="text-xs tabular-nums text-mute">@_piece.RubricTotal/20</span>
                 </div>
 

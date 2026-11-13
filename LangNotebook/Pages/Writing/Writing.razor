@@ -20,11 +20,11 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button type="button" class="nt-btn" @onclick="@(() => OpenPromptEditor(null))">
-                <Icon Name="plus" Size="14" /> Add Prompt
+            <button type="button" class="nt-btn h-10! px-4!" @onclick="@(() => OpenPromptEditor(null))">
+                Add prompt
             </button>
-            <button type="button" class="nt-btn nt-btn-primary" @onclick="@(() => Nav.NavigateTo("writing/new"))">
-                <Icon Name="pen" Size="14" /> Write New Article
+            <button type="button" class="nt-btn nt-btn-primary h-10! px-4!" @onclick="@(() => Nav.NavigateTo("writing/new"))">
+                <Icon Name="plus" Size="14" /> Write new article
             </button>
         </div>
     </div>
@@ -54,7 +54,7 @@
     </section>
 
     <section class="mt-10" aria-labelledby="wl-prompts">
-        <h2 id="wl-prompts" class="m-0 text-xl font-semibold text-ink">Prompt Bank</h2>
+        <h2 id="wl-prompts" class="m-0 text-xl font-semibold text-ink">Prompt bank</h2>
         <p class="m-0 mt-0.5 text-sm text-mute">Choose a prompt to start writing with target word counts and suggested vocabulary.</p>
         @if (_prompts.Count == 0)
         {
@@ -81,21 +81,30 @@
                             <div class="flex flex-wrap gap-1.5">
                                 @foreach (var term in prompt.SuggestedTermList)
                                 {
-                                    var termTone = term.Trim().ToLowerInvariant().Sum(c => (int)c) % 9;
-                                    <span class="nt-tag nt-tag-@(termTone) max-w-full break-all">@term</span>
+                                    <span class="max-w-full break-all rounded-full px-2.5 text-xs leading-[22px] text-mute [box-shadow:inset_0_0_0_1px_var(--nt-press)]">@term</span>
                                 }
                             </div>
                         }
-                        <footer class="mt-1 flex items-center justify-between gap-2 border-t border-line pt-2.5">
-                            <span class="text-xs text-faint">Target @prompt.TargetWordCount words</span>
+                        <footer class="-mx-4 -mb-4 mt-auto flex items-center justify-between gap-2 border-t border-line px-4 py-3">
+                            @{ var promptNotebook = NotebookOf(prompt.NotebookId); }
+                            <span class="flex min-w-0 items-center gap-3 text-[13px] text-mute">
+                                @if (promptNotebook is not null)
+                                {
+                                    <span class="inline-flex min-w-0 items-center gap-1.5">
+                                        <span class="h-2.5 w-2.5 shrink-0 rounded-[2px]" style="background: @promptNotebook.ColorHex"></span>
+                                        <span class="truncate">@promptNotebook.Name</span>
+                                    </span>
+                                }
+                                <span class="shrink-0">@prompt.TargetWordCount words</span>
+                            </span>
 
                             <div class="-mr-1 flex items-center gap-0.5">
                                 <span class="flex gap-0.5 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                                     <button type="button" class="nt-icon-btn" title="Edit prompt" aria-label="Edit prompt" @onclick="@(() => OpenPromptEditor(prompt))"><Icon Name="edit" Size="14" /></button>
                                     <button type="button" class="nt-icon-btn is-danger" title="Delete prompt" aria-label="Delete prompt" @onclick="@(() => DeletePromptAsync(prompt))"><Icon Name="trash" Size="14" /></button>
                                 </span>
-                                <button type="button" class="nt-btn nt-btn-primary ml-1"
-                                        @onclick="@(() => Nav.NavigateTo($"writing/new?promptId={prompt.Id}"))">Write This</button>
+                                <button type="button" class="nt-btn ml-1"
+                                        @onclick="@(() => Nav.NavigateTo($"writing/new?promptId={prompt.Id}"))">Write this</button>
                             </div>
                         </footer>
                     </article>
@@ -104,78 +113,86 @@
         }
     </section>
 
-    <section class="mt-12" aria-labelledby="wl-pieces">
-        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-            <h2 id="wl-pieces" class="m-0 text-xl font-semibold text-ink">Written Articles</h2>
-
+    <section class="nt-card mt-10" aria-labelledby="wl-pieces">
+        <div class="nt-card-head">
+            <h2 id="wl-pieces">Written articles</h2>
             <div class="relative min-w-[12rem] flex-1 sm:max-w-xs sm:flex-none">
                 <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint">
                     <Icon Name="search" Size="14" />
                 </span>
-                <input class="nt-input h-8! py-0! pl-8! md:h-7!" type="search" aria-label="Search articles"
+                <input class="nt-input h-8! py-0! pl-8!" type="search" aria-label="Search articles"
                        placeholder="Search articles…" value="@_search" @oninput="OnSearchInput" />
             </div>
         </div>
 
         @if (_pieces.Count == 0)
         {
-            <div class="nt-card mt-3 flex flex-col items-center gap-2 px-4 py-16 text-center">
-                <h2 class="m-0 text-base font-semibold text-ink">No articles yet</h2>
-                <p class="m-0 max-w-sm text-sm text-mute">Select a prompt above or click “Write New Article” to get started.</p>
+            <div class="flex flex-col items-center gap-2 px-4 py-14 text-center">
+                <h3 class="m-0 text-base font-semibold text-ink">@(string.IsNullOrWhiteSpace(_search) ? "No articles yet" : "No articles match your search")</h3>
+                <p class="m-0 max-w-sm text-sm text-mute">Pick a prompt above or start a new article.</p>
                 <button type="button" class="nt-btn nt-btn-primary mt-2" @onclick="@(() => Nav.NavigateTo("writing/new"))">
-                    <Icon Name="pen" Size="14" /> Write New Article
+                    <Icon Name="plus" Size="14" /> Write new article
                 </button>
             </div>
         }
         else
         {
-            <div class="nt-card mt-4 overflow-hidden px-4" role="table" aria-label="Article list">
-                <div class="hidden grid-cols-[minmax(0,34fr)_minmax(0,12fr)_minmax(0,14fr)_minmax(0,12fr)_minmax(0,16fr)_2rem] items-center gap-x-4 border-b border-index py-2.5 text-xs font-semibold text-mute md:grid" role="row">
-                    <div role="columnheader">Title</div>
-                    <div role="columnheader">Word Count</div>
-                    <div role="columnheader">Auto Score</div>
-                    <div role="columnheader">Self Score</div>
-                    <div role="columnheader">Updated</div>
-                    <div role="columnheader"><span class="sr-only">Actions</span></div>
-                </div>
-                @foreach (var piece in _pieces)
-                {
-                    var scoreTone = ScoreBucket(piece.AutoScore) switch
+            <div class="nt-scroll overflow-x-auto">
+                <table class="w-full min-w-[760px] border-collapse text-sm">
+                    <thead>
+                    <tr class="text-left text-xs text-mute">
+                        <th scope="col" class="border-b border-line py-2.5 pl-5 pr-3 font-semibold">Title</th>
+                        <th scope="col" class="border-b border-line px-3 py-2.5 font-semibold">Notebook</th>
+                        <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Words</th>
+                        <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Auto score</th>
+                        <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Self score</th>
+                        <th scope="col" class="border-b border-line px-3 py-2.5 font-semibold">Updated</th>
+                        <th scope="col" class="border-b border-line py-2.5 pl-3 pr-5 text-right font-semibold">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var piece in _pieces)
                     {
-                        "high" => "nt-tag-4",
-                        "mid" => "nt-tag-5",
-                        "low" => "nt-tag-2",
-                        _ => "nt-tag-0"
-                    };
-                    var statusTone = piece.Status == Models.WritingStatus.Draft ? "nt-tag-0" : "nt-tag-4";
-                    <div @key="piece.Id" role="row"
-                         class="group grid min-h-12 grid-cols-[minmax(0,1fr)_auto_2rem] items-center gap-x-4 gap-y-1 border-b border-line py-2.5 last:border-b-0 transition-colors hover:bg-hov md:grid-cols-[minmax(0,34fr)_minmax(0,12fr)_minmax(0,14fr)_minmax(0,12fr)_minmax(0,16fr)_2rem] md:py-2">
-
-                        <div role="cell" class="min-w-0">
-                            <a class="block truncate text-sm font-medium text-ink no-underline hover:underline" href="@($"writing/{piece.Id}")">@piece.DisplayTitle</a>
-                            <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint">
-                                <span class="nt-tag @statusTone">@Labels.Status(piece.Status)</span>
-                                <span class="md:hidden">@piece.WordCount / @piece.TargetWordCount words · self-score @piece.RubricTotal/20 · @Labels.RelativeDate(piece.UpdatedUtc)</span>
-                            </div>
-                        </div>
-
-                        <div role="cell" class="hidden text-sm tabular-nums text-ink md:block">
-                            @piece.WordCount <span class="text-faint">/ @piece.TargetWordCount</span>
-                        </div>
-
-                        <div role="cell" class="justify-self-end md:justify-self-start">
-                            <span class="nt-tag @scoreTone font-medium tabular-nums">@piece.AutoScore/100</span>
-                        </div>
-
-                        <div role="cell" class="hidden text-sm tabular-nums text-ink md:block">@piece.RubricTotal/20</div>
-
-                        <div role="cell" class="hidden text-sm text-mute md:block">@Labels.RelativeDate(piece.UpdatedUtc)</div>
-
-                        <div role="cell" class="flex justify-end md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100">
-                            <button type="button" class="nt-icon-btn is-danger" title="Delete" aria-label="Delete article" @onclick="@(() => DeletePieceAsync(piece))"><Icon Name="trash" Size="14" /></button>
-                        </div>
-                    </div>
-                }
+                        var pieceNotebook = NotebookOf(piece.NotebookId);
+                        <tr @key="piece.Id" class="hover:bg-hov">
+                            <td class="border-b border-line py-3 pl-5 pr-3">
+                                <a class="font-semibold text-ink no-underline hover:underline" href="@($"writing/{piece.Id}")">@piece.DisplayTitle</a>
+                                @if (piece.Status == Models.WritingStatus.Draft)
+                                {
+                                    <span class="nt-tag nt-tag-0 ml-2">Draft</span>
+                                }
+                            </td>
+                            <td class="whitespace-nowrap border-b border-line px-3 py-3 text-mute">
+                                @if (pieceNotebook is not null)
+                                {
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span class="h-2.5 w-2.5 rounded-[2px]" style="background: @pieceNotebook.ColorHex"></span>@pieceNotebook.Name
+                                    </span>
+                                }
+                            </td>
+                            <td class="border-b border-line px-3 py-3 text-right">
+                                @piece.WordCount <span class="text-faint">/ @piece.TargetWordCount</span>
+                            </td>
+                            <td class="border-b border-line px-3 py-3 text-right">
+                                <span class="@($"inline-flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] border-current text-[13px] font-bold {ScoreInk(piece)}")">
+                                    @(piece.AutoScore > 0 ? piece.AutoScore.ToString() : "—")
+                                </span>
+                            </td>
+                            <td class="border-b border-line px-3 py-3 text-right text-mute">
+                                @(piece.RubricTotal > 0 ? $"{piece.RubricTotal} / 20" : "—")
+                            </td>
+                            <td class="whitespace-nowrap border-b border-line px-3 py-3 text-mute">@Labels.RelativeDate(piece.UpdatedUtc)</td>
+                            <td class="whitespace-nowrap border-b border-line py-3 pl-3 pr-5 text-right">
+                                <a class="font-semibold no-underline hover:underline" href="@($"writing/{piece.Id}")">Open</a>
+                                <button type="button" class="nt-icon-btn is-danger ml-1 align-middle" title="Delete"
+                                        aria-label="@($"Delete {piece.DisplayTitle}")" @onclick="@(() => DeletePieceAsync(piece))">
+                                    <Icon Name="trash" Size="14" />
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
             </div>
         }
     </section>

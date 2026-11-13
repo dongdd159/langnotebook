@@ -96,7 +96,7 @@ window.langDb = (function () {
                     URL.revokeObjectURL(url);
                 }, 2000);
             } catch (error) {
-                console.error('[langDb] Khong tao duoc file tai ve:', error);
+                console.error('[langDb] Could not create the download file:', error);
             }
         }
     };

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Components.Web;
+﻿using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using LangNotebook;
 using LangNotebook.Data;
@@ -23,4 +23,12 @@ builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<AiSettingsStore>();
 builder.Services.AddScoped<WritingAiService>();
+// The UI is English, so format dates and numbers the English way whatever the browser language is
+// (otherwise month names, decimal separators and thousands separators follow the browser locale).
+var english = new System.Globalization.CultureInfo("en-US");
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = english;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = english;
+System.Globalization.CultureInfo.CurrentCulture = english;
+System.Globalization.CultureInfo.CurrentUICulture = english;
+
 await builder.Build().RunAsync();

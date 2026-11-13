@@ -83,7 +83,7 @@ hr {
 .grow { flex: 1; min-width: 0; }
 .strong { font-weight: 600; }
 
-/* ---------------- Khung ung dung ---------------- */
+/* ---------------- App shell ---------------- */
 
 .app-shell {
   display: flex;
@@ -166,7 +166,7 @@ hr {
   width: 100%;
 }
 
-/* ---------------- Dieu huong ---------------- */
+/* ---------------- Navigation ---------------- */
 
 .nav-menu {
   display: flex;
@@ -238,7 +238,7 @@ hr {
   color: var(--text-muted);
 }
 
-/* ---------------- Trang & tieu de ---------------- */
+/* ---------------- Page & headings ---------------- */
 
 .page { display: flex; flex-direction: column; gap: 1.2rem; }
 
@@ -264,7 +264,7 @@ hr {
   margin-bottom: .6rem;
 }
 
-/* ---------------- Nut ---------------- */
+/* ---------------- Buttons ---------------- */
 
 .btn {
   display: inline-flex;
@@ -318,7 +318,7 @@ hr {
 
 .button-row { display: flex; gap: .5rem; flex-wrap: wrap; }
 
-/* ---------------- The (card) ---------------- */
+/* ---------------- Cards ---------------- */
 
 .card {
   background: var(--surface);
@@ -361,7 +361,7 @@ hr {
 .stat-value { font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
 .stat-hint { font-size: .8rem; color: var(--text-muted); }
 
-/* ---------------- Bang & danh sach ---------------- */
+/* ---------------- Tables & lists ---------------- */
 
 .table-wrap {
   overflow-x: auto;
@@ -460,7 +460,7 @@ hr {
   background: var(--accent);
 }
 
-/* ---------------- Nhan, the ---------------- */
+/* ---------------- Labels & tags ---------------- */
 
 .tag-row { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
 
@@ -543,7 +543,7 @@ hr {
   background: var(--accent);
 }
 
-/* ---------------- Bieu mau ---------------- */
+/* ---------------- Forms ---------------- */
 
 .toolbar {
   display: flex;
@@ -597,7 +597,7 @@ textarea.input { resize: vertical; line-height: 1.6; }
 
 .inline-field { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; }
 
-/* ---------------- Thanh tien do ---------------- */
+/* ---------------- Progress bars ---------------- */
 
 .progress {
   height: 9px;
@@ -643,7 +643,7 @@ i.dot.seg-mature { background: var(--success); }
   color: var(--text-muted);
 }
 
-/* ---------------- Bieu do cot ---------------- */
+/* ---------------- Bar chart ---------------- */
 
 .bars {
   display: flex;
@@ -694,7 +694,7 @@ i.dot.seg-mature { background: var(--success); }
 
 .heatmap-legend { display: flex; align-items: center; gap: 4px; }
 
-/* ---------------- Trang thai rong / tai ---------------- */
+/* ---------------- Empty & loading states ---------------- */
 
 .empty-state {
   text-align: center;
@@ -829,7 +829,7 @@ i.dot.seg-mature { background: var(--success); }
   to { opacity: 1; transform: none; }
 }
 
-/* ---------------- Cau truc ngu phap ---------------- */
+/* ---------------- Grammar patterns ---------------- */
 
 .pattern-grid {
   display: grid;
@@ -897,7 +897,7 @@ i.dot.seg-mature { background: var(--success); }
 :root[data-theme="dark"] .callout.warn { background: #33291c; color: #e0a86a;
 }
 
-/* ---------------- On tap ---------------- */
+/* ---------------- Review ---------------- */
 
 .review-page { outline: none; }
 
@@ -1002,7 +1002,7 @@ i.dot.seg-mature { background: var(--success); }
 
 .summary-num { font-size: 1.4rem; font-weight: 700; color: var(--text); }
 
-/* ---------------- Luyen viet ---------------- */
+/* ---------------- Writing practice ---------------- */
 
 .prompt-grid {
   display: grid;
@@ -1126,7 +1126,7 @@ i.dot.seg-mature { background: var(--success); }
 
 .rubric .select { min-width: 72px; }
 
-/* ---------------- So tay ---------------- */
+/* ---------------- Notebooks ---------------- */
 
 .notebook-grid {
   display: grid;
@@ -1176,7 +1176,7 @@ i.dot.seg-mature { background: var(--success); }
 
 .danger-zone { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
 
-/* ---------------- Loi Blazor ---------------- */
+/* ---------------- Blazor errors ---------------- */
 
 #blazor-error-ui {
   background: #fde68a;
@@ -1198,7 +1198,7 @@ i.dot.seg-mature { background: var(--success); }
   top: .6rem;
 }
 
-/* ---------------- Man hinh nho ---------------- */
+/* ---------------- Small screens ---------------- */
 
 @media (max-width: 900px) {
   .writing-layout { grid-template-columns: 1fr; }
