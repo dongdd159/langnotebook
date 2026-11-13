@@ -1,53 +1,28 @@
 :root {
   color-scheme: light dark;
 
-  --bg: #f5f6f9;
-  --surface: #ffffff;
-  --surface-2: #f0f2f6;
-  --border: #e0e3ea;
-  --text: #1c2230;
-  --text-muted: #697086;
-  --accent: #4f7df0;
-  --accent-soft: #e8effe;
-  --success: #2fa36b;
-  --warn: #e8883a;
-  --danger: #d8543f;
-  --purple: #8a5cf0;
+  /* Legacy names now follow the A2 notebook tokens defined in Styles/tailwind.input.css. */
+  --bg: var(--nt-desk);
+  --surface: var(--nt-bg);
+  --surface-2: var(--nt-side);
+  --border: var(--nt-line);
+  --text: var(--nt-text);
+  --text-muted: var(--nt-muted);
+  --accent: var(--nt-accent);
+  --accent-soft: var(--nt-accent-soft);
+  --success: #2f7a55;
+  --warn: #a8650f;
+  --danger: var(--nt-danger);
+  --purple: #6a43a8;
 
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 2px rgba(20, 26, 40, .06), 0 8px 24px rgba(20, 26, 40, .06);
-  --sidebar-width: 252px;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(28, 37, 51, .05), 0 12px 32px rgba(28, 37, 51, .06);
+  --sidebar-width: 244px;
 
-  --font: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans", "Noto Sans JP",
+  --font: Inter, "Segoe UI", system-ui, -apple-system, "Noto Sans", "Noto Sans JP",
   "Noto Sans SC", "Noto Sans KR", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #14171f;
-    --surface: #1b1f29;
-    --surface-2: #232834;
-    --border: #2d3341;
-    --text: #e8eaf0;
-    --text-muted: #9aa2b6;
-    --accent: #6d94f7;
-    --accent-soft: #22304d;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: #14171f;
-  --surface: #1b1f29;
-  --surface-2: #232834;
-  --border: #2d3341;
-  --text: #e8eaf0;
-  --text-muted: #9aa2b6;
-  --accent: #6d94f7;
-  --accent-soft: #22304d;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
 }
 
 * {

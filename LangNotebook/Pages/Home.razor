@@ -17,7 +17,7 @@
         <div class="min-w-0">
             <p class="m-0 text-[13px] text-mute">@TodayLabel</p>
             <h1 class="m-0 mt-1 text-[28px] font-bold leading-tight tracking-tight sm:text-[30px]">
-                What are we studying today?
+                What are we studying <span class="nt-mark">today?</span>
             </h1>
         </div>
         <button type="button" class="nt-btn" @onclick="@(() => Nav.NavigateTo("vocabulary"))">
@@ -39,9 +39,9 @@
     {
         @* Queue + goal *@
         <section class="grid gap-4 md:grid-cols-2">
-            <div class="flex flex-col gap-5 rounded-lg border border-line p-6">
-                <div class="flex items-center justify-between gap-3">
-                    <h2 class="m-0 text-[15px] font-semibold">Review queue</h2>
+            <div class="flex flex-col gap-5 nt-card p-6">
+                <div class="flex items-center justify-between gap-3 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
+                    <h2 class="m-0 text-[17px] font-semibold">Review queue</h2>
                     @if (EstimateLabel is not null)
                     {
                         <span class="text-[13px] text-mute">@EstimateLabel</span>
@@ -74,9 +74,9 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-5 rounded-lg border border-line p-6">
-                <div class="flex items-center justify-between gap-3">
-                    <h2 class="m-0 text-[15px] font-semibold">Today's goal</h2>
+            <div class="flex flex-col gap-5 nt-note p-6">
+                <div class="flex items-center justify-between gap-3 -mx-6 -mt-6 border-b border-note-line px-6 py-3.5">
+                    <h2 class="m-0 text-[17px] font-semibold">Today's goal</h2>
                     <a class="text-[13px]" href="settings">Change goal</a>
                 </div>
                 <div class="flex flex-wrap items-center gap-6">
@@ -130,22 +130,22 @@
 
         @* KPI row *@
         <section aria-label="Key metrics" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
                 <span class="text-[13px] text-mute">Mature</span>
                 <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(_stats.MatureCount)</span>
                 <span class="text-xs text-mute">of @Fmt(TotalCards) cards total</span>
             </div>
-            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
                 <span class="text-[13px] text-mute">30-day accuracy</span>
                 <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatPercent(_stats.AccuracyLast30Days)</span>
                 <span class="text-xs text-mute">@Fmt(_stats.ReviewsLast7Days) reviews in the last 7 days</span>
             </div>
-            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
                 <span class="text-[13px] text-mute">Avg. time per card</span>
                 <span class="text-[26px] font-bold leading-tight tracking-tight">@FormatSeconds(_stats.AverageSecondsPerCard)</span>
                 <span class="text-xs text-mute">@Fmt(_stats.ReviewsTotal) reviews all time</span>
             </div>
-            <div class="flex flex-col gap-1.5 rounded-lg border border-line px-[18px] py-4">
+            <div class="flex flex-col gap-1.5 nt-card px-[18px] py-4">
                 <span class="text-[13px] text-mute">Total cards</span>
                 <span class="text-[26px] font-bold leading-tight tracking-tight">@Fmt(TotalCards)</span>
                 <span class="text-xs text-mute">@Fmt(_stats.TotalVocab) vocabulary · @Fmt(_stats.TotalGrammar) grammar</span>
@@ -154,9 +154,9 @@
 
         @* Activity + memory *@
         <section class="grid gap-4 lg:grid-cols-2">
-            <div class="flex min-w-0 flex-col gap-4 rounded-lg border border-line p-6">
-                <div class="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 class="m-0 text-[15px] font-semibold">Activity, last 12 weeks</h2>
+            <div class="flex min-w-0 flex-col gap-4 nt-card p-6">
+                <div class="flex flex-wrap items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
+                    <h2 class="m-0 text-[17px] font-semibold">Activity, last 12 weeks</h2>
                     <span class="text-[13px] text-mute">@Fmt(_heatTotal) reviews · @Plural(_heatActiveDays, "active day")</span>
                 </div>
                 <div class="nt-scroll overflow-x-auto">
@@ -184,10 +184,10 @@
                 </div>
             </div>
 
-            <div class="flex min-w-0 flex-col gap-5 rounded-lg border border-line p-6">
+            <div class="flex min-w-0 flex-col gap-5 nt-card p-6">
                 <div class="flex flex-col gap-3">
                     <div class="flex items-baseline justify-between gap-2">
-                        <h2 class="m-0 text-[15px] font-semibold">Memory progress</h2>
+                        <h2 class="m-0 text-[17px] font-semibold">Memory progress</h2>
                         <span class="text-[13px] text-mute">@Fmt(TotalCards) cards</span>
                     </div>
                     <div role="img" class="flex h-3 gap-0.5 overflow-hidden rounded-full bg-hov"
@@ -230,8 +230,8 @@
 
         @* Notebooks + writing *@
         <section class="grid gap-4 lg:grid-cols-2">
-            <div class="flex min-w-0 flex-col gap-1 rounded-lg border border-line p-6">
-                <h2 class="m-0 mb-2 text-[15px] font-semibold">Notebooks</h2>
+            <div class="flex min-w-0 flex-col gap-1 nt-card p-6">
+                <h2 class="-mx-6 -mt-6 mb-2 border-b border-index px-6 py-3.5 text-[17px] font-semibold">Notebooks</h2>
                 @if (_stats.Notebooks.Count == 0)
                 {
                     <p class="m-0 text-sm text-mute">No notebook has cards yet. Add your first word or grammar pattern.</p>
@@ -261,9 +261,9 @@
                 }
             </div>
 
-            <div class="flex min-w-0 flex-col gap-4 rounded-lg border border-line p-6">
-                <div class="flex items-baseline justify-between gap-2">
-                    <h2 class="m-0 text-[15px] font-semibold">Writing practice</h2>
+            <div class="flex min-w-0 flex-col gap-4 nt-card p-6">
+                <div class="flex items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
+                    <h2 class="m-0 text-[17px] font-semibold">Writing practice</h2>
                     <a class="text-[13px]" href="writing">View all</a>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
@@ -307,9 +307,9 @@
         </section>
 
         @* Recent vocabulary *@
-        <section class="flex flex-col gap-2 rounded-lg border border-line p-6">
-            <div class="mb-1 flex items-baseline justify-between gap-2">
-                <h2 class="m-0 text-[15px] font-semibold">Recently added words</h2>
+        <section class="flex flex-col gap-2 nt-card p-6">
+            <div class="mb-1 flex items-baseline justify-between gap-2 -mx-6 -mt-6 border-b border-index px-6 py-3.5">
+                <h2 class="m-0 text-[17px] font-semibold">Recently added words</h2>
                 <a class="text-[13px]" href="vocabulary">View all</a>
             </div>
             @if (_recentVocab.Count == 0)
