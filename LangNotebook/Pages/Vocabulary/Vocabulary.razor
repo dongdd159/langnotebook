@@ -122,6 +122,9 @@
             {
                 var firstShown = (_pageIndex - 1) * _pageSize + 1;
                 var lastShown = Math.Min(_pageIndex * _pageSize, _items.Count);
+                var detail = Detail;
+                <div class="flex flex-wrap items-start gap-5">
+                <div class="min-w-0 flex-[999_1_560px]">
                 <div role="table" aria-label="Vocabulary list" class="nt-card overflow-hidden text-sm">
                     <div role="row"
                          class="hidden border-b border-index bg-nt-side text-xs font-semibold text-mute md:grid md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)]">
@@ -148,7 +151,7 @@
                     {
                         var stageTone = (int)entry.Stage switch { 0 => 0, 1 => 2, 2 => 5, _ => 4 };
                         <div @key="entry.Id" role="row"
-                             class="group grid grid-cols-[minmax(0,1fr)_auto] items-start gap-y-1 border-b border-line px-2 py-3 last:border-b-0 transition-colors hover:bg-hov md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)] md:gap-y-0 md:px-2 md:py-2.5">
+                             class="group grid grid-cols-[minmax(0,1fr)_auto] items-start gap-y-1 border-b border-line px-2 py-3 last:border-b-0 transition-colors hover:bg-hov md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)] md:gap-y-0 md:px-2 md:py-2.5 @(_detailId == entry.Id ? "bg-nt-accent-soft" : string.Empty)">
                             <div role="cell"
                                  class="flex min-w-0 items-start gap-1.5 px-1 md:col-start-1 md:row-start-1 md:px-2">
                                 <button type="button" title="Star" aria-label="Star"
@@ -159,10 +162,12 @@
                                 </button>
                                 <div class="min-w-0 pt-0.5">
                                     <div class="flex flex-wrap items-baseline gap-x-2">
-                                        <span
-                                            class="break-words text-[15px] font-semibold text-ink md:text-sm">
+                                        <button type="button"
+                                                class="break-words text-left text-[15px] font-semibold text-ink hover:underline md:text-sm"
+                                                aria-expanded="@(_detailId == entry.Id ? "true" : "false")"
+                                                title="Show details" @onclick="() => ShowDetail(entry)">
                                             @entry.Term
-                                        </span>
+                                        </button>
                                         @if (!string.IsNullOrWhiteSpace(entry.Reading))
                                         {
                                             <span class="font-mono text-xs text-mute">
@@ -302,6 +307,102 @@
                         </div>
                     }
                 </nav>
+                </div>
+                @if (detail is not null)
+                {
+                    var detailTone = (int)detail.Stage switch { 0 => 0, 1 => 2, 2 => 5, _ => 4 };
+                    <aside class="nt-card min-w-0 flex-[1_1_300px] lg:sticky lg:top-4" aria-label="Word details">
+                        <div class="flex items-start justify-between gap-2 border-b border-index px-5 py-4">
+                            <div class="min-w-0">
+                                <div class="break-words text-[28px] font-semibold leading-tight text-ink">@detail.Term</div>
+                                <div class="mt-0.5 text-[13px] text-mute">
+                                    @(string.Join(" · ", new[] { detail.Reading, detail.PartOfSpeech, Labels.Level(detail.Level) }.Where(x => !string.IsNullOrWhiteSpace(x))))
+                                </div>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-1">
+                                <span class="nt-tag nt-tag-@(detailTone)">@Labels.Stage(detail.Stage)</span>
+                                <button type="button" class="nt-icon-btn" title="Close" aria-label="Close details" @onclick="CloseDetail">
+                                    <Icon Name="close" Size="16"/>
+                                </button>
+                            </div>
+                        </div>
+                        <dl class="m-0 flex flex-col gap-3.5 px-5 py-4 text-sm">
+                            <div>
+                                <dt class="text-xs font-semibold text-mute">Meaning</dt>
+                                <dd class="m-0 mt-0.5 text-[15px] font-medium text-ink">@detail.Meaning</dd>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(detail.Example))
+                            {
+                                <div>
+                                    <dt class="text-xs font-semibold text-mute">Example</dt>
+                                    <dd class="m-0 mt-0.5 whitespace-pre-line font-serif text-base text-ink">@detail.Example</dd>
+                                    @if (!string.IsNullOrWhiteSpace(detail.ExampleMeaning))
+                                    {
+                                        <dd class="m-0 mt-0.5 whitespace-pre-line text-[13px] text-mute">@detail.ExampleMeaning</dd>
+                                    }
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(detail.Collocations))
+                            {
+                                <div>
+                                    <dt class="text-xs font-semibold text-mute">Collocations</dt>
+                                    <dd class="m-0 mt-0.5 text-ink">@detail.Collocations</dd>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(detail.Synonyms))
+                            {
+                                <div>
+                                    <dt class="text-xs font-semibold text-mute">Synonyms / Antonyms</dt>
+                                    <dd class="m-0 mt-0.5 text-ink">@detail.Synonyms</dd>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(detail.Note))
+                            {
+                                <div>
+                                    <dt class="text-xs font-semibold text-mute">Notes</dt>
+                                    <dd class="m-0 mt-0.5 whitespace-pre-line text-ink">@detail.Note</dd>
+                                </div>
+                            }
+                            @if (detail.TagList.Length > 0)
+                            {
+                                <div>
+                                    <dt class="text-xs font-semibold text-mute">Tags</dt>
+                                    <dd class="m-0 mt-1 flex flex-wrap gap-1">
+                                        @foreach (var tag in detail.TagList)
+                                        {
+                                            <span class="nt-tag">@tag</span>
+                                        }
+                                    </dd>
+                                </div>
+                            }
+                        </dl>
+                        <div class="grid grid-cols-4 border-t border-line text-center">
+                            <div class="px-2 py-3"><div class="font-semibold">@detail.EaseFactor.ToString("0.00")</div><div class="text-[11px] text-mute">ease</div></div>
+                            <div class="px-2 py-3"><div class="font-semibold">@(detail.IntervalDays > 0 ? $"{detail.IntervalDays} d" : "—")</div><div class="text-[11px] text-mute">interval</div></div>
+                            <div class="px-2 py-3"><div class="font-semibold">@detail.Repetitions</div><div class="text-[11px] text-mute">reviews</div></div>
+                            <div class="px-2 py-3"><div class="font-semibold">@detail.Lapses</div><div class="text-[11px] text-mute">lapses</div></div>
+                        </div>
+                        <p class="m-0 border-t border-line px-5 py-2.5 text-xs text-mute">
+                            @(detail.IsSuspended ? "Suspended · not shown in reviews" : $"Next review: {Labels.Due(detail)}")
+                            @if (detail.LastReviewedUtc is not null)
+                            {
+                                <span> · last reviewed @Labels.RelativeDate(detail.LastReviewedUtc.Value)</span>
+                            }
+                        </p>
+                        <div class="flex flex-wrap gap-2 border-t border-line px-5 py-3">
+                            <button type="button" class="nt-btn" @onclick="@(() => OpenEditor(detail))">
+                                <Icon Name="edit" Size="14"/> Edit
+                            </button>
+                            <button type="button" class="nt-btn" @onclick="@(() => ToggleSuspendAsync(detail))">
+                                @(detail.IsSuspended ? "Resume reviews" : "Suspend")
+                            </button>
+                            <button type="button" class="nt-btn nt-btn-ghost ml-auto text-nt-danger!" @onclick="@(() => DeleteAsync(detail))">
+                                Delete
+                            </button>
+                        </div>
+                    </aside>
+                }
+                </div>
             }
         </div>
     </div>

@@ -86,6 +86,8 @@ public partial class MainLayout : LayoutComponentBase
 
     private async Task ToggleThemeAsync()
     {
+        // Read the current mode first: Settings can change the theme without this component knowing.
+        _dark = await JS.InvokeAsync<string>("langTheme.mode") == "dark";
         var next = _dark ? "light" : "dark";
         await JS.InvokeVoidAsync("langTheme.set", next);
         _dark = next == "dark";

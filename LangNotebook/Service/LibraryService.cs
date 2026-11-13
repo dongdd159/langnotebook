@@ -120,39 +120,64 @@ public sealed class LibraryService(
         await storage.PersistAsync();
     }
     
-    public async Task<int> BulkImportVocabAsync(int notebookId, string rawText, string defaultTags = "")
+    /// <summary>
+    /// Parses bulk-import text. One word per line, columns separated by "|":
+    /// word | reading | meaning | part of speech | example | example meaning | tags.
+    /// Two columns are read as word | meaning. Blank lines and lines starting with "#" are ignored.
+    /// Lines without a word or a meaning are returned with a <see cref="BulkImportRow.SkipReason"/>.
+    /// </summary>
+    public static List<BulkImportRow> ParseBulkVocab(string rawText, string defaultTags = "")
     {
-        var lines = rawText.Split(new[] { "\r\n", "\r", "\n" },
-            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        var added = new List<VocabEntry>();
-        var now = DateTime.UtcNow;
-        foreach (var raw in lines)
+        var rows = new List<BulkImportRow>();
+        var lines = (rawText ?? string.Empty).Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        defaultTags = (defaultTags ?? string.Empty).Trim();
+        for (var i = 0; i < lines.Length; i++)
         {
-            var line = raw.Trim();
-            if (line.Length == 0 || line.StartsWith("#"))
+            var line = lines[i].Trim();
+            if (line.Length == 0 || line.StartsWith('#'))
                 continue;
             var parts = line.Split('|').Select(x => x.Trim()).ToArray();
-            if (parts.Length == 0 || parts[0].Length == 0)
-                continue;
-            var entry = new VocabEntry
-            {
-                NotebookId = notebookId, Term = parts[0], CreatedUtc = now, UpdatedUtc = now, DueUtc = now,
-                Tags = defaultTags
-            };
+            string Part(int index) => parts.Length > index ? parts[index] : string.Empty;
+            var term = Part(0);
+            string reading = string.Empty, meaning, pos = string.Empty, example = string.Empty, exampleMeaning = string.Empty;
+            var tags = defaultTags;
             if (parts.Length == 2)
-                entry.Meaning = parts[1];
-            else if (parts.Length >= 3)
+                meaning = Part(1);
+            else
             {
-                entry.Reading = parts[1];
-                entry.Meaning = parts[2];
-                if (parts.Length > 3) entry.PartOfSpeech = parts[3];
-                if (parts.Length > 4) entry.Example = parts[4];
-                if (parts.Length > 5) entry.ExampleMeaning = parts[5];
-                if (parts.Length > 6 && parts[6].Length > 0)
-                    entry.Tags = string.IsNullOrWhiteSpace(defaultTags) ? parts[6] : $"{defaultTags},{parts[6]}";
+                reading = Part(1);
+                meaning = Part(2);
+                pos = Part(3);
+                example = Part(4);
+                exampleMeaning = Part(5);
+                var lineTags = Part(6);
+                if (lineTags.Length > 0)
+                    tags = defaultTags.Length == 0 ? lineTags : $"{defaultTags},{lineTags}";
             }
-            added.Add(entry);
+            string? skip = term.Length == 0 ? "Missing word"
+                : meaning.Length == 0 ? "Missing meaning"
+                : null;
+            rows.Add(new BulkImportRow
+            {
+                LineNumber = i + 1, Term = term, Reading = reading, Meaning = meaning, PartOfSpeech = pos,
+                Example = example, ExampleMeaning = exampleMeaning, Tags = tags, SkipReason = skip
+            });
         }
+        return rows;
+    }
+
+    public async Task<int> BulkImportVocabAsync(int notebookId, string rawText, string defaultTags = "")
+    {
+        var now = DateTime.UtcNow;
+        var added = ParseBulkVocab(rawText, defaultTags)
+            .Where(x => x.IsReady)
+            .Select(x => new VocabEntry
+            {
+                NotebookId = notebookId, Term = x.Term, Reading = x.Reading, Meaning = x.Meaning,
+                PartOfSpeech = x.PartOfSpeech, Example = x.Example, ExampleMeaning = x.ExampleMeaning,
+                Tags = x.Tags, CreatedUtc = now, UpdatedUtc = now, DueUtc = now
+            })
+            .ToList();
         if (added.Count == 0)
             return 0;
         await using (var db = await CreateAsync())

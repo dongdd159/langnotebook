@@ -35,6 +35,28 @@ public partial class Settings : ComponentBase
         ShowAiProvider(Service.AiProviders.Find(_aiSettings.ProviderId).Id);
     }
 
+    private static readonly (string Value, string Label)[] ThemeChoices =
+        [("light", "Light"), ("dark", "Dark"), ("system", "System")];
+
+    private string _themeChoice = "system";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+        _themeChoice = await JS.InvokeAsync<string>("langTheme.stored");
+        StateHasChanged();
+    }
+
+    private async Task SetThemeAsync(string choice)
+    {
+        if (choice == "system")
+            await JS.InvokeAsync<string>("langTheme.useSystem");
+        else
+            await JS.InvokeAsync<string>("langTheme.set", choice);
+        _themeChoice = choice;
+    }
+
     private void OnAiProviderChanged(ChangeEventArgs args) =>
         ShowAiProvider(Service.AiProviders.Find(args.Value?.ToString()).Id);
 

@@ -112,6 +112,22 @@
                 </button>
             </div>
         </section>
+        <section class="nt-card mt-8 p-5 sm:p-6" aria-labelledby="st-appearance">
+            <h2 id="st-appearance" class="m-0 text-xl font-semibold text-ink">Appearance</h2>
+            <p class="m-0 mt-0.5 text-sm text-mute">System follows your device’s light or dark setting.</p>
+            <div class="mt-4 inline-flex gap-0.5 rounded-lg bg-hov p-1" role="radiogroup" aria-label="Theme">
+                @foreach (var choice in ThemeChoices)
+                {
+                    var on = _themeChoice == choice.Value;
+                    <button type="button" role="radio" aria-checked="@(on ? "true" : "false")"
+                            class="@($"h-9 rounded-md px-4 text-sm font-medium transition-colors {(on ? "bg-nt-bg text-ink shadow-card" : "text-mute hover:text-ink")}")"
+                            @onclick="() => SetThemeAsync(choice.Value)">
+                        @choice.Label
+                    </button>
+                }
+            </div>
+        </section>
+
         <section class="nt-card mt-8 p-5 sm:p-6" aria-labelledby="st-ai">
             <h2 id="st-ai" class="m-0 text-xl font-semibold text-ink">AI Review</h2>
             <p class="m-0 mt-0.5 text-sm text-mute">

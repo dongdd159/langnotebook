@@ -4,56 +4,111 @@
 @inject AppState State
 @inject LibraryService Library
 
-<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="Bulk Import Vocabulary" Size="lg">
-    <p class="m-0 mb-3 text-sm text-mute">
+<Modal Visible="IsOpen" VisibleChanged="IsOpenChanged" Title="Bulk import vocabulary" Size="lg">
+    @{
+        var rows = Rows;
+        var ready = rows.Count(x => x.IsReady);
+        var skipped = rows.Count - ready;
+        var summary = $"{rows.Count} {(rows.Count == 1 ? "line" : "lines")} · {ready} ready"
+                      + (skipped > 0 ? $" · {skipped} skipped" : string.Empty);
+    }
+    <div class="rounded-nt bg-nt-accent-soft px-3.5 py-3 text-[13px] text-ink">
         One word per line. Columns are separated by
-        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
-            |
-        </code>
-        in order:
-        <br/>
-        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
-            word | reading | meaning | part of speech | example | example meaning | tags
-        </code>
-        <br/>
-        If only two columns are provided, it is parsed as
-        <code class="rounded-nt bg-hov px-1 font-mono text-xs">
-            word | meaning
-        </code>.
-    </p>
-    <div class="flex flex-col gap-3">
+        <code class="rounded-[3px] bg-nt-bg px-1 font-mono text-xs">|</code> in this order:
+        <span class="mt-1.5 flex flex-wrap gap-1">
+            @foreach (var column in new[] { "word", "reading", "meaning", "part of speech", "example", "example meaning", "tags" })
+            {
+                <span class="rounded-[4px] bg-nt-bg px-1.5 text-xs leading-5 [box-shadow:inset_0_0_0_1px_var(--nt-line)]">@column</span>
+            }
+        </span>
+        <span class="mt-1.5 block">
+            With only two columns a line is read as <strong>word | meaning</strong>. Lines starting with
+            <code class="font-mono text-xs">#</code> are ignored.
+        </span>
+    </div>
+
+    @if (!HasNotebooks)
+    {
+        <p class="m-0 mt-4 text-sm text-nt-danger">Create a notebook first, then import words into it.</p>
+    }
+
+    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label class="block">
             <span class="nt-label">Target notebook</span>
-            <select class="nt-input" value="@_notebookId" @onchange="OnNotebookChanged">
-                @foreach (var notebook in Context.Notebooks)
+            <select class="nt-input" value="@_notebookId" @onchange="OnNotebookChanged" disabled="@(!HasNotebooks)">
+                @if (HasNotebooks)
                 {
-                    <option value="@notebook.Id">
-                        @notebook.Name
-                    </option>
+                    foreach (var notebook in Context.Notebooks)
+                    {
+                        <option value="@notebook.Id">@notebook.Name</option>
+                    }
                 }
             </select>
         </label>
         <label class="block">
-                <span class="nt-label">
-                    Tags applied to all (optional)
-                </span>
+            <span class="nt-label">Tags applied to all <span class="font-normal text-mute">(optional)</span></span>
             <input class="nt-input" @bind="_importTags" @bind:event="oninput" placeholder="Unit 5"/>
         </label>
-        <label class="block">
-                <span class="nt-label">
-                    Data
-                </span>
-            <textarea class="nt-input font-mono text-xs" rows="10" @bind="_importText" @bind:event="oninput"
-                      placeholder="reliable | /rɪˈlaɪəbl/ | dependable | adj. | He is a reliable partner. | He is a dependable partner. | work">
-                </textarea>
+        <label class="block sm:col-span-2">
+            <span class="nt-label">Data</span>
+            <textarea class="nt-input min-h-[150px] font-mono text-xs leading-[22px]" rows="7" spellcheck="false"
+                      @bind="_importText" @bind:event="oninput"
+                      placeholder="reliable | /rɪˈlaɪəbl/ | dependable | adj. | He is a reliable partner. | He is a dependable partner. | work"></textarea>
         </label>
     </div>
+
+    @if (rows.Count > 0)
+    {
+        <section class="mt-4 overflow-hidden rounded-lg [box-shadow:inset_0_0_0_1px_var(--nt-line)]" aria-label="Preview">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-nt-side px-3.5 py-2 text-[13px]">
+                <strong class="font-semibold">Preview</strong>
+                <span class="text-mute" aria-live="polite">
+                    @summary
+                </span>
+            </div>
+            <div class="nt-scroll max-h-60 overflow-auto">
+                <table class="w-full min-w-[620px] border-collapse text-[13px]">
+                    <thead>
+                    <tr class="text-left text-xs text-mute">
+                        <th scope="col" class="border-b border-line py-2 pl-3.5 pr-2 font-semibold">Line</th>
+                        <th scope="col" class="border-b border-line px-2 py-2 font-semibold">Word</th>
+                        <th scope="col" class="border-b border-line px-2 py-2 font-semibold">Reading</th>
+                        <th scope="col" class="border-b border-line px-2 py-2 font-semibold">Meaning</th>
+                        <th scope="col" class="border-b border-line px-2 py-2 font-semibold">Tags</th>
+                        <th scope="col" class="border-b border-line py-2 pl-2 pr-3.5 font-semibold">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in rows.Take(PreviewLimit))
+                    {
+                        <tr class="@(row.IsReady ? string.Empty : "bg-[var(--tag-8-bg)]/40")">
+                            <td class="border-b border-line py-1.5 pl-3.5 pr-2 text-mute">@row.LineNumber</td>
+                            <td class="border-b border-line px-2 py-1.5 font-semibold">@OrDash(row.Term)</td>
+                            <td class="border-b border-line px-2 py-1.5 text-mute">@OrDash(row.Reading)</td>
+                            <td class="border-b border-line px-2 py-1.5">@OrDash(row.Meaning)</td>
+                            <td class="border-b border-line px-2 py-1.5 text-mute">@OrDash(row.Tags)</td>
+                            <td class="border-b border-line py-1.5 pl-2 pr-3.5 font-medium @(row.IsReady ? "text-[color:var(--diff-added)]" : "text-nt-danger")">
+                                @(row.IsReady ? "Ready" : $"Skipped · {row.SkipReason}")
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @if (rows.Count > PreviewLimit)
+            {
+                <p class="m-0 border-t border-line px-3.5 py-2 text-xs text-mute">
+                    Showing the first @PreviewLimit lines. All @ready ready lines will be imported.
+                </p>
+            }
+        </section>
+    }
+
     <div class="mt-5 flex justify-end gap-2">
-        <button type="button" class="nt-btn" @onclick="CancelImportAsync">
-            Cancel
-        </button>
-        <button type="button" class="nt-btn nt-btn-primary" @onclick="RunImportAsync">
-            Import
+        <button type="button" class="nt-btn nt-btn-ghost" @onclick="CancelImportAsync">Cancel</button>
+        <button type="button" class="nt-btn nt-btn-primary" disabled="@(ready == 0 || !HasNotebooks || _importing)"
+                @onclick="RunImportAsync">
+            @(ready == 0 ? "Import" : $"Import {ready} {(ready == 1 ? "word" : "words")}")
         </button>
     </div>
 </Modal>

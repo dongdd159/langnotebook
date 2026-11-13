@@ -24,6 +24,10 @@ public partial class Vocabulary : ComponentBase
     private ElementReference _tableTop;
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(_items.Count / (double)_pageSize));
     private VocabEntry _selectedEntry = new();
+    private int? _detailId;
+
+    /// <summary>The word shown in the detail panel; null when the panel is closed or the word left the list.</summary>
+    private VocabEntry? Detail => _detailId is null ? null : _items.FirstOrDefault(x => x.Id == _detailId);
 
     protected override void OnInitialized() => State.Changed += OnStateChanged;
 
@@ -121,6 +125,22 @@ public partial class Vocabulary : ComponentBase
             return;
         await Library.DeleteVocabAsync(entry.Id);
         State.ShowSuccess("Deleted.");
+        await LoadAsync();
+        State.NotifyChanged();
+    }
+
+    private void ShowDetail(VocabEntry entry) => _detailId = _detailId == entry.Id ? null : entry.Id;
+
+    private void CloseDetail() => _detailId = null;
+
+    private async Task ToggleSuspendAsync(VocabEntry entry)
+    {
+        var copy = Clone(entry);
+        copy.IsSuspended = !copy.IsSuspended;
+        await Library.SaveVocabAsync(copy);
+        State.ShowSuccess(copy.IsSuspended
+            ? $"“{entry.Term}” won’t appear in reviews."
+            : $"“{entry.Term}” is back in reviews.");
         await LoadAsync();
         State.NotifyChanged();
     }

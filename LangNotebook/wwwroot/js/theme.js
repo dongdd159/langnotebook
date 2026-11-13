@@ -20,6 +20,19 @@ window.langTheme = (function () {
         paintMeta(value);
         return value;
     }
+    // 'light' | 'dark' when the user picked one, 'system' when following the OS setting.
+    function stored() {
+        const value = document.documentElement.getAttribute('data-theme');
+        return value === 'light' || value === 'dark' ? value : 'system';
+    }
+    function useSystem() {
+        document.documentElement.removeAttribute('data-theme');
+        try {
+            localStorage.removeItem('theme');
+        } catch (e) { }
+        paintMeta(systemMode());
+        return 'system';
+    }
     paintMeta(mode());
-    return { mode: mode, set: set };
+    return { mode: mode, set: set, stored: stored, useSystem: useSystem };
 })();

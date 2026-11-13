@@ -284,5 +284,34 @@
                               OnEvaluate="EvaluateWithAiAsync" OnApply="ApplyAiChanges"
                               OnDecisionChanged="() => StateHasChanged()"/>
     }
+    else
+    {
+        <section id="ai-review" class="mt-8 scroll-mt-6 border-t border-line pt-6" aria-labelledby="ai-intro-title">
+            <h2 id="ai-intro-title" class="m-0 flex items-center gap-2 text-2xl font-semibold text-ink">
+                <span class="inline-flex text-nt-accent"><Icon Name="star" Size="20"/></span>
+                AI Review
+            </h2>
+            <div class="mt-4 flex flex-wrap items-center gap-5 rounded-lg border border-dashed border-nt-press bg-nt-bg p-5">
+                <div class="min-w-0 flex-[1_1_320px]">
+                    <p class="m-0 font-semibold text-ink">Get feedback on this article</p>
+                    <p class="m-0 mt-1 text-sm text-mute">
+                        The AI scores task, coherence, vocabulary and grammar out of 25 each, lists strengths and
+                        things to improve, and suggests edits you can accept one by one. Your article is not changed
+                        until you apply them.
+                    </p>
+                </div>
+                <div class="flex flex-col items-start gap-1">
+                    <button type="button" class="nt-btn nt-btn-primary h-10! px-4!" disabled="@(!CanEvaluate)"
+                            @onclick="EvaluateWithAiAsync">
+                        <Icon Name="star" Size="14"/> Evaluate article
+                    </button>
+                    @if (string.IsNullOrWhiteSpace(_piece.Content))
+                    {
+                        <span class="text-xs text-mute">Write something first.</span>
+                    }
+                </div>
+            </div>
+        </section>
+    }
 
 </div>
