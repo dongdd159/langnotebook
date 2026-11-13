@@ -42,7 +42,7 @@
 
     @if (_prompt is not null)
     {
-        <div class="mt-6 flex gap-2.5 rounded-nt bg-[var(--tag-3-bg)] px-3 py-2.5 text-sm text-[color:var(--tag-3-fg)]">
+        <div class="nt-note mt-6 flex gap-2.5 px-4 py-3 text-sm text-ink">
             <div class="min-w-0">
                 <strong class="block font-semibold">@_prompt.Title</strong>
                 <p class="m-0 mt-0.5 break-words">@_prompt.PromptText</p>
@@ -100,7 +100,7 @@
 
         <aside class="flex min-w-0 flex-col gap-4">
 
-            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-score">
+            <section class="nt-card p-4" aria-labelledby="wr-score">
                 @{
                     var scoreTone = ScoreBucket(_analysis.TotalScore) switch
                     {
@@ -112,7 +112,7 @@
                 }
 
                 <div class="flex items-center justify-between gap-3">
-                    <h2 id="wr-score" class="m-0 text-sm font-semibold text-ink">Automated Score</h2>
+                    <h2 id="wr-score" class="m-0 text-[17px] font-semibold text-ink">Automated Score</h2>
                     <span class="nt-tag @scoreTone text-sm font-semibold tabular-nums">@_analysis.TotalScore/100</span>
                 </div>
                 <p class="m-0 mt-1 text-xs text-mute">@WritingAnalyzer.ScoreBand(_analysis.TotalScore)</p>
@@ -171,8 +171,8 @@
                 }
             </section>
 
-            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-terms">
-                <h2 id="wr-terms" class="m-0 text-sm font-semibold text-ink">Target Vocabulary</h2>
+            <section class="nt-card p-4" aria-labelledby="wr-terms">
+                <h2 id="wr-terms" class="m-0 text-[17px] font-semibold text-ink">Target Vocabulary</h2>
 
                 @if (_targetTerms.Count == 0)
                 {
@@ -220,14 +220,14 @@
                 }
             </section>
 
-            <section class="rounded-nt border border-line bg-nt-bg p-4 shadow-card" aria-labelledby="wr-rubric">
+            <section class="nt-note p-4" aria-labelledby="wr-rubric">
                 <div class="flex items-center justify-between gap-3">
-                    <h2 id="wr-rubric" class="m-0 text-sm font-semibold text-ink">Self-Assessment</h2>
+                    <h2 id="wr-rubric" class="m-0 text-[17px] font-semibold text-ink">Self-Assessment</h2>
                     <span class="text-xs tabular-nums text-mute">@_piece.RubricTotal/20</span>
                 </div>
 
                 <div class="mt-2">
-                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                    <label class="flex items-center justify-between gap-3 border-b border-note-line py-2">
                         <span class="min-w-0 text-sm text-ink">Task fulfillment</span>
                         <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreTask"
                                 @onchange="OnScoreTaskChanged">
@@ -237,7 +237,7 @@
                             }
                         </select>
                     </label>
-                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                    <label class="flex items-center justify-between gap-3 border-b border-note-line py-2">
                         <span class="min-w-0 text-sm text-ink">Coherence & layout</span>
                         <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreCoherence"
                                 @onchange="OnScoreCoherenceChanged">
@@ -247,7 +247,7 @@
                             }
                         </select>
                     </label>
-                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                    <label class="flex items-center justify-between gap-3 border-b border-note-line py-2">
                         <span class="min-w-0 text-sm text-ink">Vocabulary</span>
                         <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreVocabulary"
                                 @onchange="OnScoreVocabularyChanged">
@@ -257,7 +257,7 @@
                             }
                         </select>
                     </label>
-                    <label class="flex items-center justify-between gap-3 border-b border-line py-2">
+                    <label class="flex items-center justify-between gap-3 border-b border-note-line py-2">
                         <span class="min-w-0 text-sm text-ink">Grammar</span>
                         <select class="nt-input h-7! w-16! py-0! text-xs!" value="@_piece.ScoreGrammar"
                                 @onchange="OnScoreGrammarChanged">

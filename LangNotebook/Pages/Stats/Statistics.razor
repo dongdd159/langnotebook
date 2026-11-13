@@ -1,0 +1,199 @@
+@page "/stats"
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@implements IDisposable
+@inject AppState State
+@inject StatsService StatsSvc
+@inject ReviewService Reviews
+@inject SettingsService SettingsSvc
+
+<PageTitle>Statistics · Language Notebook</PageTitle>
+
+<div class="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-14">
+    <div>
+        <h1 class="m-0 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[38px]">Statistics</h1>
+        <p class="m-0 mt-1 text-sm text-mute">How your reviews, memory and writing are going.</p>
+    </div>
+
+    @if (_stats is null)
+    {
+        <div class="flex flex-col gap-4" aria-busy="true">
+            <div class="h-24 animate-pulse rounded-lg bg-hov"></div>
+            <div class="h-64 animate-pulse rounded-lg bg-hov"></div>
+        </div>
+    }
+    else
+    {
+        <section aria-label="Key metrics" class="nt-card grid grid-cols-2 overflow-hidden sm:grid-cols-3 lg:grid-cols-5">
+            <div class="flex flex-col gap-1 border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Reviews</span>
+                <span class="text-[28px] font-semibold leading-tight">@Fmt(_stats.ReviewsTotal)</span>
+                <span class="text-xs text-mute">@Fmt(_stats.ReviewsLast7Days) in the last 7 days</span>
+            </div>
+            <div class="flex flex-col gap-1 border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Accuracy</span>
+                <span class="text-[28px] font-semibold leading-tight">@FormatPercent(_stats.AccuracyLast30Days)</span>
+                <span class="text-xs text-mute">last 30 days</span>
+            </div>
+            <div class="flex flex-col gap-1 border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Per card</span>
+                <span class="text-[28px] font-semibold leading-tight">@FormatSeconds(_stats.AverageSecondsPerCard)</span>
+                <span class="text-xs text-mute">average answer time</span>
+            </div>
+            <div class="flex flex-col gap-1 border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Streak</span>
+                <span class="text-[28px] font-semibold leading-tight">@Plural(_stats.StreakDays, "day")</span>
+                <span class="text-xs text-mute">longest @Plural(_stats.LongestStreak, "day")</span>
+            </div>
+            <div class="flex flex-col gap-1 px-5 py-4">
+                <span class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Due now</span>
+                <span class="text-[28px] font-semibold leading-tight">@Fmt(_stats.DueNow)</span>
+                <span class="text-xs text-mute">@Plural(_newCount, "new card") waiting</span>
+            </div>
+        </section>
+
+        <section class="nt-card" aria-labelledby="daily-h">
+            <div class="nt-card-head">
+                <h2 id="daily-h">Reviews per day</h2>
+                <span class="text-[13px] text-mute">Last @_bars.Count days · @Plural(ReviewsLast30, "review") · daily goal @_goal</span>
+            </div>
+            <div class="nt-card-body">
+                <div class="nt-scroll overflow-x-auto">
+                    <div class="relative flex h-[200px] min-w-[560px] items-end gap-1 border-b border-line" role="img"
+                         aria-label="@($"Bar chart of reviews per day for the last {_bars.Count} days. The goal line is at {_goal}.")">
+                        @if (_goal > 0)
+                        {
+                            <span aria-hidden="true" class="absolute inset-x-0 border-t border-dashed border-[#b9a98f]" style="bottom: @GoalLine"></span>
+                            <span aria-hidden="true" class="absolute right-0 text-[11px] text-mute" style="bottom: calc(@GoalLine + 2px)">goal @_goal</span>
+                        }
+                        @foreach (var bar in _bars)
+                        {
+                            <span class="@($"flex-1 rounded-t-[3px] {(bar.ReachedGoal ? "bg-nt-accent" : "bg-[color-mix(in_srgb,var(--nt-accent)_40%,transparent)]")}")"
+                                  style="height: @bar.Height" title="@($"{DayLabel(bar.Date)}: {Plural(bar.Count, "review")}")"></span>
+                        }
+                    </div>
+                    @if (_bars.Count > 0)
+                    {
+                        <div aria-hidden="true" class="mt-1.5 flex min-w-[560px] justify-between text-[11px] text-mute">
+                            <span>@DayLabel(_bars[0].Date)</span>
+                            <span>@DayLabel(_bars[_bars.Count / 2].Date)</span>
+                            <span>Today</span>
+                        </div>
+                    }
+                </div>
+                <div aria-hidden="true" class="mt-3 flex flex-wrap gap-4 text-xs text-mute">
+                    <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-nt-accent"></span>Goal reached</span>
+                    <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-[color-mix(in_srgb,var(--nt-accent)_40%,transparent)]"></span>Below goal</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid gap-5 lg:grid-cols-2">
+            <div class="nt-card">
+                <div class="nt-card-head">
+                    <h2>Memory progress</h2>
+                    <span class="text-[13px] text-mute">@Plural(TotalCards, "card")</span>
+                </div>
+                <div class="nt-card-body flex flex-col gap-3">
+                    @foreach (var stage in _stages)
+                    {
+                        <div class="grid grid-cols-[80px_minmax(0,1fr)_88px] items-center gap-2.5 text-[13px]">
+                            <span class="text-mute">@stage.Label</span>
+                            <span class="block h-2.5 overflow-hidden rounded-full bg-hov">
+                                <span class="@($"block h-full rounded-full {stage.Css}")" style="width: @StageWidth(stage.Count)"></span>
+                            </span>
+                            <span class="text-right"><strong>@Fmt(stage.Count)</strong> <span class="text-mute">@Share(stage.Count, TotalCards)</span></span>
+                        </div>
+                    }
+                    <p class="m-0 mt-1 text-xs text-mute">Learning: interval under 1 day · Young: under 21 days · Mature: 21 days or more.</p>
+                </div>
+            </div>
+            <div class="nt-card">
+                <div class="nt-card-head">
+                    <h2>Review ratings</h2>
+                    <span class="text-[13px] text-mute">All time · @Fmt(GradeTotal)</span>
+                </div>
+                <div class="nt-card-body grid grid-cols-4 items-end gap-3.5">
+                    @foreach (var grade in _grades)
+                    {
+                        <div class="flex flex-col items-center gap-1.5">
+                            <span class="font-semibold">@Fmt(grade.Count)</span>
+                            <div class="flex h-32 w-full items-end justify-center border-b border-line">
+                                <span class="@($"w-[56%] rounded-t {grade.Css}")" style="height: @GradeHeight(grade.Count)"></span>
+                            </div>
+                            <span class="text-[13px]">@grade.Label</span>
+                            <span class="text-xs text-mute">@Share(grade.Count, GradeTotal)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="nt-card" aria-labelledby="nb-h">
+            <div class="nt-card-head"><h2 id="nb-h">By notebook</h2></div>
+            @if (_stats.Notebooks.Count == 0)
+            {
+                <p class="m-0 p-5 text-sm text-mute">No notebook has cards yet.</p>
+            }
+            else
+            {
+                <div class="nt-scroll overflow-x-auto">
+                    <table class="w-full min-w-[640px] border-collapse text-sm">
+                        <thead>
+                        <tr class="text-left text-xs text-mute">
+                            <th scope="col" class="border-b border-line py-2.5 pl-5 pr-3 font-semibold">Notebook</th>
+                            <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Words</th>
+                            <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Grammar</th>
+                            <th scope="col" class="border-b border-line px-3 py-2.5 font-semibold">Mature</th>
+                            <th scope="col" class="border-b border-line py-2.5 pl-3 pr-5 text-right font-semibold">Due now</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var nb in _stats.Notebooks)
+                        {
+                            var total = nb.VocabCount + nb.GrammarCount;
+                            <tr @key="nb.NotebookId">
+                                <td class="border-b border-line py-3 pl-5 pr-3 font-semibold">
+                                    <span class="inline-flex items-center gap-2">
+                                        <span class="h-3 w-3 rounded-[3px]" style="background: @nb.ColorHex"></span>@nb.Name
+                                    </span>
+                                </td>
+                                <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.VocabCount)</td>
+                                <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.GrammarCount)</td>
+                                <td class="min-w-[180px] border-b border-line px-3 py-3">
+                                    <span class="flex items-center gap-2.5">
+                                        <span class="block h-1.5 flex-1 overflow-hidden rounded-full bg-hov">
+                                            <span class="block h-full rounded-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></span>
+                                        </span>
+                                        <span class="w-10 text-right text-[13px]">@Share(nb.MatureCount, total)</span>
+                                    </span>
+                                </td>
+                                <td class="border-b border-line py-3 pl-3 pr-5 text-right font-semibold">@Fmt(nb.DueCount)</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section aria-label="Writing" class="nt-card grid grid-cols-2 overflow-hidden lg:grid-cols-4">
+            <div class="border-b border-r border-line px-5 py-4 lg:border-b-0">
+                <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Articles</div>
+                <div class="text-2xl font-semibold">@Fmt(_stats.PiecesTotal)</div>
+            </div>
+            <div class="border-b border-line px-5 py-4 lg:border-b-0 lg:border-r">
+                <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Words written</div>
+                <div class="text-2xl font-semibold">@Fmt(_stats.WordsWrittenTotal)</div>
+            </div>
+            <div class="border-r border-line px-5 py-4">
+                <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">This week</div>
+                <div class="text-2xl font-semibold">@Plural(_stats.WordsWrittenThisWeek, "word")</div>
+            </div>
+            <div class="px-5 py-4">
+                <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Avg. auto score</div>
+                <div class="text-2xl font-semibold">@Math.Round(_stats.AverageAutoScore) / 100</div>
+            </div>
+        </section>
+    }
+</div>

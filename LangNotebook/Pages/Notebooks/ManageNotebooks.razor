@@ -1,0 +1,149 @@
+@page "/notebooks"
+@using LangNotebook.Components
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject AppState State
+@inject LibraryService Library
+@inject StatsService StatsSvc
+@inject SettingsService SettingsSvc
+
+<PageTitle>Manage notebooks · Language Notebook</PageTitle>
+
+<div class="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-8 sm:pt-10 lg:px-14">
+    <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div class="min-w-0">
+            <h1 class="m-0 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[38px]">Manage notebooks</h1>
+            <p class="m-0 mt-1 text-sm text-mute">
+                @ActiveCount active · @ArchivedCount archived · one notebook per language or goal
+            </p>
+        </div>
+        <button type="button" class="nt-btn nt-btn-primary" @onclick="StartNew">
+            <Icon Name="plus" Size="14"/>
+            New notebook
+        </button>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="flex flex-col gap-3" aria-busy="true">
+            @for (var i = 0; i < 3; i++)
+            {
+                <div class="h-20 animate-pulse rounded-lg bg-hov"></div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="flex flex-wrap items-start gap-5">
+            <section aria-label="Notebooks" class="flex min-w-0 flex-[999_1_520px] flex-col gap-3">
+                @if (_notebooks.Count == 0)
+                {
+                    <div class="nt-card p-6 text-sm text-mute">
+                        No notebooks yet. Create one for each language or exam you are studying.
+                    </div>
+                }
+                @foreach (var nb in _notebooks)
+                {
+                    var editing = _form.Id == nb.Id;
+                    <article @key="nb.Id"
+                             class="@($"nt-card flex flex-wrap items-center gap-x-5 gap-y-3 border-l-4! px-5 py-4 {(editing ? "bg-nt-accent-soft!" : string.Empty)} {(nb.IsArchived ? "opacity-75" : string.Empty)}")"
+                             style="border-left-color: @nb.ColorHex">
+                        <div class="min-w-0 flex-[1_1_240px]">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="m-0 font-sans text-base font-semibold">@nb.Name</h2>
+                                @if (!string.IsNullOrWhiteSpace(LanguageLabel(nb)))
+                                {
+                                    <span class="nt-tag">@LanguageLabel(nb)</span>
+                                }
+                                @if (nb.IsArchived)
+                                {
+                                    <span class="nt-tag nt-tag-0">Archived</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(nb.Description))
+                            {
+                                <p class="m-0 mt-0.5 text-[13px] text-mute">@nb.Description</p>
+                            }
+                        </div>
+                        <dl class="m-0 flex gap-5 text-xs text-mute">
+                            <div><dt>Words</dt><dd class="m-0 text-base font-semibold text-ink">@(Count(nb.Id, s => s.VocabCount))</dd></div>
+                            <div><dt>Grammar</dt><dd class="m-0 text-base font-semibold text-ink">@(Count(nb.Id, s => s.GrammarCount))</dd></div>
+                            <div><dt>Due</dt><dd class="m-0 text-base font-semibold text-ink">@(Count(nb.Id, s => s.DueCount))</dd></div>
+                        </dl>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            @if (_confirmDeleteId == nb.Id)
+                            {
+                                <span class="text-[13px] text-nt-danger">Delete it and all its cards?</span>
+                                <button type="button" class="nt-btn text-nt-danger!" @onclick="() => DeleteAsync(nb)">Delete</button>
+                                <button type="button" class="nt-btn nt-btn-ghost" @onclick="CancelDelete">Keep</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="nt-btn" aria-pressed="@(editing ? "true" : "false")" @onclick="() => Edit(nb)">Edit</button>
+                                <button type="button" class="nt-btn" @onclick="() => ToggleArchiveAsync(nb)">
+                                    @(nb.IsArchived ? "Restore" : "Archive")
+                                </button>
+                                <button type="button" class="nt-icon-btn is-danger" aria-label="@($"Delete {nb.Name}")"
+                                        title="Delete" @onclick="() => AskDelete(nb)">
+                                    <Icon Name="trash" Size="15"/>
+                                </button>
+                            }
+                        </div>
+                    </article>
+                }
+            </section>
+
+            <aside class="nt-card min-w-0 flex-[1_1_320px]" aria-labelledby="nb-form-h">
+                <div class="nt-card-head">
+                    <h2 id="nb-form-h">@(IsNew ? "New notebook" : $"Edit “{_form.Name}”")</h2>
+                </div>
+                <div class="nt-card-body flex flex-col gap-3.5">
+                    <label class="block">
+                        <span class="nt-label">Name <span class="text-nt-danger" aria-hidden="true">*</span></span>
+                        <input class="nt-input" required @bind="_form.Name" @bind:event="oninput" placeholder="Japanese N3"/>
+                    </label>
+                    <div class="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-2.5">
+                        <label class="block">
+                            <span class="nt-label">Language</span>
+                            <input class="nt-input" @bind="_form.LanguageName" placeholder="Japanese"/>
+                        </label>
+                        <label class="block">
+                            <span class="nt-label">Code</span>
+                            <input class="nt-input" @bind="_form.LanguageCode" placeholder="ja"/>
+                        </label>
+                    </div>
+                    <label class="block">
+                        <span class="nt-label">Reading label</span>
+                        <span class="-mt-1 mb-1.5 block text-xs text-mute">What the “reading” field means for this language, e.g. Furigana, IPA</span>
+                        <input class="nt-input" @bind="_form.ReadingLabel" placeholder="Reading"/>
+                    </label>
+                    <label class="block">
+                        <span class="nt-label">Description</span>
+                        <textarea class="nt-input min-h-[68px] resize-y" @bind="_form.Description"></textarea>
+                    </label>
+                    <div>
+                        <span id="nb-color-label" class="nt-label">Color</span>
+                        <div role="radiogroup" aria-labelledby="nb-color-label" class="flex flex-wrap gap-2">
+                            @foreach (var swatch in Palette)
+                            {
+                                var on = string.Equals(_form.ColorHex, swatch.Hex, StringComparison.OrdinalIgnoreCase);
+                                <button type="button" role="radio" aria-checked="@(on ? "true" : "false")" aria-label="@swatch.Name"
+                                        class="@($"h-8 w-8 rounded-md {(on ? "ring-2 ring-ink ring-offset-2 ring-offset-[var(--nt-bg)]" : string.Empty)}")"
+                                        style="background: @swatch.Hex" @onclick="() => PickColor(swatch.Hex)"></button>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-line px-5 py-3">
+                    @if (!IsNew)
+                    {
+                        <button type="button" class="nt-btn nt-btn-ghost" @onclick="StartNew">Cancel</button>
+                    }
+                    <button type="button" class="nt-btn nt-btn-primary" disabled="@_saving" @onclick="SaveAsync">
+                        @(IsNew ? "Create notebook" : "Save changes")
+                    </button>
+                </div>
+            </aside>
+        </div>
+    }
+</div>

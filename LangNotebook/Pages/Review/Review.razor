@@ -22,7 +22,7 @@
             </p>
         </header>
         <div class="max-w-3xl">
-            <div class="mt-8 border-t border-line">
+            <div class="nt-card mt-8 px-5 [&>*:last-child]:border-b-0">
                 <details class="group border-b border-line">
                     <summary
                         class="flex cursor-pointer list-none items-center justify-between gap-4 py-3 outline-none marker:content-none [&::-webkit-details-marker]:hidden focus-visible:[box-shadow:inset_0_0_0_2px_var(--nt-accent)]">
@@ -115,8 +115,7 @@
                 Start
             </button>
             @* Keyboard Shortcuts Callout *@
-            <div class="mt-8 flex gap-2.5 rounded-nt bg-nt-side px-3 py-2.5 text-sm text-ink">
-                <span aria-hidden="true">⌨️</span>
+            <div class="mt-8 flex gap-2.5 rounded-nt bg-nt-side px-3 py-2.5 text-sm text-ink [box-shadow:inset_0_0_0_1px_var(--nt-line)]">
                 <p class="m-0 min-w-0 leading-7">
                     Shortcuts:
                     <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono text-xs">
@@ -162,21 +161,21 @@
             <p class="m-0 mt-2 truncate text-xs text-faint">
                 @_current.NotebookName
             </p>
-            <section class="mt-4 overflow-hidden rounded-nt border border-line bg-nt-bg shadow-card" aria-live="polite">
-                <div class="flex items-center gap-2 px-4 pt-3 text-xs text-mute">
+            <section class="nt-card mt-4 overflow-hidden" aria-live="polite">
+                <div class="flex items-center gap-2 border-b border-index px-5 py-3 text-xs text-mute">
                     <span class="nt-tag nt-tag-0">
                         @Labels.Kind(_current.Kind)
                     </span>
                     @if (_current.IsNew)
                     {
                         <span class="nt-tag nt-tag-4">
-                            thẻ mới
+                            New card
                         </span>
                     }
                 </div>
                 <div
                     class="flex min-h-[200px] flex-col items-center justify-center gap-2 px-4 py-8 text-center sm:min-h-[240px] sm:px-10">
-                    <div class="break-words text-[28px] font-bold leading-tight tracking-tight text-ink sm:text-[40px]">
+                    <div class="break-words text-[32px] font-semibold leading-tight tracking-tight text-ink sm:text-[48px]">
                         @FrontText
                     </div>
                     @if (!_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
@@ -222,7 +221,7 @@
                         @if (!string.IsNullOrWhiteSpace(_current.Example))
                         {
                             <div
-                                class="mt-2 w-full max-w-xl border-l-2 border-nt-press pl-3 text-left text-sm text-ink">
+                                class="mt-2 w-full max-w-xl border-l-2 border-line pl-3 text-left font-serif text-[15px] text-ink">
                                 @foreach (var line in _current.Example.Split('\n', StringSplitOptions.RemoveEmptyEntries))
                                 {
                                     <div class="break-words">
@@ -272,11 +271,11 @@
     }
     else if (_phase == Phase.Empty)
     {
-        <div class="flex flex-col items-center gap-2 px-4 py-20 text-center">
-            <div class="text-4xl" aria-hidden="true">
-                🎉
-            </div>
-            <h2 class="m-0 text-base font-semibold text-ink">
+        <div class="nt-card mx-auto mt-10 flex max-w-xl flex-col items-center gap-2 px-6 py-12 text-center">
+            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-nt-side text-mute" aria-hidden="true">
+                <Icon Name="check" Size="22"/>
+            </span>
+            <h2 class="m-0 text-2xl font-semibold text-ink">
                 No cards to review
             </h2>
             <p class="m-0 max-w-sm text-sm text-mute">
@@ -295,7 +294,7 @@
     }
     else
     {
-        <div class="mx-auto mt-3 max-w-3xl">
+        <div class="nt-card mx-auto mt-3 max-w-3xl p-6 sm:p-8">
             <header class="min-w-0">
                 <h1 class="m-0 mt-3 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[38px]">
                     Session Complete

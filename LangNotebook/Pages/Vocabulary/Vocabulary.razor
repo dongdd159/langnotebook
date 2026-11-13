@@ -15,7 +15,7 @@
         <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
             <div class="min-w-0">
                 <h1 class="m-0 mt-3 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[38px]">
-                    Vocabulary Notebook
+                    Vocabulary
                 </h1>
                 <p class="m-0 mt-1 text-sm text-mute">
                     @_items.Count items · @DueInList items due for review ·
@@ -23,7 +23,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2 pb-1.5">
-                <button type="button" class="nt-btn nt-btn-ghost" @onclick="OpenImport">
+                <button type="button" class="nt-btn" @onclick="OpenImport">
                     <Icon Name="upload" Size="14"/>
                     <span class="hidden sm:inline">
                         Bulk Import
@@ -35,12 +35,12 @@
                 </button>
             </div>
         </div>
-        <div class="mt-6 flex flex-wrap items-center gap-2 border-y border-line py-2">
+        <div class="nt-card mt-6 flex flex-wrap items-center gap-2 p-3">
             <div class="relative min-w-[12rem] flex-1 sm:max-w-xs">
                 <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint">
                     <Icon Name="search" Size="14"/>
                 </span>
-                <input class="nt-input h-8! py-0! pl-8! md:h-7!" type="search" aria-label="Search"
+                <input class="nt-input h-9! py-0! pl-8!" type="search" aria-label="Search"
                        placeholder="Search words, meanings, examples…" value="@_filter.Search" @oninput="OnSearchInput"/>
             </div>
             <label class="flex items-center gap-1.5 text-xs text-mute">
@@ -92,7 +92,7 @@
                 Starred
             </label>
         </div>
-        <div class="mt-3 scroll-mt-4 outline-none" tabindex="-1" @ref="_tableTop">
+        <div class="mt-4 scroll-mt-4 outline-none" tabindex="-1" @ref="_tableTop">
             @if (_loading)
             {
                 <div class="flex flex-col gap-2" aria-busy="true">
@@ -105,7 +105,7 @@
             }
             else if (_items.Count == 0)
             {
-                <div class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                <div class="nt-card flex flex-col items-center gap-2 px-4 py-16 text-center">
                     <h2 class="m-0 text-base font-semibold text-ink">
                         No words here yet
                     </h2>
@@ -122,9 +122,9 @@
             {
                 var firstShown = (_pageIndex - 1) * _pageSize + 1;
                 var lastShown = Math.Min(_pageIndex * _pageSize, _items.Count);
-                <div role="table" aria-label="Vocabulary list" class="text-sm">
+                <div role="table" aria-label="Vocabulary list" class="nt-card overflow-hidden text-sm">
                     <div role="row"
-                         class="hidden border-b border-line text-xs text-mute md:grid md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)]">
+                         class="hidden border-b border-index bg-nt-side text-xs font-semibold text-mute md:grid md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)]">
                         <div role="columnheader" class="flex items-center gap-1.5 px-2 py-1.5">
                             <Icon Name="type" Size="14"/>
                             Word
@@ -148,7 +148,7 @@
                     {
                         var stageTone = (int)entry.Stage switch { 0 => 0, 1 => 2, 2 => 5, _ => 4 };
                         <div @key="entry.Id" role="row"
-                             class="group grid grid-cols-[minmax(0,1fr)_auto] items-start gap-y-1 border-b border-line px-1 py-2.5 transition-colors hover:bg-hov md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)] md:gap-y-0 md:px-0 md:py-2">
+                             class="group grid grid-cols-[minmax(0,1fr)_auto] items-start gap-y-1 border-b border-line px-2 py-3 last:border-b-0 transition-colors hover:bg-hov md:grid-cols-[minmax(0,26fr)_minmax(0,24fr)_minmax(0,28fr)_minmax(0,14fr)_minmax(0,8fr)] md:gap-y-0 md:px-2 md:py-2.5">
                             <div role="cell"
                                  class="flex min-w-0 items-start gap-1.5 px-1 md:col-start-1 md:row-start-1 md:px-2">
                                 <button type="button" title="Star" aria-label="Star"
@@ -243,7 +243,7 @@
                     }
                 </div>
                 <nav aria-label="Pagination"
-                     class="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-mute">
+                     class="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-mute">
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                         <span aria-live="polite">
                             @firstShown–@lastShown of @_items.Count
