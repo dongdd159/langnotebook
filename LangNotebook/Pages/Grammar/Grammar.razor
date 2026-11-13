@@ -17,7 +17,7 @@
                 <h1 class="m-0 mt-3 text-[28px] font-semibold leading-tight tracking-tight text-ink sm:text-[38px]">
                     Grammar &amp; Structures
                 </h1>
-                <p class="m-0 mt-1 text-sm text-mute">@_items.Count patterns recorded</p>
+                <p class="m-0 mt-1 text-sm text-mute">@_items.Count patterns recorded · @(_items.Count(x => !x.IsSuspended && x.DueUtc <= DateTime.UtcNow)) due for review</p>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" class="nt-btn nt-btn-primary" @onclick="@(() => OpenEditor(null))">
@@ -68,6 +68,18 @@
                     </option>
                 </select>
             </label>
+            <div class="flex flex-wrap gap-0.5 rounded-lg bg-hov p-1" role="group" aria-label="Filter by level">
+                <button type="button" aria-pressed="@(_level is null ? "true" : "false")"
+                        class="@($"h-8 rounded-md px-3 text-[13px] font-medium transition-colors md:h-7 {(_level is null ? "bg-nt-bg text-ink shadow-card" : "text-mute hover:text-ink")}")"
+                        @onclick="() => SetLevel(null)">All levels</button>
+                @foreach (var level in Levels)
+                {
+                    var on = _level == level;
+                    <button type="button" aria-pressed="@(on ? "true" : "false")"
+                            class="@($"h-8 rounded-md px-3 text-[13px] font-medium transition-colors md:h-7 {(on ? "bg-nt-bg text-ink shadow-card" : "text-mute hover:text-ink")}")"
+                            @onclick="() => SetLevel(level)">@Labels.Level(level)</button>
+                }
+            </div>
             <label
                 class="nt-chip cursor-pointer has-checked:bg-nt-accent-soft has-checked:text-nt-accent has-checked:shadow-none has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
                 <input type="checkbox" class="sr-only" checked="@_filter.OnlyDue" @onchange="OnDueChanged"/>
@@ -101,8 +113,16 @@
             }
             else
             {
+                var shown = Shown;
+                if (shown.Count == 0)
+                {
+                    <div class="nt-card px-4 py-10 text-center text-sm text-mute">
+                        No patterns at this level.
+                        <button type="button" class="nt-btn nt-btn-ghost ml-1" @onclick="() => SetLevel(null)">Show all levels</button>
+                    </div>
+                }
                 <div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
-                    @foreach (var item in _items)
+                    @foreach (var item in shown)
                     {
                         var stageTone = (int)item.Stage switch { 0 => 0, 1 => 2, 2 => 5, _ => 4 };
                         <article @key="item.Id"

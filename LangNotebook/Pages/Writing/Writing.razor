@@ -8,6 +8,7 @@
 @inject LibraryService Library
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject SettingsService SettingsSvc
 
 <PageTitle>Writing Practice · Language Notebook</PageTitle>
 
@@ -27,6 +28,31 @@
             </button>
         </div>
     </div>
+    <section aria-label="This week" class="nt-card mt-6 grid grid-cols-1 overflow-hidden sm:grid-cols-3">
+        <div class="border-b border-line px-5 py-4 sm:border-b-0 sm:border-r">
+            <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Weekly goal</div>
+            <div class="text-[26px] font-semibold leading-tight">
+                @WordsThisWeek.ToString("#,0") <span class="text-sm font-normal text-mute">/ @_weeklyGoal.ToString("#,0") words</span>
+            </div>
+            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-hov" role="progressbar" aria-label="Weekly writing goal"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="@GoalPercent">
+                <div class="h-full rounded-full bg-nt-accent" style="width: @(GoalPercent)%"></div>
+            </div>
+        </div>
+        <div class="border-b border-line px-5 py-4 sm:border-b-0 sm:border-r">
+            <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Average score</div>
+            <div class="text-[26px] font-semibold leading-tight">
+                @(AverageScore?.ToString() ?? "—") <span class="text-sm font-normal text-mute">/ 100</span>
+            </div>
+            <div class="text-xs text-mute">automated grading</div>
+        </div>
+        <div class="px-5 py-4">
+            <div class="text-xs font-semibold uppercase tracking-[0.04em] text-mute">Drafts</div>
+            <div class="text-[26px] font-semibold leading-tight">@DraftCount</div>
+            <div class="text-xs text-mute">waiting to be finished</div>
+        </div>
+    </section>
+
     <section class="mt-10" aria-labelledby="wl-prompts">
         <h2 id="wl-prompts" class="m-0 text-xl font-semibold text-ink">Prompt Bank</h2>
         <p class="m-0 mt-0.5 text-sm text-mute">Choose a prompt to start writing with target word counts and suggested vocabulary.</p>

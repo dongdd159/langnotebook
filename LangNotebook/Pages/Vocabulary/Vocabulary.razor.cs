@@ -129,6 +129,40 @@ public partial class Vocabulary : ComponentBase
         State.NotifyChanged();
     }
 
+    private static readonly (string Key, string Label)[] StatusFilters =
+    [
+        ("all", "All"), ("due", "Due"), ("starred", "Starred"),
+        ("new", "New"), ("learning", "Learning"), ("young", "Young"), ("mature", "Mature")
+    ];
+
+    /// <summary>The status segment that matches the current filter flags.</summary>
+    private string CurrentStatus =>
+        _filter.OnlyDue ? "due"
+        : _filter.OnlyFavorite ? "starred"
+        : _filter.Stage switch
+        {
+            LearningStage.New => "new",
+            LearningStage.Learning => "learning",
+            LearningStage.Young => "young",
+            LearningStage.Mature => "mature",
+            _ => "all"
+        };
+
+    private async Task SetStatusAsync(string key)
+    {
+        _filter.OnlyDue = key == "due";
+        _filter.OnlyFavorite = key == "starred";
+        _filter.Stage = key switch
+        {
+            "new" => LearningStage.New,
+            "learning" => LearningStage.Learning,
+            "young" => LearningStage.Young,
+            "mature" => LearningStage.Mature,
+            _ => null
+        };
+        await LoadAsync();
+    }
+
     private void ShowDetail(VocabEntry entry) => _detailId = _detailId == entry.Id ? null : entry.Id;
 
     private void CloseDetail() => _detailId = null;
@@ -194,7 +228,7 @@ public partial class Vocabulary : ComponentBase
     
     private void SyncPage()
     {
-        var key = string.Join('|', _filter.Search, _filter.Tag, _filter.SortBy, _filter.OnlyDue, _filter.OnlyFavorite, State.ActiveNotebookId);
+        var key = string.Join('|', _filter.Search, _filter.Tag, _filter.SortBy, _filter.OnlyDue, _filter.OnlyFavorite, _filter.Stage, State.ActiveNotebookId);
         if (key != _pageKey)
         {
             _pageKey = key;
