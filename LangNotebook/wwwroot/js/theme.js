@@ -1,5 +1,5 @@
 window.langTheme = (function () {
-    const COLORS = { light: '#ffffff', dark: '#191919' };
+    const COLORS = { light: '#efede8', dark: '#121418' };
     function systemMode() {
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }

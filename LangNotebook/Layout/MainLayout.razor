@@ -12,7 +12,7 @@
 @inject ReviewService Reviews
 @inject SettingsService SettingsSvc
 
-<div class="flex h-dvh w-full overflow-hidden bg-page text-nt-text pt-[env(safe-area-inset-top,0px)]">
+<div class="flex h-dvh w-full overflow-hidden bg-desk text-nt-text pt-[env(safe-area-inset-top,0px)]">
     @if (_drawerOpen)
     {
         <div class="fixed inset-0 z-40 bg-black/30 backdrop-blur-xs md:hidden" aria-hidden="true"
@@ -20,14 +20,14 @@
         </div>
     }
     <aside id="app-sidebar" aria-label="Sidebar"
-           class="shrink-0 h-full bg-page bg-nt-side border-r border-line transition-all duration-300 ease-in-out
+           class="nt-cover shrink-0 h-full transition-all duration-300 ease-in-out
                   fixed inset-y-0 left-0 z-10 md:relative md:z-10 @AsideClass">
         <NavMenu @bind-DrawerOpen="_drawerOpen" @bind-Collapsed="_collapsed" Notebooks="_notebooks"
                  ActiveNotebookId="State.ActiveNotebookId" DueCount="_dueCount" OnSelectNotebook="SelectNotebookAsync"
                  OnReload="ReloadAsync"/>
     </aside>
     <div class="flex flex-1 flex-col h-full min-w-0 overflow-hidden relative z-0">
-        <header class="flex h-11 w-full shrink-0 items-center gap-2 border-b border-line bg-page px-3">
+        <header class="flex min-h-12 w-full shrink-0 flex-wrap items-center gap-2 bg-desk px-3 py-1.5 sm:px-5">
             @if (_collapsed)
             {
                 <button type="button" class="nt-icon-btn hidden shrink-0 text-mute md:inline-flex"
@@ -115,7 +115,9 @@
             }
             else
             {
-                @Body
+                <div class="nt-sheet mx-2 mb-4 min-h-[calc(100%-1rem)] sm:mx-4 md:mx-6 md:mb-6 md:pl-10">
+                    @Body
+                </div>
             }
         </main>
     </div>
