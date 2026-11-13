@@ -53,7 +53,7 @@ public partial class Settings : ComponentBase
         if (choice == "system")
             await JS.InvokeAsync<string>("langTheme.useSystem");
         else
-            await JS.InvokeAsync<string>("langTheme.set", choice);
+            await JS.InvokeAsync<string>("langTheme.set", [choice]);
         _themeChoice = choice;
     }
 
