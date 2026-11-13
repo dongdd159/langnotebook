@@ -141,6 +141,15 @@ public partial class Writing : ComponentBase
         await LoadAsync();
     }
 
+    private Models.Notebook? NotebookOf(int id) => _notebooks.FirstOrDefault(x => x.Id == id);
+
+    /// <summary>Text colour for the circled auto score: green 80+, amber 60–79, red below 60, faint when not graded.</summary>
+    private static string ScoreInk(Models.WritingPiece piece) =>
+        piece.AutoScore <= 0 ? "text-faint"
+        : piece.AutoScore >= 80 ? "text-[color:var(--diff-added)]"
+        : piece.AutoScore >= 60 ? "text-nt-warn"
+        : "text-nt-danger";
+
     private static string ScoreBucket(int score) => score switch
     {
         >= 85 => "high",
