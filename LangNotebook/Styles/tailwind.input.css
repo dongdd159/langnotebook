@@ -84,15 +84,15 @@
     --diff-removed: #c4322b;
     --diff-added: #1e7b4a;
 
-    --tag-0-bg: #e9e6df; --tag-0-fg: #32302c; /* xam */
-    --tag-1-bg: #eee0da; --tag-1-fg: #442a1e; /* nau */
-    --tag-2-bg: #fadec9; --tag-2-fg: #5c3b23; /* cam */
-    --tag-3-bg: #fdecc8; --tag-3-fg: #402c1b; /* vang */
-    --tag-4-bg: #dbeddb; --tag-4-fg: #1c3829; /* xanh la */
-    --tag-5-bg: #d3e5ef; --tag-5-fg: #183347; /* xanh duong */
-    --tag-6-bg: #e8deee; --tag-6-fg: #412454; /* tim */
-    --tag-7-bg: #f5e0e9; --tag-7-fg: #4c2337; /* hong */
-    --tag-8-bg: #ffe2dd; --tag-8-fg: #5d1715; /* do */
+    --tag-0-bg: #e9e6df; --tag-0-fg: #32302c; /* grey */
+    --tag-1-bg: #eee0da; --tag-1-fg: #442a1e; /* brown */
+    --tag-2-bg: #fadec9; --tag-2-fg: #5c3b23; /* orange */
+    --tag-3-bg: #fdecc8; --tag-3-fg: #402c1b; /* yellow */
+    --tag-4-bg: #dbeddb; --tag-4-fg: #1c3829; /* green */
+    --tag-5-bg: #d3e5ef; --tag-5-fg: #183347; /* blue */
+    --tag-6-bg: #e8deee; --tag-6-fg: #412454; /* purple */
+    --tag-7-bg: #f5e0e9; --tag-7-fg: #4c2337; /* pink */
+    --tag-8-bg: #ffe2dd; --tag-8-fg: #5d1715; /* red */
 }
 
 @media (prefers-color-scheme: dark) {

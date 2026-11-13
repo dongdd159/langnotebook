@@ -74,25 +74,25 @@ public static class SrsScheduler
     public static string FormatInterval(int days)
     {
         if (days <= 0)
-            return "10 phút";
+            return "10 min";
         if (days == 1)
-            return "1 ngày";
+            return "1 day";
         if (days < 30)
-            return $"{days} ngày";
+            return $"{days} days";
         if (days < 365)
         {
             var months = Math.Round(days / 30.0, 1);
-            return $"{months:0.#} tháng";
+            return $"{months:0.#} mo";
         }
         var years = Math.Round(days / 365.0, 1);
-        return $"{years:0.#} năm";
+        return $"{years:0.#} yr";
     }
     
     public static string GradeLabel(ReviewGrade grade) => grade switch
     {
-        ReviewGrade.Again => "Quên rồi",
-        ReviewGrade.Hard => "Khó",
-        ReviewGrade.Good => "Được",
-        _ => "Dễ"
+        ReviewGrade.Again => "Again",
+        ReviewGrade.Hard => "Hard",
+        ReviewGrade.Good => "Good",
+        _ => "Easy"
     };
 }

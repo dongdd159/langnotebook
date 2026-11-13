@@ -1,14 +1,16 @@
-﻿@page "/not-found"
+@page "/not-found"
 @layout MainLayout
 
-<div class="empty-state">
-    <h1>
-        Không tìm thấy trang
-    </h1>
-    <p>
-        Đường dẫn bạn vừa mở không tồn tại trong sổ tay.
-    </p>
-    <a class="btn btn-primary" href="">
-        Về trang chủ
-    </a>
+<PageTitle>Page not found · Language Notebook</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-10 sm:px-8 lg:px-16">
+    <div class="nt-card max-w-xl p-8">
+        <p class="m-0 text-[13px] font-semibold uppercase tracking-[0.08em] text-mute">Error 404</p>
+        <h1 class="m-0 mt-1.5 text-[34px] font-semibold leading-tight text-ink">This page isn’t in your notebook</h1>
+        <p class="m-0 mt-3 text-mute">The link may be old, or the page was moved. Your notes and cards are safe on this device.</p>
+        <div class="mt-7 flex flex-wrap gap-2.5">
+            <a class="nt-btn nt-btn-primary h-10! px-4!" href="">Back to overview</a>
+            <a class="nt-btn h-10! px-4!" href="vocabulary">Open vocabulary</a>
+        </div>
+    </div>
 </div>
