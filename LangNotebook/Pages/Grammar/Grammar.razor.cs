@@ -12,6 +12,12 @@ public partial class Grammar : ComponentBase
     private static readonly ProficiencyLevel[] Levels = (ProficiencyLevel[])Enum.GetValues(typeof(ProficiencyLevel));
     private readonly ItemFilter _filter = new();
     private List<GrammarPattern> _items = new();
+    private ProficiencyLevel? _level;
+
+    /// <summary>Patterns after the level filter, which is applied on top of the service filters.</summary>
+    private List<GrammarPattern> Shown => _level is null ? _items : _items.Where(x => x.Level == _level).ToList();
+
+    private void SetLevel(ProficiencyLevel? level) => _level = level;
     private List<Notebook> _notebooks = new();
     private List<string> _tags = new();
     private bool _loading = true;

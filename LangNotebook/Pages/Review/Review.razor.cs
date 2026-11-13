@@ -7,6 +7,12 @@ namespace LangNotebook.Pages.Review;
 
 public partial class Review : IDisposable
 {
+    private static readonly (Models.ReviewDirection Value, string Label)[] DirectionOptions =
+    [
+        (Models.ReviewDirection.TermToMeaning, "Term → Meaning"),
+        (Models.ReviewDirection.MeaningToTerm, "Meaning → Term"),
+        (Models.ReviewDirection.Mixed, "Mix both directions")
+    ];
     private static readonly Models.ReviewScope[] Scopes = (Models.ReviewScope[])Enum.GetValues(typeof(Models.ReviewScope));
     private static readonly Models.ReviewGrade[] Grades = (Models.ReviewGrade[])Enum.GetValues(typeof(Models.ReviewGrade));
     private Phase _phase = Phase.Setup;

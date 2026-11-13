@@ -79,18 +79,17 @@
                     </option>
                 </select>
             </label>
-            <label
-                class="nt-chip cursor-pointer has-checked:bg-nt-accent-soft has-checked:text-nt-accent has-checked:shadow-none has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
-                <input type="checkbox" class="sr-only" checked="@_filter.OnlyDue" @onchange="OnDueChanged"/>
-                <Icon Name="clock" Size="12"/>
-                Due
-            </label>
-            <label
-                class="nt-chip cursor-pointer has-checked:bg-nt-accent-soft has-checked:text-nt-accent has-checked:shadow-none has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
-                <input type="checkbox" class="sr-only" checked="@_filter.OnlyFavorite" @onchange="OnFavoriteChanged"/>
-                <Icon Name="star" Size="12" Fill="@_filter.OnlyFavorite"/>
-                Starred
-            </label>
+            <div class="flex flex-wrap gap-0.5 rounded-lg bg-hov p-1" role="group" aria-label="Filter by status">
+                @foreach (var status in StatusFilters)
+                {
+                    var on = CurrentStatus == status.Key;
+                    <button type="button" aria-pressed="@(on ? "true" : "false")"
+                            class="@($"h-8 rounded-md px-3 text-[13px] font-medium transition-colors md:h-7 {(on ? "bg-nt-bg text-ink shadow-card" : "text-mute hover:text-ink")}")"
+                            @onclick="() => SetStatusAsync(status.Key)">
+                        @status.Label
+                    </button>
+                }
+            </div>
         </div>
         <div class="mt-4 scroll-mt-4 outline-none" tabindex="-1" @ref="_tableTop">
             @if (_loading)

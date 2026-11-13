@@ -10,6 +10,22 @@ public partial class Writing : ComponentBase
     private List<Models.WritingPrompt> _prompts = new();
     private List<Models.Notebook> _notebooks = new();
     private string _search = string.Empty;
+    private List<Models.WritingPiece> _allPieces = new();
+    private int _weeklyGoal = 600;
+
+    // Same week definition as StatsService: the week starts on Sunday, local time.
+    private static DateTime WeekStart => DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek);
+    private int WordsThisWeek => _allPieces.Where(x => x.UpdatedUtc.ToLocalTime().Date >= WeekStart).Sum(x => x.WordCount);
+    private int GoalPercent => _weeklyGoal <= 0 ? 0 : (int)Math.Min(100, Math.Round(100.0 * WordsThisWeek / _weeklyGoal));
+    private int DraftCount => _allPieces.Count(x => x.Status == Models.WritingStatus.Draft);
+    private int? AverageScore
+    {
+        get
+        {
+            var graded = _allPieces.Where(x => x.AutoScore > 0).ToList();
+            return graded.Count == 0 ? null : (int)Math.Round(graded.Average(x => x.AutoScore));
+        }
+    }
 
     private bool _promptEditorOpen;
     private Models.WritingPrompt _promptDraft = new();
@@ -26,6 +42,7 @@ public partial class Writing : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _notebooks = await Library.GetNotebooksAsync();
+        _weeklyGoal = (await SettingsSvc.GetAsync()).WeeklyWritingGoal;
         await LoadAsync();
     }
 
@@ -33,6 +50,9 @@ public partial class Writing : ComponentBase
     {
         _prompts = await Writings.GetPromptsAsync(State.ActiveNotebookId);
         _pieces = await Writings.GetPiecesAsync(State.ActiveNotebookId, _search);
+        _allPieces = string.IsNullOrWhiteSpace(_search)
+            ? _pieces
+            : await Writings.GetPiecesAsync(State.ActiveNotebookId);
     }
 
     private async Task OnSearchInput(ChangeEventArgs args)
