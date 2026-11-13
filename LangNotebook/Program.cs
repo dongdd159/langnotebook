@@ -23,14 +23,4 @@ builder.Services.AddScoped<SettingsService>();
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<AiSettingsStore>();
 builder.Services.AddScoped<WritingAiService>();
-// The UI is English, so format dates and numbers the English way whatever the browser language is
-// (otherwise month names, decimal separators and thousands separators follow the browser locale).
-// InvariantCulture is always available in Blazor WebAssembly; switching to a named culture such as
-// en-US would need <BlazorWebAssemblyLoadAllGlobalizationData> and a larger download.
-var english = System.Globalization.CultureInfo.InvariantCulture;
-System.Globalization.CultureInfo.DefaultThreadCurrentCulture = english;
-System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = english;
-System.Globalization.CultureInfo.CurrentCulture = english;
-System.Globalization.CultureInfo.CurrentUICulture = english;
-
 await builder.Build().RunAsync();

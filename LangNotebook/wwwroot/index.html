@@ -41,7 +41,13 @@
 
 <script src="js/langdb.js"></script>
 <script src="js/theme.js"></script>
-<script src="_framework/blazor.webassembly.js"></script>
+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
+<script>
+    // The UI is English, so load and use the English culture for dates and numbers whatever the
+    // browser language is. Setting it here (instead of changing CultureInfo in Program.cs) lets Blazor
+    // download the right globalization data before the app starts.
+    Blazor.start({ applicationCulture: 'en-US' });
+</script>
 </body>
 
 </html>
