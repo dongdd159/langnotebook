@@ -32,7 +32,7 @@ public partial class MainLayout : LayoutComponentBase
     private int _dueCount;
     private string _selectedNotebookValue = string.Empty;
     private string AsideClass => $"{(_drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0")} " +
-                                 $"{(_collapsed ? "w-[240px] md:w-16" : "md:w-[240px]")}";
+                                 $"{(_collapsed ? "w-[240px] md:w-16" : "w-[240px]")}";
     private string ActiveNotebookName =>
         _notebooks.FirstOrDefault(x => x.Id == State.ActiveNotebookId)?.Name ?? "All Notebooks";
     private (string Title, string Icon) CurrentPage

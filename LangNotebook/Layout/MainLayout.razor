@@ -21,7 +21,7 @@
     }
     <aside id="app-sidebar" aria-label="Sidebar"
            class="nt-cover shrink-0 h-full transition-all duration-300 ease-in-out
-                  fixed inset-y-0 left-0 z-10 md:relative md:z-10 @AsideClass">
+                  fixed inset-y-0 left-0 z-50 shadow-pop md:relative md:z-10 md:shadow-none @AsideClass">
         <NavMenu @bind-DrawerOpen="_drawerOpen" @bind-Collapsed="_collapsed" Notebooks="_notebooks"
                  ActiveNotebookId="State.ActiveNotebookId" DueCount="_dueCount" OnSelectNotebook="SelectNotebookAsync"
                  OnReload="ReloadAsync"/>
