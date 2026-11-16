@@ -1,4 +1,4 @@
-@page "/stats"
+﻿@page "/stats"
 @using LangNotebook.Helper
 @using LangNotebook.Service
 @implements IDisposable
@@ -129,53 +129,57 @@
             </div>
         </section>
 
-        <section class="nt-card" aria-labelledby="nb-h">
-            <div class="nt-card-head"><h2 id="nb-h">By notebook</h2></div>
-            @if (_stats.Notebooks.Count == 0)
-            {
-                <p class="m-0 p-5 text-sm text-mute">No notebook has cards yet.</p>
-            }
-            else
-            {
-                <div class="nt-scroll overflow-x-auto">
-                    <table class="w-full min-w-[640px] border-collapse text-sm">
-                        <thead>
-                        <tr class="text-left text-xs text-mute">
-                            <th scope="col" class="border-b border-line py-2.5 pl-5 pr-3 font-semibold">Notebook</th>
-                            <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Words</th>
-                            <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Grammar</th>
-                            <th scope="col" class="border-b border-line px-3 py-2.5 font-semibold">Mature</th>
-                            <th scope="col" class="border-b border-line py-2.5 pl-3 pr-5 text-right font-semibold">Due now</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var nb in _stats.Notebooks)
-                        {
-                            var total = nb.VocabCount + nb.GrammarCount;
-                            <tr @key="nb.NotebookId">
-                                <td class="border-b border-line py-3 pl-5 pr-3 font-semibold">
-                                    <span class="inline-flex items-center gap-2">
-                                        <span class="h-3 w-3 rounded-[3px]" style="background: @nb.ColorHex"></span>@nb.Name
-                                    </span>
-                                </td>
-                                <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.VocabCount)</td>
-                                <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.GrammarCount)</td>
-                                <td class="min-w-[180px] border-b border-line px-3 py-3">
-                                    <span class="flex items-center gap-2.5">
-                                        <span class="block h-1.5 flex-1 overflow-hidden rounded-full bg-hov">
-                                            <span class="block h-full rounded-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></span>
-                                        </span>
-                                        <span class="w-10 text-right text-[13px]">@Share(nb.MatureCount, total)</span>
-                                    </span>
-                                </td>
-                                <td class="border-b border-line py-3 pl-3 pr-5 text-right font-semibold">@Fmt(nb.DueCount)</td>
+        @* Per-notebook breakdown only makes sense across all notebooks. *@
+        @if (State.ActiveNotebookId is null)
+        {
+            <section class="nt-card" aria-labelledby="nb-h">
+                <div class="nt-card-head"><h2 id="nb-h">By notebook</h2></div>
+                @if (_stats.Notebooks.Count == 0)
+                {
+                    <p class="m-0 p-5 text-sm text-mute">No notebook has cards yet.</p>
+                }
+                else
+                {
+                    <div class="nt-scroll overflow-x-auto">
+                        <table class="w-full min-w-[640px] border-collapse text-sm">
+                            <thead>
+                            <tr class="text-left text-xs text-mute">
+                                <th scope="col" class="border-b border-line py-2.5 pl-5 pr-3 font-semibold">Notebook</th>
+                                <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Words</th>
+                                <th scope="col" class="border-b border-line px-3 py-2.5 text-right font-semibold">Grammar</th>
+                                <th scope="col" class="border-b border-line px-3 py-2.5 font-semibold">Mature</th>
+                                <th scope="col" class="border-b border-line py-2.5 pl-3 pr-5 text-right font-semibold">Due now</th>
                             </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </section>
+                            </thead>
+                            <tbody>
+                            @foreach (var nb in _stats.Notebooks)
+                            {
+                                var total = nb.VocabCount + nb.GrammarCount;
+                                <tr @key="nb.NotebookId">
+                                    <td class="border-b border-line py-3 pl-5 pr-3 font-semibold">
+                                        <span class="inline-flex items-center gap-2">
+                                            <span class="h-3 w-3 rounded-[3px]" style="background: @nb.ColorHex"></span>@nb.Name
+                                        </span>
+                                    </td>
+                                    <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.VocabCount)</td>
+                                    <td class="border-b border-line px-3 py-3 text-right">@Fmt(nb.GrammarCount)</td>
+                                    <td class="min-w-[180px] border-b border-line px-3 py-3">
+                                        <span class="flex items-center gap-2.5">
+                                            <span class="block h-1.5 flex-1 overflow-hidden rounded-full bg-hov">
+                                                <span class="block h-full rounded-full" style="width: @Pct(nb.MatureCount, total); background: @nb.ColorHex"></span>
+                                            </span>
+                                            <span class="w-10 text-right text-[13px]">@Share(nb.MatureCount, total)</span>
+                                        </span>
+                                    </td>
+                                    <td class="border-b border-line py-3 pl-3 pr-5 text-right font-semibold">@Fmt(nb.DueCount)</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        }
 
         <section aria-label="Writing" class="nt-card grid grid-cols-2 overflow-hidden lg:grid-cols-4">
             <div class="border-b border-r border-line px-5 py-4 lg:border-b-0">
