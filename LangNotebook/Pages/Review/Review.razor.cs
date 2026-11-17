@@ -40,7 +40,11 @@ public partial class Review : IDisposable
     private readonly ItemFilter _filter = new();
     private List<string> _tags = new();
 
-    protected override void OnInitialized() => State.Changed += OnStateChanged;
+    protected override void OnInitialized()
+    {
+        State.Changed += OnStateChanged;
+        State.ReviewMenuClicked += OnReviewMenuClicked;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,7 +71,6 @@ public partial class Review : IDisposable
         var counts = await Reviews.CountQueueAsync(State.ActiveNotebookId);
         _dueCount = counts.Due;
         _newCount = counts.New;
-        _phase = Phase.Setup;
     }
 
     private void OnScopeChanged(ChangeEventArgs args)
@@ -212,5 +215,18 @@ public partial class Review : IDisposable
         StateHasChanged();
     });
 
-    public void Dispose() => State.Changed -= OnStateChanged;
+    // Clicking "Review" in the sidebar while already on this page leaves any session and shows the setup screen.
+    // Counts refreshing after a grade must not do this, so it is not part of RefreshCountsAsync.
+    private void OnReviewMenuClicked() => InvokeAsync(async () =>
+    {
+        ResetToSetup();
+        await LoadAsync();
+        StateHasChanged();
+    });
+
+    public void Dispose()
+    {
+        State.Changed -= OnStateChanged;
+        State.ReviewMenuClicked -= OnReviewMenuClicked;
+    }
 }

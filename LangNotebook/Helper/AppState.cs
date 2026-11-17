@@ -4,6 +4,8 @@ public sealed class AppState
 {
     private int? _activeNotebookId;
     public event Action? Changed;
+    /// <summary>The Review item in the sidebar was clicked. The Review page returns to its setup screen.</summary>
+    public event Action? ReviewMenuClicked;
     public event Action<string, string>? Toast;
     public int? ActiveNotebookId
     {
@@ -17,6 +19,8 @@ public sealed class AppState
         }
     }
     public void NotifyChanged() => Changed?.Invoke();
+
+    public void RequestReviewReset() => ReviewMenuClicked?.Invoke();
     
     public void ShowToast(string message, string kind = "info") => Toast?.Invoke(message, kind);
     
