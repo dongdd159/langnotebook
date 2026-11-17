@@ -16,7 +16,5 @@ public class ReviewLog
 
     public int IntervalAfterDays { get; set; }
 
-    public double EaseAfter { get; set; }
-
     public int DurationMs { get; set; }
 }

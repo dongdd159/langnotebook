@@ -112,18 +112,17 @@ public class ReviewService(
                 ? await db.VocabEntries.FirstOrDefaultAsync(x => x.Id == card.Id)
                 : await db.GrammarPatterns.FirstOrDefaultAsync(x => x.Id == card.Id);
             if (tracked is null)
-                return new SrsOutcome(card.Item.EaseFactor, card.Item.IntervalDays, card.Item.Repetitions,
-                    card.Item.Lapses, card.Item.DueUtc);
+                return new SrsOutcome(card.Item.IntervalDays, card.Item.Repetitions, card.Item.Lapses,
+                    card.Item.DueUtc, card.Item.Stability, card.Item.Difficulty);
             var options = SchedulerOptions.From(await db.Settings.AsNoTracking().FirstOrDefaultAsync());
             outcome = ReviewScheduler.Apply(tracked, grade, now, options);
             db.ReviewLogs.Add(new ReviewLog
             {
                 NotebookId = tracked.NotebookId, ItemKind = card.Kind, ItemId = tracked.Id, Grade = grade,
-                ReviewedUtc = now, IntervalAfterDays = outcome.IntervalDays, EaseAfter = outcome.EaseFactor,
+                ReviewedUtc = now, IntervalAfterDays = outcome.IntervalDays,
                 DurationMs = durationMs
             });
             await db.SaveChangesAsync();
-            card.Item.EaseFactor = outcome.EaseFactor;
             card.Item.IntervalDays = outcome.IntervalDays;
             card.Item.Repetitions = outcome.Repetitions;
             card.Item.Lapses = outcome.Lapses;
@@ -145,7 +144,6 @@ public class ReviewService(
                 : await db.GrammarPatterns.FirstOrDefaultAsync(x => x.Id == id);
             if (tracked is null)
                 return;
-            tracked.EaseFactor = 2.5;
             tracked.IntervalDays = 0;
             tracked.Stability = 0;
             tracked.Difficulty = 0;

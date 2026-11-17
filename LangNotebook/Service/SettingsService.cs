@@ -35,7 +35,6 @@ public class SettingsService(
                 existing.ActiveNotebookId = settings.ActiveNotebookId;
                 existing.WeeklyWritingGoal = settings.WeeklyWritingGoal;
                 existing.DisplayName = settings.DisplayName;
-                existing.Algorithm = settings.Algorithm;
                 existing.DesiredRetention = settings.DesiredRetention;
             }
             await db.SaveChangesAsync();

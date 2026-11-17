@@ -10,7 +10,6 @@ public class AppSettings
     public int? ActiveNotebookId { get; set; }
     public int WeeklyWritingGoal { get; set; } = 600;
     public string DisplayName { get; set; } = string.Empty;
-    public SchedulerAlgorithm Algorithm { get; set; } = SchedulerAlgorithm.Sm2;
     /// <summary>FSRS only: the recall probability a card should have on the day it is due.</summary>
     public double DesiredRetention { get; set; } = 0.9;
 }

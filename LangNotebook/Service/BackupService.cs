@@ -126,7 +126,6 @@ public sealed class BackupService(
                     settings.MaxCardsPerSession = payload.Settings.MaxCardsPerSession;
                     settings.WeeklyWritingGoal = payload.Settings.WeeklyWritingGoal;
                     settings.DisplayName = payload.Settings.DisplayName;
-                    settings.Algorithm = payload.Settings.Algorithm;
                     settings.DesiredRetention = payload.Settings.DesiredRetention is >= 0.7 and <= 0.97
                         ? payload.Settings.DesiredRetention
                         : 0.9;

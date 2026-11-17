@@ -284,7 +284,7 @@ public sealed class LibraryService(
         {
             "alpha" => result.OrderBy(x => searchTextSelector(x), StringComparer.OrdinalIgnoreCase),
             "due" => result.OrderBy(x => x.DueUtc),
-            "hardest" => result.OrderByDescending(x => x.Lapses).ThenBy(x => x.EaseFactor),
+            "hardest" => result.OrderByDescending(x => x.Lapses).ThenByDescending(x => x.Difficulty),
             "oldest" => result.OrderBy(x => x.CreatedUtc),
             _ => result.OrderByDescending(x => x.UpdatedUtc)
         };

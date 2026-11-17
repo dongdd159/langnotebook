@@ -11,7 +11,6 @@ public abstract class StudyItemBase
     public string Note { get; set; } = string.Empty;
     public bool IsFavorite { get; set; }
     public bool IsSuspended { get; set; }
-    public double EaseFactor { get; set; } = 2.5;
     public int IntervalDays { get; set; }
     /// <summary>FSRS: days for recall probability to fall to 90%. 0 until the card has an FSRS memory state.</summary>
     public double Stability { get; set; }

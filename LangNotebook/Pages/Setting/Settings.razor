@@ -110,53 +110,33 @@
                     class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
                     <span class="min-w-0">
                         <span class="block text-sm text-ink">
-                            Scheduling algorithm
+                            Desired retention
                         </span>
                         <span class="block text-xs text-mute">
-                            @(_settings.Algorithm == Models.SchedulerAlgorithm.Fsrs
-                                ? "FSRS models how well you remember each card and schedules it for the day recall drops to your target."
-                                : "SM-2 multiplies the interval by a per-card ease factor after each review.")
+                            Reviews are scheduled with FSRS for the day your chance of remembering a card falls to this
+                            level. Higher means more reviews.
                         </span>
                     </span>
-                    <select class="nt-input sm:w-56" value="@((int)_settings.Algorithm)"
-                            @onchange="OnAlgorithmChanged">
-                        <option value="0">SM-2 (classic)</option>
-                        <option value="1">FSRS</option>
-                    </select>
+                    <span class="flex items-center gap-2 sm:w-56">
+                        <input class="nt-input w-24" type="number" min="70" max="97" step="1"
+                               value="@RetentionPercent" @onchange="OnRetentionChanged"/>
+                        <span class="text-sm text-mute">%</span>
+                    </span>
                 </label>
-                @if (_settings.Algorithm == Models.SchedulerAlgorithm.Fsrs)
-                {
-                    <label
-                        class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                        <span class="min-w-0">
-                            <span class="block text-sm text-ink">
-                                Desired retention
-                            </span>
-                            <span class="block text-xs text-mute">
-                                Chance of remembering a card on the day it is due. Higher means more reviews.
-                            </span>
+                <div class="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">
+                            Recalculate from review history
                         </span>
-                        <span class="flex items-center gap-2 sm:w-56">
-                            <input class="nt-input w-24" type="number" min="70" max="97" step="1"
-                                   value="@RetentionPercent" @onchange="OnRetentionChanged"/>
-                            <span class="text-sm text-mute">%</span>
+                        <span class="block text-xs text-mute">
+                            Replays every logged review through FSRS and moves due dates to match. Use it after
+                            changing the retention or restoring older data.
                         </span>
-                    </label>
-                    <div class="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                        <span class="min-w-0">
-                            <span class="block text-sm text-ink">
-                                Recalculate from review history
-                            </span>
-                            <span class="block text-xs text-mute">
-                                Replays every logged review through FSRS and moves due dates to match. Runs automatically
-                                when you switch to FSRS.
-                            </span>
-                        </span>
-                        <button type="button" class="nt-btn" disabled="@_rebuilding" @onclick="RebuildFsrsAsync">
-                            @(_rebuilding ? "Recalculating…" : "Recalculate")
-                        </button>
-                    </div>
-                }
+                    </span>
+                    <button type="button" class="nt-btn" disabled="@_rebuilding" @onclick="RebuildFsrsAsync">
+                        @(_rebuilding ? "Recalculating…" : "Recalculate")
+                    </button>
+                </div>
                 <label class="flex flex-col gap-1.5 border-b border-line py-3 sm:flex-row sm:items-center 
                     sm:justify-between sm:gap-8">
                     <span class="min-w-0">

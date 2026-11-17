@@ -17,6 +17,7 @@ public static class FsrsScheduler
 
     // Chosen so that Retrievability(S, S) = 0.9, which makes Stability mean "days to 90%".
     public const double Factor = 19.0 / 81.0;
+    public const int MaxIntervalDays = 3650;
     public const double MinStability = 0.01;
     public const double MaxStability = 36500;
     public const double MinRetention = 0.7;
@@ -42,7 +43,7 @@ public static class FsrsScheduler
     {
         retention = Math.Clamp(retention, MinRetention, MaxRetention);
         var days = stability / Factor * (Math.Pow(retention, 1 / Decay) - 1);
-        return (int)Math.Clamp(Math.Round(days), 1, SrsScheduler.MaxIntervalDays);
+        return (int)Math.Clamp(Math.Round(days), 1, MaxIntervalDays);
     }
 
     public static FsrsResult Next(bool isNew, double stability, double difficulty, double elapsedDays,

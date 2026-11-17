@@ -7,7 +7,6 @@ namespace LangNotebook.Pages.Setting;
 public partial class Settings : ComponentBase
 {
     private Models.AppSettings _settings = new();
-    private Models.SchedulerAlgorithm _savedAlgorithm;
     private bool _rebuilding;
     private bool _replaceOnImport = true;
     private string _importMessage = string.Empty;
@@ -34,7 +33,6 @@ public partial class Settings : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _settings = await SettingsSvc.GetAsync();
-        _savedAlgorithm = _settings.Algorithm;
         _aiSettings = await AiSettings.LoadAsync();
         ShowAiProvider(Service.AiProviders.Find(_aiSettings.ProviderId).Id);
     }
@@ -110,12 +108,6 @@ public partial class Settings : ComponentBase
             _settings.DefaultDirection = (Models.ReviewDirection)value;
     }
 
-    private void OnAlgorithmChanged(ChangeEventArgs args)
-    {
-        if (int.TryParse(args.Value?.ToString(), out var value))
-            _settings.Algorithm = (Models.SchedulerAlgorithm)value;
-    }
-
     private int RetentionPercent => (int)Math.Round(_settings.DesiredRetention * 100);
 
     private void OnRetentionChanged(ChangeEventArgs args)
@@ -131,7 +123,6 @@ public partial class Settings : ComponentBase
         {
             // The recalculation reads the saved retention, so save the form first.
             await SettingsSvc.SaveAsync(_settings);
-            _savedAlgorithm = _settings.Algorithm;
             var count = await Reviews.RebuildFsrsAsync();
             State.ShowSuccess($"Recalculated {count} cards from your review history.");
             State.NotifyChanged();
@@ -147,14 +138,7 @@ public partial class Settings : ComponentBase
     private async Task SaveSettingsAsync()
     {
         await SettingsSvc.SaveAsync(_settings);
-        if (_settings.Algorithm == Models.SchedulerAlgorithm.Fsrs && _savedAlgorithm != Models.SchedulerAlgorithm.Fsrs)
-        {
-            var count = await Reviews.RebuildFsrsAsync();
-            State.ShowSuccess($"Settings saved. {count} cards were recalculated with FSRS.");
-        }
-        else
-            State.ShowSuccess("Settings saved.");
-        _savedAlgorithm = _settings.Algorithm;
+        State.ShowSuccess("Settings saved.");
         State.NotifyChanged();
     }
 

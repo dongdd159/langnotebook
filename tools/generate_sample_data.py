@@ -198,6 +198,16 @@ def words(text: str) -> int:
     return len(text.split())
 
 
+def memory_stability(interval: int, reps: int) -> float:
+    """FSRS stability: days until recall drops to 90%. New cards have none yet."""
+    return 0.0 if reps == 0 else max(float(interval), 0.4)
+
+
+def memory_difficulty(reps: int, rng: random.Random) -> float:
+    """FSRS difficulty from 1 (easy) to 10 (hard)."""
+    return 0.0 if reps == 0 else round(rng.uniform(3.5, 7.5), 2)
+
+
 def build(now: datetime, rng: random.Random) -> dict:
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -209,11 +219,10 @@ def build(now: datetime, rng: random.Random) -> dict:
             stage = stage_plan[(i + nb_id) % len(stage_plan)]
             created = now - timedelta(days=rng.randint(10, 80), hours=rng.randint(0, 23))
             if stage == "new":
-                reps, interval, ease, lapses, last, due = 0, 0, 2.5, 0, None, created
+                reps, interval, lapses, last, due = 0, 0, 0, None, created
             else:
                 reps = {"learning": rng.randint(1, 2), "young": rng.randint(3, 5), "mature": rng.randint(6, 10)}[stage]
                 interval = {"learning": 0, "young": rng.randint(2, 18), "mature": rng.randint(22, 60)}[stage]
-                ease = round(rng.uniform(2.1, 2.8), 2)
                 lapses = rng.choice([0, 0, 0, 1, 2]) if stage != "mature" else rng.choice([0, 0, 1])
                 last = now - timedelta(days=rng.randint(0, max(1, interval)), hours=rng.randint(1, 10))
                 # Roughly a third of reviewed cards are due now so the review queue is not empty.
@@ -223,7 +232,8 @@ def build(now: datetime, rng: random.Random) -> dict:
                 Example=ex, ExampleMeaning=exm, Collocations=coll, Synonyms=syn, Level=level, Tags=tags,
                 Note="Pairs with “remarkably”." if term == "resilient" else "",
                 IsFavorite=(i % 6 == 1), IsSuspended=(nb_id == 2 and term == "on behalf of"),
-                EaseFactor=ease, IntervalDays=interval, Repetitions=reps, Lapses=lapses,
+                Stability=memory_stability(interval, reps), Difficulty=memory_difficulty(reps, rng),
+                IntervalDays=interval, Repetitions=reps, Lapses=lapses,
                 LastReviewedUtc=iso(last) if last else None, DueUtc=iso(due),
                 CreatedUtc=iso(created), UpdatedUtc=iso(last or created)))
             next_id += 1
@@ -241,7 +251,8 @@ def build(now: datetime, rng: random.Random) -> dict:
             grammar.append(dict(
                 Id=next_id, NotebookId=nb_id, Pattern=pattern, Meaning=meaning, Explanation=expl, Examples=examples,
                 CommonMistakes=mistakes, Topic=topic, Level=level, Tags=tags, Note="", IsFavorite=False,
-                IsSuspended=False, EaseFactor=2.5 if not reviewed else round(rng.uniform(2.2, 2.7), 2),
+                IsSuspended=False, Stability=memory_stability(interval, 1 if reviewed else 0),
+                Difficulty=memory_difficulty(1 if reviewed else 0, rng),
                 IntervalDays=interval, Repetitions=rng.randint(2, 7) if reviewed else 0, Lapses=0,
                 LastReviewedUtc=iso(last) if last else None, DueUtc=iso(due),
                 CreatedUtc=iso(created), UpdatedUtc=iso(last or created)))
@@ -330,7 +341,7 @@ def build(now: datetime, rng: random.Random) -> dict:
             logs.append(dict(
                 Id=log_id, NotebookId=nb_id, ItemKind=kind, ItemId=item_id, Grade=grade, ReviewedUtc=iso(reviewed),
                 IntervalAfterDays={AGAIN: 0, HARD: 1, GOOD: rng.randint(2, 10), EASY: rng.randint(5, 20)}[grade],
-                EaseAfter=round(rng.uniform(2.0, 2.8), 2), DurationMs=rng.randint(2500, 12000)))
+                DurationMs=rng.randint(2500, 12000)))
             log_id += 1
 
     return dict(
