@@ -31,13 +31,30 @@ public class DatabaseInitializer(IDbContextFactory<ApplicationContext> factory, 
     // EnsureCreated leaves existing tables alone, so databases from earlier versions need new columns added here.
     private static async Task<bool> AddMissingColumnsAsync(ApplicationContext db)
     {
+        var changed = false;
+        changed |= await AddColumnAsync(db, "WritingPieces", nameof(Models.WritingPiece.AiReviewJson),
+            "TEXT NOT NULL DEFAULT ''");
+        foreach (var table in new[] { "VocabEntries", "GrammarPatterns" })
+        {
+            changed |= await AddColumnAsync(db, table, nameof(Models.StudyItemBase.Stability), "REAL NOT NULL DEFAULT 0");
+            changed |= await AddColumnAsync(db, table, nameof(Models.StudyItemBase.Difficulty), "REAL NOT NULL DEFAULT 0");
+        }
+        changed |= await AddColumnAsync(db, "Settings", nameof(Models.AppSettings.Algorithm),
+            "INTEGER NOT NULL DEFAULT 0");
+        changed |= await AddColumnAsync(db, "Settings", nameof(Models.AppSettings.DesiredRetention),
+            "REAL NOT NULL DEFAULT 0.9");
+        return changed;
+    }
+
+    // Table, column and definition are constants from AddMissingColumnsAsync, never user input.
+    private static async Task<bool> AddColumnAsync(ApplicationContext db, string table, string column, string definition)
+    {
         var existing = await db.Database
-            .SqlQueryRaw<string>("SELECT name AS Value FROM pragma_table_info('WritingPieces')")
+            .SqlQueryRaw<string>($"SELECT name AS Value FROM pragma_table_info('{table}')")
             .ToListAsync();
-        if (existing.Contains(nameof(Models.WritingPiece.AiReviewJson)))
+        if (existing.Contains(column))
             return false;
-        await db.Database.ExecuteSqlRawAsync(
-            "ALTER TABLE WritingPieces ADD COLUMN AiReviewJson TEXT NOT NULL DEFAULT '';");
+        await db.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} ADD COLUMN {column} {definition};");
         return true;
     }
 

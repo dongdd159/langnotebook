@@ -114,7 +114,8 @@ public class ReviewService(
             if (tracked is null)
                 return new SrsOutcome(card.Item.EaseFactor, card.Item.IntervalDays, card.Item.Repetitions,
                     card.Item.Lapses, card.Item.DueUtc);
-            outcome = SrsScheduler.Apply(tracked, grade, now);
+            var options = SchedulerOptions.From(await db.Settings.AsNoTracking().FirstOrDefaultAsync());
+            outcome = ReviewScheduler.Apply(tracked, grade, now, options);
             db.ReviewLogs.Add(new ReviewLog
             {
                 NotebookId = tracked.NotebookId, ItemKind = card.Kind, ItemId = tracked.Id, Grade = grade,
@@ -127,6 +128,8 @@ public class ReviewService(
             card.Item.Repetitions = outcome.Repetitions;
             card.Item.Lapses = outcome.Lapses;
             card.Item.DueUtc = outcome.DueUtc;
+            card.Item.Stability = outcome.Stability;
+            card.Item.Difficulty = outcome.Difficulty;
             card.Item.LastReviewedUtc = now;
         }
         await _storage.PersistAsync();
@@ -144,6 +147,8 @@ public class ReviewService(
                 return;
             tracked.EaseFactor = 2.5;
             tracked.IntervalDays = 0;
+            tracked.Stability = 0;
+            tracked.Difficulty = 0;
             tracked.Repetitions = 0;
             tracked.Lapses = 0;
             tracked.LastReviewedUtc = null;
@@ -152,6 +157,62 @@ public class ReviewService(
             await db.SaveChangesAsync();
         }
         await _storage.PersistAsync();
+    }
+
+    public async Task<SchedulerOptions> GetOptionsAsync()
+    {
+        await using var db = await CreateAsync();
+        return SchedulerOptions.From(await db.Settings.AsNoTracking().FirstOrDefaultAsync());
+    }
+
+    /// <summary>
+    /// Replays each card's review log through FSRS to give it a memory state and a new due date.
+    /// Cards that were reset to "new" or have no log keep what they have; the latter get an estimate when first reviewed.
+    /// </summary>
+    public async Task<int> RebuildFsrsAsync()
+    {
+        var rebuilt = 0;
+        await using (var db = await CreateAsync())
+        {
+            var retention = SchedulerOptions.From(await db.Settings.AsNoTracking().FirstOrDefaultAsync())
+                .DesiredRetention;
+            var logs = (await db.ReviewLogs.AsNoTracking().OrderBy(x => x.ReviewedUtc).ToListAsync())
+                .GroupBy(x => (x.ItemKind, x.ItemId))
+                .ToDictionary(g => g.Key, g => g.ToList());
+            var items = new List<StudyItemBase>();
+            items.AddRange(await db.VocabEntries.ToListAsync());
+            items.AddRange(await db.GrammarPatterns.ToListAsync());
+            foreach (var item in items)
+            {
+                var kind = item is VocabEntry ? StudyItemKind.Vocabulary : StudyItemKind.Grammar;
+                if (item.Repetitions == 0 || !logs.TryGetValue((kind, item.Id), out var history))
+                    continue;
+                var isNew = true;
+                double stability = 0, difficulty = 0;
+                DateTime? last = null;
+                var interval = 0;
+                foreach (var log in history)
+                {
+                    var elapsed = last is null ? 0 : Math.Max(0, (log.ReviewedUtc - last.Value).TotalDays);
+                    var step = FsrsScheduler.Next(isNew, stability, difficulty, elapsed, log.Grade, retention);
+                    stability = step.Stability;
+                    difficulty = step.Difficulty;
+                    interval = step.IntervalDays;
+                    isNew = false;
+                    last = log.ReviewedUtc;
+                }
+                item.Stability = stability;
+                item.Difficulty = difficulty;
+                item.IntervalDays = interval;
+                item.LastReviewedUtc = last;
+                item.DueUtc = ReviewScheduler.DueFor(last!.Value, interval);
+                item.UpdatedUtc = DateTime.UtcNow;
+                rebuilt++;
+            }
+            await db.SaveChangesAsync();
+        }
+        await _storage.PersistAsync();
+        return rebuilt;
     }
 
     private static ReviewCard ToCard(VocabEntry entry) => new()

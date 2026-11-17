@@ -9,8 +9,8 @@
 
 <PageTitle>Review · Language Notebook</PageTitle>
 
-<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 outline-none sm:px-8 sm:pt-10 lg:px-16" tabindex="0"
-     @ref="_root" @onkeydown="OnKeyDown">
+<div class="mx-auto w-full max-w-[1100px] px-4 pb-24 pt-6 outline-none sm:px-8 sm:pt-10 lg:px-16"
+     tabindex="0" @ref="_root" @onkeydown="OnKeyDown">
     @if (_phase == Phase.Setup)
     {
         <header class="min-w-0">
@@ -26,12 +26,10 @@
                 <div>
                     <div id="rv-scope" class="font-semibold text-ink">Scope</div>
                     <div class="text-[13px] text-mute">Card group to include in this session</div>
-                    <div class="mt-2 inline-flex flex-wrap gap-0.5 rounded-lg bg-hov p-1" role="radiogroup"
-                         aria-labelledby="rv-scope">
+                    <div class="mt-2 inline-flex flex-wrap gap-0.5 rounded-lg bg-hov p-1" role="radiogroup" aria-labelledby="rv-scope">
                         @foreach (var scope in Scopes)
                         {
-                            <label
-                                class="flex h-9 cursor-pointer select-none items-center rounded-md px-3.5 text-sm font-medium text-mute transition-colors hover:text-ink has-checked:bg-nt-bg has-checked:text-ink has-checked:shadow-card has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
+                            <label class="flex h-9 cursor-pointer select-none items-center rounded-md px-3.5 text-sm font-medium text-mute transition-colors hover:text-ink has-checked:bg-nt-bg has-checked:text-ink has-checked:shadow-card has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
                                 <input type="radio" class="sr-only" name="review-scope" value="@((int)scope)"
                                        checked="@(_scope == scope)" @onchange="OnScopeChanged"/>
                                 @Labels.Scope(scope)
@@ -58,33 +56,24 @@
                     <div class="mt-2 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                         @foreach (var option in DirectionOptions)
                         {
-                            <label
-                                class="flex min-h-12 cursor-pointer select-none items-center gap-2.5 rounded-lg bg-nt-bg px-3.5 text-sm text-ink [box-shadow:inset_0_0_0_1px_var(--nt-press)] has-checked:bg-nt-accent-soft has-checked:[box-shadow:inset_0_0_0_1.5px_var(--nt-accent)] has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
-                                <input type="radio" class="peer sr-only" name="review-direction"
-                                       value="@((int)option.Value)"
+                            <label class="flex min-h-12 cursor-pointer select-none items-center gap-2.5 rounded-lg bg-nt-bg px-3.5 text-sm text-ink [box-shadow:inset_0_0_0_1px_var(--nt-press)] has-checked:bg-nt-accent-soft has-checked:[box-shadow:inset_0_0_0_1.5px_var(--nt-accent)] has-focus-visible:outline-2 has-focus-visible:outline-nt-accent">
+                                <input type="radio" class="peer sr-only" name="review-direction" value="@((int)option.Value)"
                                        checked="@(_direction == option.Value)" @onchange="OnDirectionChanged"/>
-                                <span
-                                    class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full [box-shadow:inset_0_0_0_1.5px_var(--nt-faint)] peer-checked:[box-shadow:inset_0_0_0_5px_var(--nt-accent)]"
-                                    aria-hidden="true"></span>
+                                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full [box-shadow:inset_0_0_0_1.5px_var(--nt-faint)] peer-checked:[box-shadow:inset_0_0_0_5px_var(--nt-accent)]" aria-hidden="true"></span>
                                 @option.Label
                             </label>
                         }
                     </div>
                 </fieldset>
 
-                <label
-                    class="flex cursor-pointer items-center justify-between gap-6 rounded-lg bg-paper px-4 py-3 [box-shadow:inset_0_0_0_1px_var(--nt-line)]">
+                <label class="flex cursor-pointer items-center justify-between gap-6 rounded-lg bg-paper px-4 py-3 [box-shadow:inset_0_0_0_1px_var(--nt-line)]">
                     <span class="min-w-0">
                         <span class="block font-semibold text-ink">Learn new cards in this session</span>
                         <span class="block text-[13px] text-mute">Turn off if you only want to review due cards</span>
                     </span>
-                    <span
-                        class="relative inline-flex h-6 w-11 shrink-0 rounded-full bg-nt-press transition-colors has-checked:bg-nt-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-nt-accent">
-                        <input type="checkbox" role="switch" class="peer sr-only" checked="@_includeNew"
-                               @onchange="OnIncludeNewChanged"/>
-                        <span
-                            class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"
-                            aria-hidden="true"></span>
+                    <span class="relative inline-flex h-6 w-11 shrink-0 rounded-full bg-nt-press transition-colors has-checked:bg-nt-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-nt-accent">
+                        <input type="checkbox" role="switch" class="peer sr-only" checked="@_includeNew" @onchange="OnIncludeNewChanged"/>
+                        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" aria-hidden="true"></span>
                     </span>
                 </label>
             </div>
@@ -92,8 +81,7 @@
                 <p class="m-0 text-[13px] text-mute">
                     Shortcuts:
                     <kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">Space</kbd> flip ·
-                    <kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">1</kbd>–<kbd
-                        class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">4</kbd>
+                    <kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">1</kbd>–<kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">4</kbd>
                     Again, Hard, Good, Easy
                 </p>
                 <button type="button" class="nt-btn nt-btn-primary h-11! px-6! text-[15px]!" @onclick="StartAsync">
@@ -105,117 +93,113 @@
     else if (_phase == Phase.Session && _current is not null)
     {
         <div class="mx-auto mt-3 flex max-w-5xl flex-wrap items-start gap-6">
-            <div class="min-w-0 flex-[999_1_520px]">
-                <div class="flex items-center gap-3">
-                    <div class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-hov" role="progressbar"
-                         aria-valuemin="0" aria-valuemax="100" aria-valuenow="@SessionPercent"
-                         aria-label="Review progress">
-                        <div class="h-full rounded-full bg-nt-accent transition-[width]"
-                             style="width: @(SessionPercent)%">
-                        </div>
+        <div class="min-w-0 flex-[999_1_520px]">
+            <div class="flex items-center gap-3">
+                <div class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-hov" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="@SessionPercent" aria-label="Review progress">
+                    <div class="h-full rounded-full bg-nt-accent transition-[width]" style="width: @(SessionPercent)%">
                     </div>
-                    <span class="shrink-0 text-xs tabular-nums text-mute">
+                </div>
+                <span class="shrink-0 text-xs tabular-nums text-mute">
                     @(_stats.Done + 1) / @_stats.Total
                 </span>
-                    <button type="button" class="nt-btn shrink-0" @onclick="FinishSession">
-                        End
-                    </button>
-                </div>
-                <p class="m-0 mt-2 truncate text-xs text-faint">
-                    @_current.NotebookName
-                </p>
-                <section class="nt-card mt-4 overflow-hidden" aria-live="polite">
-                    <div class="flex items-center gap-2 border-b border-index px-5 py-3 text-xs text-mute">
+                <button type="button" class="nt-btn shrink-0" @onclick="FinishSession">
+                    End
+                </button>
+            </div>
+            <p class="m-0 mt-2 truncate text-xs text-faint">
+                @_current.NotebookName
+            </p>
+            <section class="nt-card mt-4 overflow-hidden" aria-live="polite">
+                <div class="flex items-center gap-2 border-b border-index px-5 py-3 text-xs text-mute">
                     <span class="nt-tag nt-tag-0">
                         @Labels.Kind(_current.Kind)
                     </span>
-                        @if (_current.IsNew)
-                        {
-                            <span class="nt-tag nt-tag-4">
+                    @if (_current.IsNew)
+                    {
+                        <span class="nt-tag nt-tag-4">
                             New card
                         </span>
-                        }
+                    }
+                </div>
+                <div
+                    class="flex min-h-[200px] flex-col items-center justify-center gap-2 px-4 py-8 text-center sm:min-h-[240px] sm:px-10">
+                    <div class="break-words text-[32px] font-semibold leading-tight tracking-tight text-ink sm:text-[48px]">
+                        @FrontText
                     </div>
-                    <div
-                        class="flex min-h-[200px] flex-col items-center justify-center gap-2 px-4 py-8 text-center sm:min-h-[240px] sm:px-10">
-                        <div
-                            class="break-words text-[32px] font-semibold leading-tight tracking-tight text-ink sm:text-[48px]">
-                            @FrontText
-                        </div>
-                        @if (!_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
-                        {
-                            <div class="text-base text-mute sm:text-lg">
-                                @_current.Reading
-                            </div>
-                        }
-                    </div>
-                    @if (!_revealed)
+                    @if (!_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
                     {
-                        <div class="flex flex-col items-center gap-2 border-t border-line px-4 py-4">
-                            <button type="button" class="nt-btn nt-btn-primary h-10! px-5! text-sm! md:h-9!"
-                                    @onclick="Reveal">
-                                Show Answer
-                            </button>
-                            <span class="hidden text-xs text-faint md:block">
+                        <div class="text-base text-mute sm:text-lg">
+                            @_current.Reading
+                        </div>
+                    }
+                </div>
+                @if (!_revealed)
+                {
+                    <div class="flex flex-col items-center gap-2 border-t border-line px-4 py-4">
+                        <button type="button" class="nt-btn nt-btn-primary h-10! px-5! text-sm! md:h-9!"
+                                @onclick="Reveal">
+                            Show Answer
+                        </button>
+                        <span class="hidden text-xs text-faint md:block">
                             or press 
                             <kbd class="rounded-nt bg-hov px-1.5 py-0.5 font-mono">
                                 Space
                             </kbd>
                         </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col items-center gap-2 border-t border-line px-4 py-6 text-center sm:px-10">
+                        <div class="break-words text-xl font-semibold leading-snug text-ink sm:text-2xl">
+                            @BackText
                         </div>
-                    }
-                    else
-                    {
-                        <div
-                            class="flex flex-col items-center gap-2 border-t border-line px-4 py-6 text-center sm:px-10">
-                            <div class="break-words text-xl font-semibold leading-snug text-ink sm:text-2xl">
-                                @BackText
+                        @if (_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
+                        {
+                            <div class="text-base text-mute">
+                                @_current.Reading
                             </div>
-                            @if (_askReversed && !string.IsNullOrWhiteSpace(_current.Reading))
-                            {
-                                <div class="text-base text-mute">
-                                    @_current.Reading
-                                </div>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(_current.Extra))
-                            {
-                                <p class="m-0 max-w-xl text-sm text-mute">
-                                    @_current.Extra
-                                </p>
-                            }
-                            @if (!string.IsNullOrWhiteSpace(_current.Example))
-                            {
-                                <div
-                                    class="mt-2 w-full max-w-xl border-l-2 border-line pl-3 text-left font-serif text-[15px] text-ink">
-                                    @foreach (var line in _current.Example.Split('\n', StringSplitOptions.RemoveEmptyEntries))
-                                    {
-                                        <div class="break-words">
-                                            @line
-                                        </div>
-                                    }
-                                    @if (!string.IsNullOrWhiteSpace(_current.ExampleMeaning))
-                                    {
-                                        <div class="mt-0.5 break-words text-mute">
-                                            @_current.ExampleMeaning
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 border-t border-line p-3 sm:grid-cols-4">
-                            @foreach (var grade in Grades)
-                            {
-                                var gradeIndex = Array.IndexOf(Grades, grade);
-                                var gradeTone = gradeIndex switch
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_current.Extra))
+                        {
+                            <p class="m-0 max-w-xl text-sm text-mute">
+                                @_current.Extra
+                            </p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_current.Example))
+                        {
+                            <div
+                                class="mt-2 w-full max-w-xl border-l-2 border-line pl-3 text-left font-serif text-[15px] text-ink">
+                                @foreach (var line in _current.Example.Split('\n', StringSplitOptions.RemoveEmptyEntries))
                                 {
-                                    0 => "bg-[var(--tag-8-bg)] text-[color:var(--tag-8-fg)]",
-                                    1 => "bg-[var(--tag-2-bg)] text-[color:var(--tag-2-fg)]",
-                                    2 => "bg-[var(--tag-5-bg)] text-[color:var(--tag-5-fg)]",
-                                    _ => "bg-[var(--tag-4-bg)] text-[color:var(--tag-4-fg)]"
-                                };
-                                <button type="button"
-                                        class="@($"nt-btn h-auto! flex-col gap-0.5 py-2.5 shadow-none! hover:brightness-95 {gradeTone}")"
-                                        @onclick="@(() => GradeAsync(grade))">
+                                    <div class="break-words">
+                                        @line
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(_current.ExampleMeaning))
+                                {
+                                    <div class="mt-0.5 break-words text-mute">
+                                        @_current.ExampleMeaning
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 border-t border-line p-3 sm:grid-cols-4">
+                        @foreach (var grade in Grades)
+                        {
+                            var gradeIndex = Array.IndexOf(Grades, grade);
+                            var gradeTone = gradeIndex switch
+                            {
+                                0 => "bg-[var(--tag-8-bg)] text-[color:var(--tag-8-fg)]",
+                                1 => "bg-[var(--tag-2-bg)] text-[color:var(--tag-2-fg)]",
+                                2 => "bg-[var(--tag-5-bg)] text-[color:var(--tag-5-fg)]",
+                                _ => "bg-[var(--tag-4-bg)] text-[color:var(--tag-4-fg)]"
+                            };
+                            <button type="button"
+                                    class="@($"nt-btn h-auto! flex-col gap-0.5 py-2.5 shadow-none! hover:brightness-95 {gradeTone}")"
+                                    @onclick="@(() => GradeAsync(grade))">
                                 <span class="flex items-center gap-1.5">
                                     <kbd class="rounded-nt bg-black/10 px-1 font-mono text-[11px] font-normal">
                                         @(gradeIndex + 1)
@@ -224,58 +208,41 @@
                                         @SrsScheduler.GradeLabel(grade)
                                     </span>
                                 </span>
-                                    <span class="text-xs font-normal opacity-75">
-                                    @SrsScheduler.PreviewLabel(_current.Item, grade, DateTime.UtcNow)
+                                <span class="text-xs font-normal opacity-75">
+                                    @ReviewScheduler.PreviewLabel(_current.Item, grade, DateTime.UtcNow, _options)
                                 </span>
-                                </button>
-                            }
-                        </div>
-                    }
-                </section>
+                            </button>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+        <aside class="flex min-w-0 flex-[1_1_240px] flex-col gap-4" aria-label="This session">
+            <div class="nt-note">
+                <div class="border-b border-note-line px-4 py-3 font-serif text-[17px] font-semibold">This session</div>
+                <div class="grid grid-cols-2 gap-3 px-4 py-3.5">
+                    <div><div class="text-2xl font-semibold text-[color:var(--tag-8-fg)]">@_stats.Again</div><div class="text-xs text-mute">Again</div></div>
+                    <div><div class="text-2xl font-semibold text-[color:var(--tag-2-fg)]">@_stats.Hard</div><div class="text-xs text-mute">Hard</div></div>
+                    <div><div class="text-2xl font-semibold text-[color:var(--tag-5-fg)]">@_stats.Good</div><div class="text-xs text-mute">Good</div></div>
+                    <div><div class="text-2xl font-semibold text-[color:var(--tag-4-fg)]">@_stats.Easy</div><div class="text-xs text-mute">Easy</div></div>
+                </div>
+                <div class="flex items-baseline justify-between border-t border-note-line px-4 py-3">
+                    <span class="text-[13px] text-mute">Accuracy</span>
+                    <span class="text-xl font-semibold">@(_stats.Done == 0 ? "—" : $"{Math.Round(_stats.Accuracy * 100)}%")</span>
+                </div>
             </div>
-            <aside class="flex min-w-0 flex-[1_1_240px] flex-col gap-4" aria-label="This session">
-                <div class="nt-note">
-                    <div class="border-b border-note-line px-4 py-3 font-serif text-[17px] font-semibold">This session
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 px-4 py-3.5">
-                        <div>
-                            <div class="text-2xl font-semibold text-[color:var(--tag-8-fg)]">@_stats.Again</div>
-                            <div class="text-xs text-mute">Again</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-semibold text-[color:var(--tag-2-fg)]">@_stats.Hard</div>
-                            <div class="text-xs text-mute">Hard</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-semibold text-[color:var(--tag-5-fg)]">@_stats.Good</div>
-                            <div class="text-xs text-mute">Good</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-semibold text-[color:var(--tag-4-fg)]">@_stats.Easy</div>
-                            <div class="text-xs text-mute">Easy</div>
-                        </div>
-                    </div>
-                    <div class="flex items-baseline justify-between border-t border-note-line px-4 py-3">
-                        <span class="text-[13px] text-mute">Accuracy</span>
-                        <span
-                            class="text-xl font-semibold">@(_stats.Done == 0 ? "—" : $"{Math.Round(_stats.Accuracy * 100)}%")</span>
-                    </div>
-                </div>
-                <div class="nt-card flex flex-col gap-1.5 px-4 py-3.5 text-[13px] text-mute">
-                    <strong class="font-semibold text-ink">Keyboard</strong>
-                    <span><kbd
-                            class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">Space</kbd> show answer</span>
-                    <span><kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">1</kbd>–<kbd
-                            class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">4</kbd> rate the card</span>
-                </div>
-            </aside>
+            <div class="nt-card flex flex-col gap-1.5 px-4 py-3.5 text-[13px] text-mute">
+                <strong class="font-semibold text-ink">Keyboard</strong>
+                <span><kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">Space</kbd> show answer</span>
+                <span><kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">1</kbd>–<kbd class="rounded-[4px] bg-hov px-1.5 py-0.5 font-mono text-xs">4</kbd> rate the card</span>
+            </div>
+        </aside>
         </div>
     }
     else if (_phase == Phase.Empty)
     {
         <div class="nt-card mx-auto mt-10 flex max-w-xl flex-col items-center gap-2 px-6 py-12 text-center">
-            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-nt-side text-mute"
-                  aria-hidden="true">
+            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-nt-side text-mute" aria-hidden="true">
                 <Icon Name="check" Size="22"/>
             </span>
             <h2 class="m-0 text-2xl font-semibold text-ink">
