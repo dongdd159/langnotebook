@@ -225,6 +225,7 @@ public partial class Review : IDisposable
             if (!keepSession)
                 ResetToSetup();
             await LoadAsync();
+            await JS.InvokeVoidAsync("console.log", _phase.ToString());
             StateHasChanged();
         });
     }
