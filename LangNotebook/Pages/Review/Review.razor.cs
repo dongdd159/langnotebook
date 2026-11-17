@@ -31,6 +31,7 @@ public partial class Review : IDisposable
     private DateTime _sessionStartUtc = DateTime.UtcNow;
     private int _elapsedSeconds;
     private Service.SchedulerOptions _options = Service.SchedulerOptions.Default;
+    private bool _notifyingFromGrade;
     private int _dueCount;
     private int _newCount;
     private readonly Random _random = new();
@@ -156,7 +157,16 @@ public partial class Review : IDisposable
         _index++;
         ShowCard();
         await LoadAsync();
-        State.NotifyChanged();
+        // Grading tells the rest of the app to refresh its counts. This page hears it too, and must keep its session.
+        _notifyingFromGrade = true;
+        try
+        {
+            State.NotifyChanged();
+        }
+        finally
+        {
+            _notifyingFromGrade = false;
+        }
     }
 
     private void FinishSession()
@@ -205,11 +215,19 @@ public partial class Review : IDisposable
     
     private async Task OnTagChanged(ChangeEventArgs args) => _filter.Tag = args.Value?.ToString() ?? string.Empty;
 
-    private void OnStateChanged() => InvokeAsync(async () =>
+    // The app state changed from somewhere else (for example another notebook was selected): leave any session
+    // and show the setup screen. Event handlers run synchronously, so the flag is read before anything awaits.
+    private void OnStateChanged()
     {
-        await LoadAsync();
-        StateHasChanged();
-    });
+        var keepSession = _notifyingFromGrade;
+        InvokeAsync(async () =>
+        {
+            if (!keepSession)
+                ResetToSetup();
+            await LoadAsync();
+            StateHasChanged();
+        });
+    }
 
     public void Dispose() => State.Changed -= OnStateChanged;
 }
