@@ -43,12 +43,18 @@ public partial class Settings : ComponentBase
         [("light", "Light"), ("dark", "Dark"), ("system", "System")];
 
     private string _themeChoice = "system";
+    private string _languageChoice = "en";
+
+    // Names are shown in their own language whichever language is active.
+    private static readonly (string Value, string Label)[] LanguageChoices =
+        [("en", "English"), ("vi", "Tiếng Việt")];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
             return;
         _themeChoice = await JS.InvokeAsync<string>("langTheme.stored");
+        _languageChoice = await JS.InvokeAsync<string>("langI18n.get");
         StateHasChanged();
     }
 
@@ -59,6 +65,11 @@ public partial class Settings : ComponentBase
         else
             await JS.InvokeAsync<string>("langTheme.set", choice);
         _themeChoice = choice;
+    }
+
+    private async Task SetLanguageAsync(string code)
+    {
+        _languageChoice = await JS.InvokeAsync<string>("langI18n.set", code);
     }
 
     private void OnAiProviderChanged(ChangeEventArgs args) =>

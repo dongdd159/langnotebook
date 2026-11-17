@@ -26,7 +26,6 @@
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-ai">AI review</a>
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-backup">Backup &amp; data</a>
         <a class="rounded-md px-3 py-2 text-sm text-nt-danger no-underline hover:bg-hov hover:no-underline" href="settings#st-danger">Danger zone</a>
-        <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-about">About</a>
     </nav>
     <div class="min-w-0 max-w-3xl flex-[999_1_520px]">
         <section class="nt-card scroll-mt-6 p-5 sm:p-6" aria-labelledby="st-goals">
@@ -188,6 +187,21 @@
                     </button>
                 }
             </div>
+            <h3 class="m-0 mt-6 text-base font-semibold text-ink">Interface language</h3>
+            <p class="m-0 mt-0.5 text-sm text-mute">
+                Choose the language used for menus, buttons and messages. Your notes are not translated.
+            </p>
+            <div class="mt-3 inline-flex gap-0.5 rounded-lg bg-hov p-1" role="radiogroup" aria-label="Interface language">
+                @foreach (var choice in LanguageChoices)
+                {
+                    var on = _languageChoice == choice.Value;
+                    <button type="button" role="radio" translate="no" aria-checked="@(on ? "true" : "false")"
+                            class="@($"h-9 rounded-md px-4 text-sm font-medium transition-colors {(on ? "bg-nt-bg text-ink shadow-card" : "text-mute hover:text-ink")}")"
+                            @onclick="() => SetLanguageAsync(choice.Value)">
+                        @choice.Label
+                    </button>
+                }
+            </div>
         </section>
 
         <section class="nt-card mt-8 scroll-mt-6 p-5 sm:p-6" aria-labelledby="st-ai">
@@ -317,45 +331,6 @@
                     Wipe and regenerate sample data
                 </button>
             </div>
-        </section>
-        <section class="nt-card mt-8 scroll-mt-6 p-5 sm:p-6" aria-labelledby="st-about">
-            <h2 id="st-about" class="m-0 text-xl font-semibold text-ink">
-                About App
-            </h2>
-            <dl class="m-0 mt-3 border-t border-line text-sm">
-                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
-                    <dt class="w-44 shrink-0 text-mute">
-                        Platform
-                    </dt>
-                    <dd class="m-0 text-ink">
-                        Blazor WebAssembly (.NET 8) + C#
-                    </dd>
-                </div>
-                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
-                    <dt class="w-44 shrink-0 text-mute">
-                        Database
-                    </dt>
-                    <dd class="m-0 text-ink">
-                        SQLite via EF Core, stored in IndexedDB
-                    </dd>
-                </div>
-                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
-                    <dt class="w-44 shrink-0 text-mute">
-                        Review algorithm
-                    </dt>
-                    <dd class="m-0 text-ink">
-                        SM-2 (Spaced Repetition)
-                    </dd>
-                </div>
-                <div class="flex flex-col gap-0.5 border-b border-line py-2.5 sm:flex-row sm:gap-6">
-                    <dt class="w-44 shrink-0 text-mute">
-                        Network connection
-                    </dt>
-                    <dd class="m-0 text-ink">
-                        Not required – works offline, except AI review
-                    </dd>
-                </div>
-            </dl>
         </section>
     </div>
     </div>
