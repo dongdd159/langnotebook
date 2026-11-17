@@ -2,6 +2,7 @@
 using LangNotebook.Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace LangNotebook.Pages.Review;
 
@@ -66,6 +67,7 @@ public partial class Review : IDisposable
         var counts = await Reviews.CountQueueAsync(State.ActiveNotebookId);
         _dueCount = counts.Due;
         _newCount = counts.New;
+        _phase = Phase.Setup;
     }
 
     private void OnScopeChanged(ChangeEventArgs args)
@@ -206,11 +208,8 @@ public partial class Review : IDisposable
 
     private void OnStateChanged() => InvokeAsync(async () =>
     {
-        if (_phase == Phase.Setup)
-        {
-            await LoadAsync();
-            StateHasChanged();
-        }
+        await LoadAsync();
+        StateHasChanged();
     });
 
     public void Dispose() => State.Changed -= OnStateChanged;
