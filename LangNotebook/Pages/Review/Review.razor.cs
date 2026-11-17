@@ -29,6 +29,7 @@ public partial class Review : IDisposable
     private DateTime _cardShownUtc = DateTime.UtcNow;
     private DateTime _sessionStartUtc = DateTime.UtcNow;
     private int _elapsedSeconds;
+    private Service.SchedulerOptions _options = Service.SchedulerOptions.Default;
     private int _dueCount;
     private int _newCount;
     private readonly Random _random = new();
@@ -44,6 +45,7 @@ public partial class Review : IDisposable
     {
         var settings = await SettingsSvc.GetAsync();
         _direction = settings.DefaultDirection;
+        _options = Service.SchedulerOptions.From(settings);
         await LoadAsync();
     }
 
@@ -83,6 +85,7 @@ public partial class Review : IDisposable
     private async Task StartAsync()
     {
         var settings = await SettingsSvc.GetAsync();
+        _options = Service.SchedulerOptions.From(settings);
         _filter.NotebookId = State.ActiveNotebookId;
         _queue = await Reviews.BuildSessionAsync(_scope, _filter, settings, _includeNew);
         if (_queue.Count == 0)

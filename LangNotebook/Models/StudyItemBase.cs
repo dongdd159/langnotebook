@@ -13,6 +13,10 @@ public abstract class StudyItemBase
     public bool IsSuspended { get; set; }
     public double EaseFactor { get; set; } = 2.5;
     public int IntervalDays { get; set; }
+    /// <summary>FSRS: days for recall probability to fall to 90%. 0 until the card has an FSRS memory state.</summary>
+    public double Stability { get; set; }
+    /// <summary>FSRS: how hard the card is, from 1 (easy) to 10 (hard).</summary>
+    public double Difficulty { get; set; }
     public int Repetitions { get; set; }
     public int Lapses { get; set; }
     public DateTime? LastReviewedUtc { get; set; }

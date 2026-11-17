@@ -19,6 +19,11 @@ public enum LearningStage
     Young = 2,
     Mature = 3
 }
+public enum SchedulerAlgorithm
+{
+    Sm2 = 0,
+    Fsrs = 1
+}
 public enum ReviewDirection
 {
     TermToMeaning = 0,

@@ -7,6 +7,8 @@ namespace LangNotebook.Pages.Setting;
 public partial class Settings : ComponentBase
 {
     private Models.AppSettings _settings = new();
+    private Models.SchedulerAlgorithm _savedAlgorithm;
+    private bool _rebuilding;
     private bool _replaceOnImport = true;
     private string _importMessage = string.Empty;
 
@@ -32,6 +34,7 @@ public partial class Settings : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _settings = await SettingsSvc.GetAsync();
+        _savedAlgorithm = _settings.Algorithm;
         _aiSettings = await AiSettings.LoadAsync();
         ShowAiProvider(Service.AiProviders.Find(_aiSettings.ProviderId).Id);
     }
@@ -96,12 +99,51 @@ public partial class Settings : ComponentBase
             _settings.DefaultDirection = (Models.ReviewDirection)value;
     }
 
+    private void OnAlgorithmChanged(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out var value))
+            _settings.Algorithm = (Models.SchedulerAlgorithm)value;
+    }
+
+    private int RetentionPercent => (int)Math.Round(_settings.DesiredRetention * 100);
+
+    private void OnRetentionChanged(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out var percent))
+            _settings.DesiredRetention = Math.Clamp(percent, 70, 97) / 100.0;
+    }
+
+    private async Task RebuildFsrsAsync()
+    {
+        _rebuilding = true;
+        try
+        {
+            // The recalculation reads the saved retention, so save the form first.
+            await SettingsSvc.SaveAsync(_settings);
+            _savedAlgorithm = _settings.Algorithm;
+            var count = await Reviews.RebuildFsrsAsync();
+            State.ShowSuccess($"Recalculated {count} cards from your review history.");
+            State.NotifyChanged();
+        }
+        finally
+        {
+            _rebuilding = false;
+        }
+    }
+
     private void OnReplaceChanged(ChangeEventArgs args) => _replaceOnImport = args.Value is bool b && b;
 
     private async Task SaveSettingsAsync()
     {
         await SettingsSvc.SaveAsync(_settings);
-        State.ShowSuccess("Settings saved.");
+        if (_settings.Algorithm == Models.SchedulerAlgorithm.Fsrs && _savedAlgorithm != Models.SchedulerAlgorithm.Fsrs)
+        {
+            var count = await Reviews.RebuildFsrsAsync();
+            State.ShowSuccess($"Settings saved. {count} cards were recalculated with FSRS.");
+        }
+        else
+            State.ShowSuccess("Settings saved.");
+        _savedAlgorithm = _settings.Algorithm;
         State.NotifyChanged();
     }
 

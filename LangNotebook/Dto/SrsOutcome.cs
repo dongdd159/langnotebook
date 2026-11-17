@@ -5,4 +5,6 @@ public readonly record struct SrsOutcome(
     int IntervalDays,
     int Repetitions,
     int Lapses,
-    DateTime DueUtc);
+    DateTime DueUtc,
+    double Stability = 0,
+    double Difficulty = 0);
