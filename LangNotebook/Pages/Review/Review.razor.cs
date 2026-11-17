@@ -67,7 +67,6 @@ public partial class Review : IDisposable
         var counts = await Reviews.CountQueueAsync(State.ActiveNotebookId);
         _dueCount = counts.Due;
         _newCount = counts.New;
-        _phase = Phase.Setup;
     }
 
     private void OnScopeChanged(ChangeEventArgs args)
