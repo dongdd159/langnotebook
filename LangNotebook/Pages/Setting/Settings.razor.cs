@@ -69,7 +69,7 @@ public partial class Settings : ComponentBase
 
     private async Task SetLanguageAsync(string code)
     {
-        _languageChoice = await JS.InvokeAsync<string>("langI18n.set", code);
+        _languageChoice = await JS.InvokeAsync<string>("langI18n.set", [code]);
     }
 
     private void OnAiProviderChanged(ChangeEventArgs args) =>
