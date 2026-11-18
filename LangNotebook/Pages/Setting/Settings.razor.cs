@@ -45,7 +45,7 @@ public partial class Settings : ComponentBase
 
     // Names are shown in their own language whichever language is active.
     private static readonly (string Value, string Label)[] LanguageChoices =
-        [("en", "English"), ("vi", "Tiếng Việt")];
+        [("en", "English"), ("vi", "Tiếng Việt"), ("de", "Deutsch")];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
