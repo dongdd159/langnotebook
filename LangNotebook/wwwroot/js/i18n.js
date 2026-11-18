@@ -6,10 +6,11 @@
 window.langI18n = (function () {
     'use strict';
     var STORAGE_KEY = 'langUi';
-    var LANGUAGES = ['en', 'vi'];
+    var LANGUAGES = ['en', 'vi', 'de'];
     var ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt'];
     var SKIP = 'script,style,textarea,noscript,[translate="no"]';
     var MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
+    var GERMAN_MONTHS = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'];
 
     var lang = 'en';
     try {
@@ -35,7 +36,7 @@ window.langI18n = (function () {
     function loadDictionary() {
         exact = {};
         templates = [];
-        var entries = lang === 'vi' ? window.langI18nVi : null;
+        var entries = { vi: window.langI18nVi, de: window.langI18nDe }[lang];
         if (!entries) return;
         entries.forEach(function (entry) {
             var key = normalise(entry[0]);
@@ -63,11 +64,13 @@ window.langI18n = (function () {
         return null;
     }
 
-    // "Nov 17" -> "17 thg 11", "Nov 17, 2026" -> "17 thg 11, 2026"
+    // Vietnamese: "Nov 17" -> "17 thg 11", "Nov 17, 2026" -> "17 thg 11, 2026".
+    // German:     "Nov 17" -> "17. Nov.",  "Nov 17, 2026" -> "17. Nov. 2026".
     function localiseDates(text) {
-        if (lang !== 'vi') return text;
+        if (lang !== 'vi' && lang !== 'de') return text;
         return text.replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{1,2})\b(, (\d{4}))?/g,
             function (_, month, day, _y, year) {
+                if (lang === 'de') return day + '. ' + GERMAN_MONTHS[MONTHS[month] - 1] + (year ? ' ' + year : '');
                 return day + ' thg ' + MONTHS[month] + (year ? ', ' + year : '');
             });
     }
