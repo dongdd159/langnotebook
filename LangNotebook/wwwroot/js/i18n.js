@@ -40,12 +40,19 @@ window.langI18n = (function () {
         if (!entries) return;
         entries.forEach(function (entry) {
             var key = normalise(entry[0]);
-            if (/\{\d\}/.test(key)) {
-                var pattern = key.split(/(\{\d\})/).map(function (part) {
+            if (/\{\d(?::t)?\}/.test(key)) {
+                // "{0}" matches any value and passes it through. "{0:t}" also translates the value when it has
+                // an entry of its own (a date such as "Today at 21:14"); user text must never use it.
+                var translateValue = {};
+                var pattern = key.split(/(\{\d(?::t)?\})/).map(function (part) {
+                    var placeholder = /^\{(\d)(:t)?\}$/.exec(part);
+                    if (!placeholder) return escapeRegex(part);
+                    translateValue[placeholder[1]] = !!placeholder[2];
                     // A value never spans a " · " separator, so "A · {0} reviews" is split into parts instead.
-                    return /^\{\d\}$/.test(part) ? '([^\u00b7]+?)' : escapeRegex(part);
+                    return '([^\u00b7]+?)';
                 }).join('');
-                templates.push({ re: new RegExp('^' + pattern + '$'), out: entry[1], size: key.replace(/\{\d\}/g, '').length });
+                templates.push({ re: new RegExp('^' + pattern + '$'), out: entry[1], translateValue: translateValue,
+                    size: key.replace(/\{\d(?::t)?\}/g, '').length });
             } else {
                 exact[key] = entry[1];
             }
@@ -54,12 +61,23 @@ window.langI18n = (function () {
         templates.sort(function (a, b) { return b.size - a.size; });
     }
 
+    var nested = false;
+
     function lookup(core) {
         var key = normalise(core);
         if (Object.prototype.hasOwnProperty.call(exact, key)) return exact[key];
         for (var i = 0; i < templates.length; i++) {
-            var match = templates[i].re.exec(key);
-            if (match) return templates[i].out.replace(/\{(\d)\}/g, function (_, n) { return match[+n + 1]; });
+            var template = templates[i];
+            var match = template.re.exec(key);
+            if (!match) continue;
+            return template.out.replace(/\{(\d)\}/g, function (_, n) {
+                var value = match[+n + 1];
+                if (!template.translateValue[n] || nested) return value;
+                nested = true;
+                var inner = lookup(value);
+                nested = false;
+                return inner === null ? value : inner;
+            });
         }
         return null;
     }

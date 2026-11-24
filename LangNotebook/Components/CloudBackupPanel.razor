@@ -1,0 +1,169 @@
+@using LangNotebook.Helper
+@using LangNotebook.Service
+@inject CloudBackupService Cloud
+@implements IDisposable
+
+<section class="nt-card mt-8 scroll-mt-6 p-5 sm:p-6" aria-labelledby="st-cloud">
+    <h2 id="st-cloud" class="m-0 text-xl font-semibold text-ink">Cloud backup</h2>
+    <p class="m-0 mt-0.5 text-sm text-mute">
+        Keep a copy of your data in your own Dropbox or Google Drive. The app can only see its own folder, and nothing
+        passes through our servers.
+    </p>
+
+    @if (!Cloud.Status.Connected)
+    {
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            @foreach (var provider in Cloud.Providers)
+            {
+                <button type="button" class="nt-btn" disabled="@(!provider.Configured || _connectingId is not null)"
+                        @onclick="@(() => ConnectAsync(provider.Id))">
+                    <Icon Name="cloud" Size="14"/>
+                    Connect @provider.Name
+                </button>
+                @if (!provider.Configured)
+                {
+                    <span class="text-xs text-faint">Not set up</span>
+                }
+            }
+            @if (_connectingId is not null)
+            {
+                <span class="text-sm text-mute" role="status">Waiting for sign-in…</span>
+                <button type="button" class="nt-btn" @onclick="CancelConnectAsync">Cancel</button>
+            }
+        </div>
+        @if (Cloud.Providers.Any(x => !x.Configured))
+        {
+            <p class="m-0 mt-3 text-xs text-faint">
+                A service marked "Not set up" needs a client ID from whoever hosts this app. See docs/cloud-backup.md.
+            </p>
+        }
+    }
+    else
+    {
+        <div class="mt-4 border-t border-line">
+            <div class="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                <span class="min-w-0">
+                    <span class="block text-sm text-ink">Connected to @Cloud.Status.ProviderName</span>
+                    <span class="block break-words text-xs text-mute">@AccountLine</span>
+                </span>
+                <button type="button" class="nt-btn" disabled="@Cloud.IsBusy" @onclick="DisconnectAsync">Disconnect</button>
+            </div>
+
+            @if (Cloud.State == CloudSyncState.DecisionNeeded)
+            {
+                <div class="my-3 flex flex-col gap-2 rounded-nt bg-nt-accent-soft px-3 py-2.5 text-sm text-ink" role="status">
+                    <span>Backups from another device were found. Automatic backup is paused until you choose what to do.</span>
+                    <span>
+                        <button type="button" class="nt-btn nt-btn-primary" @onclick="OpenDecision">Choose what to do</button>
+                    </span>
+                </div>
+            }
+
+            <div class="flex flex-col gap-2 border-b border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                <span class="min-w-0">
+                    <span class="block text-sm text-ink">@LastBackupLine</span>
+                    <span class="block break-words text-xs text-mute">@StatusDetail</span>
+                </span>
+                <button type="button" class="nt-btn nt-btn-primary" disabled="@(Cloud.IsBusy || !Cloud.Status.Armed)"
+                        @onclick="BackupAsync">
+                    <Icon Name="sync" Size="14" Class="@(Cloud.IsBusy ? "animate-spin motion-reduce:animate-none" : string.Empty)"/>
+                    Back up now
+                </button>
+            </div>
+
+            <label class="flex items-start gap-3 border-b border-line py-3">
+                <input type="checkbox" class="mt-0.5 h-4 w-4 accent-[var(--nt-accent)]" checked="@Cloud.Status.AutoBackup"
+                       @onchange="OnAutoBackupChanged"/>
+                <span class="min-w-0">
+                    <span class="block text-sm text-ink">Back up automatically</span>
+                    <span class="block text-xs text-mute">
+                        After you stop reviewing or editing for a minute or two, a backup is sent. At most once every 10 minutes.
+                    </span>
+                </span>
+            </label>
+
+            <div class="py-3">
+                <div class="flex items-center justify-between gap-3">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">Backups</span>
+                        <span class="block text-xs text-mute">Each device keeps its last 10 backups.</span>
+                    </span>
+                    <button type="button" class="nt-btn" disabled="@Cloud.IsBusy" @onclick="RefreshAsync">Refresh</button>
+                </div>
+                @if (Cloud.Files.Count == 0)
+                {
+                    <p class="m-0 mt-3 text-sm text-mute">No backups yet.</p>
+                }
+                else
+                {
+                    <ul class="m-0 mt-3 list-none divide-y divide-line rounded-nt p-0 [box-shadow:inset_0_0_0_1px_var(--nt-rule)]">
+                        @foreach (var file in Cloud.Files)
+                        {
+                            <li class="flex items-center justify-between gap-3 px-3 py-2.5" @key="file.Id">
+                                <span class="min-w-0">
+                                    <span class="block text-sm text-ink">@Labels.RelativeDate(file.Created)</span>
+                                    <span class="block truncate text-xs text-mute">@DeviceLine(file)</span>
+                                </span>
+                                <button type="button" class="nt-btn shrink-0" disabled="@Cloud.IsBusy"
+                                        aria-label="@($"Restore the backup from {Labels.RelativeDate(file.Created)}")"
+                                        @onclick="@(() => AskRestore(file))">
+                                    Restore
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            @if (Cloud.Status.HasSnapshot)
+            {
+                <div class="flex flex-col gap-2 border-t border-line py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                    <span class="min-w-0">
+                        <span class="block text-sm text-ink">Undo last restore</span>
+                        <span class="block text-xs text-mute">Put back the data you had before the last restore.</span>
+                    </span>
+                    <button type="button" class="nt-btn" disabled="@Cloud.IsBusy" @onclick="UndoAsync">Undo restore</button>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<Modal Visible="@_decisionOpen" VisibleChanged="OnDecisionVisibleChanged" Title="@DecisionTitle">
+    @if (Latest is { } latest)
+    {
+        <p class="m-0 text-sm text-mute">@LatestLine(latest)</p>
+        <div class="mt-4 flex flex-col gap-3">
+            <button type="button" class="nt-btn h-auto! flex-col items-start! gap-0.5 py-2.5! text-left" disabled="@Cloud.IsBusy"
+                    @onclick="RestoreLatestAsync">
+                <span class="text-sm font-semibold">Restore this backup</span>
+                <span class="text-xs font-normal text-mute">
+                    Replaces the data on this device. Your current data is saved first, so you can undo this.
+                </span>
+            </button>
+            <button type="button" class="nt-btn h-auto! flex-col items-start! gap-0.5 py-2.5! text-left" disabled="@Cloud.IsBusy"
+                    @onclick="KeepLocalAsync">
+                <span class="text-sm font-semibold">Keep this device's data</span>
+                <span class="text-xs font-normal text-mute">
+                    Starts backing up the data on this device. The backups that are there stay untouched.
+                </span>
+            </button>
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button type="button" class="nt-btn" @onclick="CloseDecision">Decide later</button>
+        </div>
+    }
+</Modal>
+
+<Modal Visible="@(_restoreTarget is not null)" VisibleChanged="OnRestoreVisibleChanged" Title="Replace the data on this device?">
+    @if (_restoreTarget is { } target)
+    {
+        <p class="m-0 text-sm text-mute">@RestoreLine(target)</p>
+        <div class="mt-5 flex justify-end gap-2">
+            <button type="button" class="nt-btn" @onclick="CloseRestore">Keep my data</button>
+            <button type="button" class="nt-btn nt-btn-primary" disabled="@Cloud.IsBusy" @onclick="ConfirmRestoreAsync">
+                Replace data
+            </button>
+        </div>
+    }
+</Modal>
