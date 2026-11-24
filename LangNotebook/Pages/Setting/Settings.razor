@@ -24,6 +24,7 @@
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-goals">Learning goals</a>
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-appearance">Appearance</a>
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-ai">AI review</a>
+        <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-cloud">Cloud backup</a>
         <a class="rounded-md px-3 py-2 text-sm text-ink no-underline hover:bg-hov hover:no-underline" href="settings#st-backup">Backup &amp; data</a>
         <a class="rounded-md px-3 py-2 text-sm text-nt-danger no-underline hover:bg-hov hover:no-underline" href="settings#st-danger">Danger zone</a>
     </nav>
@@ -252,6 +253,7 @@
                         @onclick="SaveAiSettingsAsync">Save AI settings</button>
             </div>
         </section>
+        <CloudBackupPanel/>
         <section class="nt-card mt-8 scroll-mt-6 p-5 sm:p-6" aria-labelledby="st-backup">
             <h2 id="st-backup" class="m-0 text-xl font-semibold text-ink">
                 Backup &amp; Restore

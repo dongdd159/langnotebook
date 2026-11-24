@@ -3,12 +3,13 @@
     <div class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-nt-overlay p-4 sm:items-center"
          @onclick="CloseAsync">
         <div class="@($"my-auto w-full overflow-hidden rounded-xl bg-nt-bg text-nt-text shadow-pop {WidthClass}")"
-             role="dialog" aria-modal="true" aria-label="@Title" @onclick:stopPropagation="true">
+             role="dialog" aria-modal="true" aria-label="@Title" tabindex="-1" @ref="_dialog"
+             @onkeydown="OnKeyDown" @onclick:stopPropagation="true">
             <div class="flex items-center justify-between gap-3 border-b border-index px-6 py-4">
                 <h2 class="m-0 font-serif text-xl font-semibold">
                     @Title
                 </h2>
-                <button type="button" class="nt-icon-btn" @onclick="CloseAsync" title="Close">
+                <button type="button" class="nt-icon-btn" @onclick="CloseAsync" title="Close" aria-label="Close" data-dialog-close>
                     <Icon Name="close" />
                 </button>
             </div>

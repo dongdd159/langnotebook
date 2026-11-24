@@ -38,6 +38,12 @@ public partial class Icon : ComponentBase
         "database" => "<ellipse cx='12' cy='5' rx='8' ry='3'/><path d='M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5'/><path d='M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'/>",
         "type" => "<path d='M4 7V5h16v2'/><path d='M12 5v14'/><path d='M9 19h6'/>",
         "hash" => "<path d='M4 9h16'/><path d='M4 15h16'/><path d='m10 3-2 18'/><path d='m16 3-2 18'/>",
+        "cloud" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/>",
+        "cloud-check" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='m9.5 15.2 2.2 2.2 4.2-4.4'/>",
+        "cloud-up" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='M12.5 18v-5.5'/><path d='m10.2 14.6 2.3-2.3 2.3 2.3'/>",
+        "cloud-off" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='m4 4 16 16'/>",
+        "cloud-alert" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='M12.5 12.4v3'/><path d='M12.5 17.8v.01'/>",
+        "sync" => "<path d='M20 11a8 8 0 0 0-14.5-3.5L4 9'/><path d='M4 4v5h5'/><path d='M4 13a8 8 0 0 0 14.5 3.5L20 15'/><path d='M20 20v-5h-5'/>",
         "chevron" => "<path d='m9 6 6 6-6 6'/>",
         "chevrons-left" => "<path d='m11 17-5-5 5-5'/><path d='m18 17-5-5 5-5'/>",
         _ => "<circle cx='12' cy='12' r='9'/>"

@@ -6,6 +6,9 @@ public class BrowserDbStorage(IJSRuntime js)
 {
     public const string DbFilePath = "/app.db";
     private bool _restored;
+
+    /// <summary>Raised after the database has been written to browser storage. Cloud backup listens to it.</summary>
+    public event Action? Persisted;
     
     public async Task RestoreAsync()
     {
@@ -35,6 +38,7 @@ public class BrowserDbStorage(IJSRuntime js)
                 return;
             var bytes = await File.ReadAllBytesAsync(DbFilePath);
             await js.InvokeVoidAsync("langDb.save", Convert.ToBase64String(bytes));
+            Persisted?.Invoke();
         }
         catch (Exception ex)
         {
