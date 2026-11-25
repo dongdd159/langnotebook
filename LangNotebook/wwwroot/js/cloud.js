@@ -219,9 +219,13 @@ window.langCloud = (function () {
 
     // ------------------------------------------------------------------ providers
 
+    // Client IDs come from wwwroot/config (see config.js and docs/configuration.md).
     function clientIdFor(id) {
-        var config = (window.langCloudConfig || {})[id];
-        return config && config.clientId ? config.clientId : '';
+        return window.langConfig ? window.langConfig.clientId(id) : '';
+    }
+
+    function configReady() {
+        return window.langConfig ? window.langConfig.ready : Promise.resolve();
     }
 
     var dropbox = {
@@ -473,6 +477,7 @@ window.langCloud = (function () {
     async function connectCore(id) {
         var provider = PROVIDERS[id];
         if (!provider) throw new CloudError('invalid', 'Unknown cloud service.');
+        await configReady();
         var clientId = clientIdFor(id);
         if (!clientId) throw new CloudError('not-configured', provider.name + ' isn\'t set up in this version of the app.');
         if (!window.crypto || !crypto.subtle) throw new CloudError('provider', 'Sign-in needs a secure (https) page.');
@@ -671,12 +676,14 @@ window.langCloud = (function () {
 
     return {
         providers: function () {
-            return Promise.resolve(JSON.stringify({
-                ok: true, code: '', message: '', status: publicStatus(),
-                providers: Object.keys(PROVIDERS).map(function (id) {
-                    return { id: id, name: PROVIDERS[id].name, configured: !!clientIdFor(id) };
-                })
-            }));
+            return configReady().then(function () {
+                return JSON.stringify({
+                    ok: true, code: '', message: '', status: publicStatus(),
+                    providers: Object.keys(PROVIDERS).map(function (id) {
+                        return { id: id, name: PROVIDERS[id].name, configured: !!clientIdFor(id) };
+                    })
+                });
+            });
         },
 
         status: function () {

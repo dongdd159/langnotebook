@@ -15,36 +15,30 @@ public sealed record AiProvider(
     string ModelHint,
     bool KeyRequired = true);
 
-// Every endpoint here answers a browser CORS preflight; the app has no backend to relay requests through.
+// The providers (endpoints, default models, hints) and the Anthropic API headers are configuration: see
+// wwwroot/config/app.config.example.json. Every endpoint listed there must answer a browser CORS preflight, because
+// the app has no backend to relay requests through.
 public static class AiProviders
 {
     public const string AnthropicId = "anthropic";
     public const string CustomId = "custom";
-    public const string AnthropicDefaultModel = "claude-opus-5-5";
 
-    public static readonly IReadOnlyList<AiProvider> All =
-    [
-        new(AnthropicId, "Anthropic (Claude)", AiProtocol.Anthropic, "https://api.anthropic.com/v1/messages",
-            AnthropicDefaultModel, AnthropicDefaultModel),
-        new("openai", "OpenAI", AiProtocol.OpenAiCompatible, "https://api.openai.com/v1/chat/completions",
-            "", "gpt-5"),
-        new("gemini", "Google Gemini", AiProtocol.OpenAiCompatible,
-            "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "", "gemini-2.5-flash"),
-        new("openrouter", "OpenRouter", AiProtocol.OpenAiCompatible, "https://openrouter.ai/api/v1/chat/completions",
-            "", "openai/gpt-5"),
-        new("groq", "Groq", AiProtocol.OpenAiCompatible, "https://api.groq.com/openai/v1/chat/completions",
-            "", "llama-3.3-70b-versatile"),
-        new("mistral", "Mistral", AiProtocol.OpenAiCompatible, "https://api.mistral.ai/v1/chat/completions",
-            "", "mistral-large-latest"),
-        new("deepseek", "DeepSeek", AiProtocol.OpenAiCompatible, "https://api.deepseek.com/chat/completions",
-            "", "deepseek-chat"),
-        new("xai", "xAI (Grok)", AiProtocol.OpenAiCompatible, "https://api.x.ai/v1/chat/completions",
-            "", "grok-4"),
-        new("together", "Together AI", AiProtocol.OpenAiCompatible, "https://api.together.xyz/v1/chat/completions",
-            "", "meta-llama/Llama-3.3-70B-Instruct-Turbo"),
-        new(CustomId, "Custom endpoint", AiProtocol.OpenAiCompatible, "", "", "the model name your server expects",
-            KeyRequired: false)
-    ];
+    public static IReadOnlyList<AiProvider> All { get; private set; } = [];
+    public static string AnthropicApiVersion { get; private set; } = string.Empty;
+    public static string AnthropicBetaHeader { get; private set; } = string.Empty;
+    public static string AnthropicDefaultModel => Find(AnthropicId).DefaultModel;
+
+    /// <summary>Applies the configuration. Called once at start-up, before any provider is looked up.</summary>
+    public static void Configure(AiConfig config)
+    {
+        All = config.Providers.Select(x => new AiProvider(x.Id, x.Name,
+            string.Equals(x.Protocol, "anthropic", StringComparison.OrdinalIgnoreCase)
+                ? AiProtocol.Anthropic
+                : AiProtocol.OpenAiCompatible,
+            x.Endpoint, x.DefaultModel, x.ModelHint, x.KeyRequired)).ToList();
+        AnthropicApiVersion = config.Anthropic.ApiVersion;
+        AnthropicBetaHeader = config.Anthropic.BetaHeader;
+    }
 
     public static AiProvider Find(string? id) => All.FirstOrDefault(x => x.Id == id) ?? All[0];
 

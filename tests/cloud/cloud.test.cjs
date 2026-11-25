@@ -19,14 +19,32 @@ function check(name, condition, detail) {
     console.log((condition ? '  ok   ' : '  FAIL ') + name + (condition || !detail ? '' : '  -> ' + detail));
 }
 
+// What wwwroot/config/app.config.json (the git-ignored local file) looks like to the page:
+//   { json: '...' }  a JSON body        { html: true }  the index page (a host's fallback for a missing file)
+//   null             404
+const LOCAL_WITH_IDS = { json: JSON.stringify({ cloud: { dropbox: { clientId: CLIENT_IDS.dropbox }, google: { clientId: CLIENT_IDS.google } } }) };
+
 function startServer() {
     const server = http.createServer((req, res) => {
         const url = new URL(req.url, 'http://localhost');
         if (url.pathname === '/test.html') {
             res.setHeader('Content-Type', 'text/html');
             res.end('<!doctype html><html><head><base href="/"></head><body>' +
-                `<script>window.langCloudConfig = {dropbox:{clientId:'${CLIENT_IDS.dropbox}'},google:{clientId:'${CLIENT_IDS.google}'}};</script>` +
-                '<script src="js/cloud.js"></script></body></html>');
+                '<script src="js/config.js"></script><script src="js/cloud.js"></script></body></html>');
+            return;
+        }
+        if (url.pathname === '/config/app.config.json') {
+            const local = server.localConfig;
+            if (!local) {
+                res.statusCode = 404;
+                res.end('not found');
+            } else if (local.html) {
+                res.setHeader('Content-Type', 'text/html');
+                res.end('<!doctype html><html><body>index page</body></html>');
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(local.json);
+            }
             return;
         }
         const file = path.join(WWWROOT, url.pathname);
@@ -38,6 +56,7 @@ function startServer() {
         res.setHeader('Content-Type', file.endsWith('.html') ? 'text/html' : 'text/javascript');
         res.end(fs.readFileSync(file));
     });
+    server.localConfig = LOCAL_WITH_IDS;
     return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(server)));
 }
 
@@ -336,12 +355,46 @@ async function freshPage(context, server) {
             await context.close();
 
             const bare = await browser.newContext();
-            const barePage = await bare.newPage();
-            await barePage.goto(`http://127.0.0.1:${server.address().port}/test.html`);
-            await barePage.evaluate(() => { window.langCloudConfig.dropbox.clientId = ''; });
+            server.localConfig = null;
+            const barePage = await freshPage(bare, server);
             const missing = await call(barePage, 'connect', 'dropbox');
             check('a provider without a client ID is reported as not configured', !missing.ok && missing.code === 'not-configured', JSON.stringify(missing));
             await bare.close();
+            server.localConfig = LOCAL_WITH_IDS;
+        }
+
+        // ---------------------------------------------------------------- configuration files
+        console.log('configuration');
+        {
+            const scenarios = [
+                ['no local file', null, false],
+                ['a local file the host answers with the index page', { html: true }, false],
+                ['a local file that is not valid JSON', { json: '{ nope' }, false],
+                ['a local file that is not an object', { json: '[1,2]' }, false],
+                ['a local file with client IDs', LOCAL_WITH_IDS, true]
+            ];
+            for (const [label, local, configured] of scenarios) {
+                server.localConfig = local;
+                const context = await browser.newContext();
+                const page = await freshPage(context, server);
+                const providers = await call(page, 'providers');
+                const ok = providers.ok && providers.providers.length === 2 && providers.providers.every(p => p.configured === configured);
+                check(`${label}: providers are ${configured ? '' : 'not '}set up`, ok, JSON.stringify(providers.providers));
+                const config = await page.evaluate(() => window.langConfig.get());
+                check(`${label}: the example's AI section is still there`, config.ai && config.ai.providers.length === 10 && config.ai.anthropic.apiVersion, JSON.stringify(config.ai).slice(0, 120));
+                await context.close();
+            }
+
+            // a local file replaces a whole section, and leaves the others to the example
+            server.localConfig = { json: JSON.stringify({ ai: { anthropic: { apiVersion: 'x' }, providers: [{ id: 'only' }] } }) };
+            const context = await browser.newContext();
+            const page = await freshPage(context, server);
+            await page.evaluate(() => window.langConfig.ready);
+            const merged = await page.evaluate(() => window.langConfig.get());
+            check('a local section replaces the example section', merged.ai.providers.length === 1 && merged.ai.providers[0].id === 'only');
+            check('sections the local file lacks come from the example', merged.cloud && merged.cloud.dropbox && merged.cloud.dropbox.clientId === '');
+            await context.close();
+            server.localConfig = LOCAL_WITH_IDS;
         }
 
         // ---------------------------------------------------------------- cancel while waiting
