@@ -38,6 +38,8 @@ public partial class Icon : ComponentBase
         "database" => "<ellipse cx='12' cy='5' rx='8' ry='3'/><path d='M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5'/><path d='M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'/>",
         "type" => "<path d='M4 7V5h16v2'/><path d='M12 5v14'/><path d='M9 19h6'/>",
         "hash" => "<path d='M4 9h16'/><path d='M4 15h16'/><path d='m10 3-2 18'/><path d='m16 3-2 18'/>",
+        // AI: a large and a small four-point sparkle. Outline in buttons, Fill="true" beside section headings.
+        "ai" => "<path d='M10 7Q11.3 12.7 17 14Q11.3 15.3 10 21Q8.7 15.3 3 14Q8.7 12.7 10 7Z'/><path d='M18.5 2.5Q19.05 4.95 21.5 5.5Q19.05 6.05 18.5 8.5Q17.95 6.05 15.5 5.5Q17.95 4.95 18.5 2.5Z'/>",
         "cloud" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/>",
         "cloud-check" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='m9.5 15.2 2.2 2.2 4.2-4.4'/>",
         "cloud-up" => "<path d='M18 10h-1.3A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z'/><path d='M12.5 18v-5.5'/><path d='m10.2 14.6 2.3-2.3 2.3 2.3'/>",
