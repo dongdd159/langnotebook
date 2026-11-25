@@ -138,9 +138,9 @@ public sealed class WritingAiService(AiSettingsStore settingsStore)
         }
 
         message.Headers.TryAddWithoutValidation("x-api-key", target.ApiKey);
-        message.Headers.TryAddWithoutValidation("anthropic-version", "2026-10-21");
-        if (structured && target.Model == AiProviders.AnthropicDefaultModel)
-            message.Headers.TryAddWithoutValidation("anthropic-beta", "server-side-fallback-2026-07-01");
+        message.Headers.TryAddWithoutValidation("anthropic-version", AiProviders.AnthropicApiVersion);
+        if (structured && target.Model == AiProviders.AnthropicDefaultModel && AiProviders.AnthropicBetaHeader.Length > 0)
+            message.Headers.TryAddWithoutValidation("anthropic-beta", AiProviders.AnthropicBetaHeader);
         // Without this header the API rejects calls made directly from a browser.
         message.Headers.TryAddWithoutValidation("anthropic-dangerous-direct-browser-access", "true");
     }

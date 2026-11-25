@@ -8,13 +8,17 @@ Users see a cloud button in the top bar and a **Cloud backup** section in Settin
 ## Turning it on for your deployment
 
 A provider's connect button is shown as "Not set up" until you give it a **client ID**. A client ID is public (it
-names the app, it is not a secret), so it lives in a plain file: `LangNotebook/wwwroot/js/cloud.config.js`.
+names the app, it is not a secret). It goes in the deployment's config file, `LangNotebook/wwwroot/config/app.config.json`,
+which is git-ignored (see [configuration.md](configuration.md) for the file, how to generate it in CI, and why it can't
+be truly secret in a browser app):
 
-```js
-window.langCloudConfig = {
-    dropbox: { clientId: 'YOUR_DROPBOX_APP_KEY' },
-    google:  { clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com' }
-};
+```json
+{
+  "cloud": {
+    "dropbox": { "clientId": "YOUR_DROPBOX_APP_KEY" },
+    "google":  { "clientId": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" }
+  }
+}
 ```
 
 You can set up one provider or both. Every provider needs the **redirect URI** of your site:
