@@ -33,7 +33,7 @@
             </button>
             <button type="button" class="nt-btn" @onclick="AnalyzeAndSaveAsync">Grade article</button>
             <button type="button" class="nt-btn" disabled="@(!CanEvaluate)" @onclick="EvaluateWithAiAsync">
-                <Icon Name="star" Size="14"/> @(_aiBusy ? "Evaluating…" : "Review with AI")
+                <Icon Name="ai" Size="14" Class="@(_aiBusy ? "animate-pulse motion-reduce:animate-none" : string.Empty)"/> @(_aiBusy ? "Evaluating…" : "Review with AI")
             </button>
             @if (_aiBusy)
             {
@@ -282,7 +282,7 @@
     {
         <section id="ai-review" class="mt-8 scroll-mt-6 border-t border-line pt-6" aria-labelledby="ai-intro-title">
             <h2 id="ai-intro-title" class="m-0 flex items-center gap-2 text-2xl font-semibold text-ink">
-                <span class="inline-flex text-nt-accent"><Icon Name="star" Size="20"/></span>
+                <span class="inline-flex text-nt-accent"><Icon Name="ai" Size="20" Fill="true"/></span>
                 AI Review
             </h2>
             <div class="mt-4 flex flex-wrap items-center gap-5 rounded-lg border border-dashed border-nt-press bg-nt-bg p-5">
@@ -297,7 +297,7 @@
                 <div class="flex flex-col items-start gap-1">
                     <button type="button" class="nt-btn nt-btn-primary h-10! px-4!" disabled="@(!CanEvaluate)"
                             @onclick="EvaluateWithAiAsync">
-                        <Icon Name="star" Size="14"/> Evaluate article
+                        <Icon Name="ai" Size="14"/> Evaluate article
                     </button>
                     @if (string.IsNullOrWhiteSpace(_piece.Content))
                     {

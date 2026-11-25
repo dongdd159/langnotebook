@@ -11,7 +11,7 @@ namespace LangNotebook.Service;
 /// </summary>
 public sealed class AppConfig
 {
-    private const string DefaultsFile = "config/app.config.example.json";
+    private const string DefaultsFile = "config/app.config.json";
     private const string LocalFile = "config/app.config.json";
 
     public AiConfig Ai { get; set; } = new();

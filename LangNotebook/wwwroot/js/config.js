@@ -9,7 +9,7 @@
 window.langConfig = (function () {
     'use strict';
 
-    var DEFAULTS_FILE = 'config/app.config.example.json';
+    var DEFAULTS_FILE = 'config/app.config.json';
     var LOCAL_FILE = 'config/app.config.json';
     var data = {};
 
