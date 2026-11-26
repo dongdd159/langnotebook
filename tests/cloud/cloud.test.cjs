@@ -371,15 +371,19 @@ async function freshPage(context, server) {
             server.localConfig = LOCAL_WITH_IDS;
         }
 
-        // ---------------------------------------------------------------- configuration files
+        // ---------------------------------------------------------------- configuration file
         console.log('configuration');
         {
+            // wwwroot/config/app.config.json is the one configuration file and is optional: whatever is wrong with it,
+            // the page must still load and the cloud buttons must just read "not set up".
             const scenarios = [
-                ['no local file', null, false],
-                ['a local file the host answers with the index page', { html: true }, false],
-                ['a local file that is not valid JSON', { json: '{ nope' }, false],
-                ['a local file that is not an object', { json: '[1,2]' }, false],
-                ['a local file with client IDs', LOCAL_WITH_IDS, true]
+                ['no file', null, false],
+                ['a file the host answers with the index page', { html: true }, false],
+                ['a file that is not valid JSON', { json: '{ nope' }, false],
+                ['a file that is not an object', { json: '[1,2]' }, false],
+                ['a file without a cloud section', { json: JSON.stringify({ ai: { providers: [] } }) }, false],
+                ['a file with an empty client ID', { json: JSON.stringify({ cloud: { dropbox: { clientId: '  ' }, google: { clientId: '' } } }) }, false],
+                ['a file with client IDs', LOCAL_WITH_IDS, true]
             ];
             for (const [label, local, configured] of scenarios) {
                 server.localConfig = local;
@@ -388,19 +392,16 @@ async function freshPage(context, server) {
                 const providers = await call(page, 'providers');
                 const ok = providers.ok && providers.providers.length === 2 && providers.providers.every(p => p.configured === configured);
                 check(`${label}: providers are ${configured ? '' : 'not '}set up`, ok, JSON.stringify(providers.providers));
-                const config = await page.evaluate(() => window.langConfig.get());
-                check(`${label}: the example's AI section is still there`, config.ai && config.ai.providers.length === 10 && config.ai.anthropic.apiVersion, JSON.stringify(config.ai || null));
                 await context.close();
             }
 
-            // a local file replaces a whole section, and leaves the others to the example
-            server.localConfig = { json: JSON.stringify({ ai: { anthropic: { apiVersion: 'x' }, providers: [{ id: 'only' }] } }) };
+            // only one provider configured
+            server.localConfig = { json: JSON.stringify({ cloud: { dropbox: { clientId: CLIENT_IDS.dropbox } } }) };
             const context = await browser.newContext();
             const page = await freshPage(context, server);
-            await page.evaluate(() => window.langConfig.ready);
-            const merged = await page.evaluate(() => window.langConfig.get());
-            check('a local section replaces the example section', merged.ai.providers.length === 1 && merged.ai.providers[0].id === 'only');
-            check('sections the local file lacks come from the example', merged.cloud && merged.cloud.dropbox && merged.cloud.dropbox.clientId === '');
+            const providers = await call(page, 'providers');
+            const byId = Object.fromEntries(providers.providers.map(p => [p.id, p.configured]));
+            check('a provider can be set up on its own', byId.dropbox === true && byId.google === false, JSON.stringify(byId));
             await context.close();
             server.localConfig = LOCAL_WITH_IDS;
         }

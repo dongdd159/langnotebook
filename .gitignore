@@ -1,5 +1,5 @@
 bin/
 obj/
 
-# Per-deployment settings (client IDs, endpoints). Copy LangNotebook/wwwroot/config/app.config.example.json to this name.
+# Per-deployment settings (client IDs, endpoints): the one configuration file. Copy docs/app.config.example.json to this name.
 LangNotebook/wwwroot/config/app.config.json

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Writes LangNotebook/wwwroot/config/app.config.json for a deployment, e.g. from CI secrets.
 
-It copies app.config.example.json and fills in values from the environment or --set options, so the real file never
-has to be committed:
+It copies the template docs/app.config.example.json and fills in values from the environment or --set options, so the
+real file never has to be committed:
 
     LANGNOTEBOOK_DROPBOX_CLIENT_ID=abc LANGNOTEBOOK_GOOGLE_CLIENT_ID=xyz python3 tools/write_app_config.py
     python3 tools/write_app_config.py --set cloud.dropbox.clientId=abc --set ai.anthropic.apiVersion=2026-10-21
@@ -18,6 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_DIR = ROOT / "LangNotebook" / "wwwroot" / "config"
+TEMPLATE = ROOT / "docs" / "app.config.example.json"
 ENVIRONMENT = {
     "LANGNOTEBOOK_DROPBOX_CLIENT_ID": "cloud.dropbox.clientId",
     "LANGNOTEBOOK_GOOGLE_CLIENT_ID": "cloud.google.clientId",
@@ -41,7 +42,7 @@ def set_path(document: dict, dotted: str, value: str) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--example", type=Path, default=CONFIG_DIR / "app.config.example.json")
+    parser.add_argument("--example", type=Path, default=TEMPLATE)
     parser.add_argument("-o", "--output", type=Path, default=CONFIG_DIR / "app.config.json")
     parser.add_argument("--set", action="append", default=[], metavar="PATH=VALUE",
                         help="set a text value, for example cloud.dropbox.clientId=abc (repeatable)")

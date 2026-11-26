@@ -15,8 +15,8 @@ public sealed record AiProvider(
     string ModelHint,
     bool KeyRequired = true);
 
-// The providers (endpoints, default models, hints) and the Anthropic API headers are configuration: see
-// wwwroot/config/app.config.example.json. Every endpoint listed there must answer a browser CORS preflight, because
+// The providers (endpoints, default models, hints) and the Anthropic API headers are configuration: the built-in
+// defaults are in AiConfig.CreateDefaults, and wwwroot/config/app.config.json can replace them. Every endpoint listed there must answer a browser CORS preflight, because
 // the app has no backend to relay requests through.
 public static class AiProviders
 {
