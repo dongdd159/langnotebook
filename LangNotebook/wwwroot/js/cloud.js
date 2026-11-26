@@ -10,7 +10,8 @@ window.langCloud = (function () {
     var STORAGE_KEY = 'lang-notebook.cloud';
     var SNAPSHOT_KEY = 'lang-notebook.cloud.snapshot';
     var KEEP_PER_DEVICE = 10;
-    var CALLBACK_PAGE = 'oauth-callback.html';
+    // No file extension: hosts answer it with index.html, which hands the result over (js/oauth-callback.js).
+    var CALLBACK_PAGE = 'oauth-callback';
     var AUTH_TIMEOUT_MS = 5 * 60 * 1000;
     // langnotebook-20261124T091500Z-a1b2c3d4-Chrome_Windows.json.gz
     var FILE_PATTERN = /^langnotebook-(\d{8}T\d{6}Z)-([0-9a-f]{8})(?:-([A-Za-z0-9_]+))?\.json(?:\.gz)?$/;

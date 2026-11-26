@@ -25,8 +25,8 @@ You can set up one provider or both. Every provider needs the **redirect URI** o
 
 | Where the app runs | Redirect URI to register |
 |---|---|
-| Local development | `http://localhost:5096/oauth-callback.html` (and the https port from `launchSettings.json`) |
-| Production | `https://YOUR-HOST/oauth-callback.html`. If the app is hosted under a sub-path, put the path before the file name |
+| Local development | `http://localhost:5096/oauth-callback` (and the https port from `launchSettings.json`) |
+| Production | `https://YOUR-HOST/oauth-callback`. If the app is hosted under a sub-path, put the path before `oauth-callback` |
 
 The sign-in page must be served over **https** (or `localhost`), because the browser only offers Web Crypto there.
 

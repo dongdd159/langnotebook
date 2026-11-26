@@ -39,6 +39,7 @@
     <a class="dismiss">🗙</a>
 </div>
 
+<script src="js/oauth-callback.js"></script>
 <script src="js/langdb.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/config.js"></script>
@@ -52,7 +53,8 @@
     // The UI is English, so load and use the English culture for dates and numbers whatever the
     // browser language is. Setting it here (instead of changing CultureInfo in Program.cs) lets Blazor
     // download the right globalization data before the app starts.
-    Blazor.start({ applicationCulture: 'en-US' });
+    // The cloud sign-in window comes back to /oauth-callback; js/oauth-callback.js handles it, so the app stays off there.
+    if (!window.langOAuthCallback) Blazor.start({ applicationCulture: 'en-US' });
 </script>
 </body>
 

@@ -4,7 +4,7 @@
 // Needs: Playwright (`npm i -D playwright` or a global install exposed through NODE_PATH) and its Chromium.
 //
 // The app is served from a local http server so the page is a secure context (Web Crypto) and the OAuth pop-up can
-// be redirected back to oauth-callback.html. Every provider call is intercepted; nothing leaves the machine.
+// be redirected back to /oauth-callback. Every provider call is intercepted; nothing leaves the machine.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -31,6 +31,13 @@ function startServer() {
             res.setHeader('Content-Type', 'text/html');
             res.end('<!doctype html><html><head><base href="/"></head><body>' +
                 '<script src="js/config.js"></script><script src="js/cloud.js"></script></body></html>');
+            return;
+        }
+        // The sign-in window comes back here. A real host answers this extensionless address with index.html, which loads
+        // js/oauth-callback.js; the test page does the same.
+        if (url.pathname === '/oauth-callback') {
+            res.setHeader('Content-Type', 'text/html');
+            res.end('<!doctype html><html><head><base href="/"></head><body><div id="app">loading</div><script src="js/oauth-callback.js"></script></body></html>');
             return;
         }
         if (url.pathname === '/config/app.config.json') {
@@ -223,6 +230,7 @@ async function freshPage(context, server) {
             const connected = await call(page, 'connect', 'dropbox');
             check('connect succeeds', connected.ok, JSON.stringify(connected));
             check('status says connected with the account', connected.status.connected && connected.status.account === 'me@example.com' && connected.status.provider === 'dropbox');
+            check('the redirect address has no file extension', cloud.lastToken && cloud.lastToken.redirect_uri === `http://127.0.0.1:${server.address().port}/oauth-callback`, cloud.lastToken && cloud.lastToken.redirect_uri);
             check('token exchange sent a PKCE verifier and no secret', cloud.lastToken && cloud.lastToken.code_verifier && cloud.lastToken.code_verifier.length >= 43 && !cloud.lastToken.client_secret, JSON.stringify(cloud.lastToken));
             check('new device is not armed for auto-backup yet', connected.status.armed === false);
 
@@ -381,7 +389,7 @@ async function freshPage(context, server) {
                 const ok = providers.ok && providers.providers.length === 2 && providers.providers.every(p => p.configured === configured);
                 check(`${label}: providers are ${configured ? '' : 'not '}set up`, ok, JSON.stringify(providers.providers));
                 const config = await page.evaluate(() => window.langConfig.get());
-                check(`${label}: the example's AI section is still there`, config.ai && config.ai.providers.length === 10 && config.ai.anthropic.apiVersion, JSON.stringify(config.ai).slice(0, 120));
+                check(`${label}: the example's AI section is still there`, config.ai && config.ai.providers.length === 10 && config.ai.anthropic.apiVersion, JSON.stringify(config.ai || null));
                 await context.close();
             }
 
